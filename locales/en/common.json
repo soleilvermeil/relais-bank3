@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "title": "Relais Bank — Learning website",
+    "description": "Pedagogic online banking simulation."
+  },
+  "skipToContent": "Skip to main content",
+  "brand": "Relais Bank",
+  "brandSr": " — home",
+  "nav": {
+    "browse": "Operations",
+    "cart": "Payments",
+    "main": "Main",
+    "showCategories": "Show categories",
+    "hideCategories": "Hide categories"
+  },
+  "cartBadge_one": "{{count}} pending operation",
+  "cartBadge_other": "{{count}} pending operations",
+  "prevention": "This is a learning website. No payment or transfer is ever executed.",
+  "footerProjectLink": "View the project on GitHub: soleilvermeil/relais-bank",
+  "lang": {
+    "label": "Language",
+    "en": "English",
+    "fr": "Français"
+  },
+  "bankNavigation": {
+    "breadcrumb": "Bank breadcrumb",
+    "payments": "Payments",
+    "makePayment": "Make payment",
+    "makeTransfer": "Make transfer"
+  },
+  "bankPaymentsLanding": {
+    "title": "Payments and transfers",
+    "subtitle": "Choose the banking operation you want to prepare. This educational interface does not execute real transactions.",
+    "cards": {
+      "paymentTitle": "Make a payment / Effectuer un paiement",
+      "paymentDescription": "Send money to a beneficiary in Switzerland or abroad.",
+      "paymentCta": "Go to payment form",
+      "transferTitle": "Make a transfer / Effectuer un transfert",
+      "transferDescription": "Move funds between your own accounts.",
+      "transferCta": "Go to transfer form"
+    }
+  },
+  "bankPayment": {
+    "title": "Make payment",
+    "subtitle": "Complete the form to prepare a beneficiary payment. Form controls are functional for practice only.",
+    "sections": {
+      "beneficiary": "Beneficiary",
+      "paymentDetails": "Payment details",
+      "details": "Details",
+      "debtorOptional": "Optional: debtor / payable by"
+    },
+    "fields": {
+      "beneficiaryIban": "IBAN",
+      "beneficiaryName": "Name / company name",
+      "country": "Country",
+      "city": "City / town",
+      "addressLine1Optional": "Address line 1 (optional)",
+      "addressLine2Optional": "Address line 2 (optional)",
+      "postalCodeOptional": "Postal code (optional)",
+      "paymentType": "Payment type",
+      "firstExecutionDate": "First execution date",
+      "frequency": "Frequency",
+      "weekendHolidayRule": "If date falls on weekend/holiday",
+      "period": "Period",
+      "endDate": "End date",
+      "debitAccount": "Debit account",
+      "amount": "Amount",
+      "express": "Express?",
+      "executionDate": "Execution date",
+      "rfReference": "RF reference",
+      "communicationToBeneficiary": "Communication to beneficiary",
+      "accountingTextForYou": "Accounting text for you",
+      "debtorName": "Name / company name"
+    },
+    "options": {
+      "oneTime": "One-time payment",
+      "standingOrder": "Standing order",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "yearly": "Yearly",
+      "beforeHolidays": "Execute before weekends/holidays",
+      "afterHolidays": "Execute after weekends/holidays",
+      "unlimited": "Unlimited period",
+      "endDate": "Select end date",
+      "expressYes": "Yes",
+      "expressNo": "No"
+    },
+    "placeholders": {
+      "selectCountry": "Select a country",
+      "selectFrequency": "Select frequency",
+      "selectDebitAccount": "Select debit account"
+    },
+    "hints": {
+      "expressFee": "Express execution costs CHF 5 extra."
+    },
+    "actions": {
+      "review": "Review payment (demo)"
+    }
+  },
+  "bankTransfer": {
+    "title": "Make transfer",
+    "subtitle": "Prepare a transfer between your accounts. No real transfer is executed in this demo.",
+    "sections": {
+      "transferDetails": "Transfer details"
+    },
+    "fields": {
+      "debitAccount": "Debit account",
+      "creditAccount": "Credit account",
+      "amount": "Amount",
+      "execution": "Execution",
+      "executionDate": "Execution date",
+      "accountingTextForYouOptional": "Accounting text for you (optional)"
+    },
+    "options": {
+      "immediate": "Immediate execution",
+      "selectDate": "Schedule execution date"
+    },
+    "placeholders": {
+      "selectDebitAccount": "Select debit account",
+      "selectCreditAccount": "Select credit account"
+    },
+    "hints": {
+      "immediateFree": "Immediate execution incurs no additional fees."
+    },
+    "actions": {
+      "review": "Review transfer (demo)"
+    }
+  }
+}

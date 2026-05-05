@@ -1,0 +1,130 @@
+{
+  "meta": {
+    "title": "Relais Bank — Site pedagogique",
+    "description": "Simulation de banque en ligne"
+  },
+  "skipToContent": "Aller au contenu principal",
+  "brand": "Relais Bank",
+  "brandSr": " — accueil",
+  "nav": {
+    "browse": "Operations",
+    "cart": "Paiements",
+    "main": "Principal",
+    "showCategories": "Afficher les categories",
+    "hideCategories": "Masquer les categories"
+  },
+  "cartBadge_one": "{{count}} operation en attente",
+  "cartBadge_other": "{{count}} operations en attente",
+  "prevention": "Site web de demonstration pedagogique. Aucun paiement ni transfert n'est execute.",
+  "footerProjectLink": "Voir le projet sur GitHub : soleilvermeil/relais-bank",
+  "lang": {
+    "label": "Langue",
+    "en": "English",
+    "fr": "Français"
+  },
+  "bankNavigation": {
+    "breadcrumb": "Fil d'ariane banque",
+    "payments": "Paiements",
+    "makePayment": "Effectuer un paiement",
+    "makeTransfer": "Effectuer un transfert"
+  },
+  "bankPaymentsLanding": {
+    "title": "Paiements et transferts",
+    "subtitle": "Choisissez l'operation bancaire a preparer. Cette interface pedagogique n'execute aucune transaction reelle.",
+    "cards": {
+      "paymentTitle": "Make payment / Effectuer un paiement",
+      "paymentDescription": "Envoyez de l'argent a un beneficiaire en Suisse ou a l'etranger.",
+      "paymentCta": "Aller au formulaire de paiement",
+      "transferTitle": "Make transfer / Effectuer un transfert",
+      "transferDescription": "Deplacez des fonds entre vos propres comptes.",
+      "transferCta": "Aller au formulaire de transfert"
+    }
+  },
+  "bankPayment": {
+    "title": "Effectuer un paiement",
+    "subtitle": "Completez le formulaire pour preparer un paiement beneficiaire. Les champs sont interactifs uniquement pour la demonstration.",
+    "sections": {
+      "beneficiary": "Beneficiaire",
+      "paymentDetails": "Details du paiement",
+      "details": "Informations complementaires",
+      "debtorOptional": "Optionnel : debiteur / payable par"
+    },
+    "fields": {
+      "beneficiaryIban": "IBAN",
+      "beneficiaryName": "Nom / raison sociale",
+      "country": "Pays",
+      "city": "Ville / localite",
+      "addressLine1Optional": "Adresse ligne 1 (optionnel)",
+      "addressLine2Optional": "Adresse ligne 2 (optionnel)",
+      "postalCodeOptional": "Code postal (optionnel)",
+      "paymentType": "Type de paiement",
+      "firstExecutionDate": "Date de premiere execution",
+      "frequency": "Frequence",
+      "weekendHolidayRule": "Si la date tombe un week-end/jour ferie",
+      "period": "Periode",
+      "endDate": "Date de fin",
+      "debitAccount": "Compte debite",
+      "amount": "Montant",
+      "express": "Express ?",
+      "executionDate": "Date d'execution",
+      "rfReference": "Reference RF",
+      "communicationToBeneficiary": "Communication au beneficiaire",
+      "accountingTextForYou": "Texte comptable pour vous",
+      "debtorName": "Nom / raison sociale"
+    },
+    "options": {
+      "oneTime": "Paiement unique",
+      "standingOrder": "Ordre permanent",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "yearly": "Annuel",
+      "beforeHolidays": "Executer avant week-end/jours feries",
+      "afterHolidays": "Executer apres week-end/jours feries",
+      "unlimited": "Periode illimitee",
+      "endDate": "Selectionner une date de fin",
+      "expressYes": "Oui",
+      "expressNo": "Non"
+    },
+    "placeholders": {
+      "selectCountry": "Selectionner un pays",
+      "selectFrequency": "Selectionner une frequence",
+      "selectDebitAccount": "Selectionner un compte a debiter"
+    },
+    "hints": {
+      "expressFee": "L'execution express coute CHF 5 supplementaires."
+    },
+    "actions": {
+      "review": "Verifier le paiement (demo)"
+    }
+  },
+  "bankTransfer": {
+    "title": "Effectuer un transfert",
+    "subtitle": "Preparez un transfert entre vos comptes. Aucun transfert reel n'est execute dans cette demonstration.",
+    "sections": {
+      "transferDetails": "Details du transfert"
+    },
+    "fields": {
+      "debitAccount": "Compte debite",
+      "creditAccount": "Compte credite",
+      "amount": "Montant",
+      "execution": "Execution",
+      "executionDate": "Date d'execution",
+      "accountingTextForYouOptional": "Texte comptable pour vous (optionnel)"
+    },
+    "options": {
+      "immediate": "Execution immediate",
+      "selectDate": "Planifier une date d'execution"
+    },
+    "placeholders": {
+      "selectDebitAccount": "Selectionner un compte a debiter",
+      "selectCreditAccount": "Selectionner un compte a crediter"
+    },
+    "hints": {
+      "immediateFree": "L'execution immediate n'entraine aucun frais supplementaire."
+    },
+    "actions": {
+      "review": "Verifier le transfert (demo)"
+    }
+  }
+}

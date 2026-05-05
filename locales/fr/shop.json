@@ -1,0 +1,388 @@
+{
+  "category": {
+    "laptop": "Ordinateurs portables",
+    "headset": "Casques",
+    "usb-stick": "Clés USB",
+    "bicycle": "Vélos",
+    "coffee": "Café",
+    "rice": "Riz",
+    "potato": "Pommes de terre",
+    "milk": "Lait",
+    "plain-yogurt": "Yogourt nature",
+    "tomato": "Tomates"
+  },
+  "macroCategory": {
+    "electronics": "Electronique",
+    "sports-outdoors": "Sport & plein air",
+    "pantry": "Epicerie",
+    "fresh-food": "Produits frais"
+  },
+  "availability": {
+    "available": "En stock",
+    "unavailable": "Indisponible",
+    "inDays_one": "Disponible dans {{count}} jour",
+    "inDays_other": "Disponible dans {{count}} jours",
+    "inWeeks_one": "Disponible dans {{count}} semaine",
+    "inWeeks_other": "Disponible dans {{count}} semaines"
+  },
+  "home": {
+    "title": "Trouvez ce qui vous plaît",
+    "intro": "Choisissez une catégorie, ouvrez une fiche produit, puis ajoutez au panier.",
+    "showing_one": "{{count}} article affiché",
+    "showing_other": "{{count}} articles affichés",
+    "filtersActive": "(filtres actifs)"
+  },
+  "catalog": {
+    "legend": "Options de navigation",
+    "intro": "Affinez la liste par catégorie, marque ou nom ; triez par prix, note ou disponibilité.",
+    "searchLabel": "Rechercher par nom",
+    "searchAria": "Rechercher des produits par nom",
+    "searchSubmit": "Rechercher",
+    "category": "Catégorie",
+    "allCategories": "Toutes les catégories",
+    "brand": "Marque",
+    "allBrands": "Toutes les marques",
+    "minRating": "Note minimale",
+    "availability": "Disponibilite",
+    "reviewsCount": "Nombre d'avis",
+    "priceRange": "Fourchette de prix (CHF)",
+    "priceMin": "Prix min",
+    "priceMax": "Prix max",
+    "sortBy": "Trier par",
+    "clearSection": "Réinitialiser les filtres",
+    "clearAll": "Tout effacer",
+    "availabilityOption": {
+      "any": "Toute disponibilite",
+      "now": "Disponible maintenant",
+      "3d": "Disponible sous 3 jours",
+      "1w": "Disponible sous 1 semaine",
+      "1m": "Disponible sous 1 mois"
+    },
+    "minReviewsOption": {
+      "100": "100+ avis",
+      "1000": "1000+ avis",
+      "any": "Tout nombre d'avis"
+    },
+    "sort": {
+      "smart": "Recommandé",
+      "discount-desc": "Remise",
+      "featured": "À la une (ordre du catalogue)",
+      "availability-first": "Disponibilité",
+      "popularity-desc": "Popularité",
+      "price-asc": "Prix : croissant",
+      "price-desc": "Prix : décroissant",
+      "rating-desc": "Note : de la plus haute à la plus basse",
+      "rating-asc": "Note : de la plus basse à la plus haute",
+      "name": "Nom : A à Z"
+    },
+    "minRatingOption": {
+      "3": "3 étoiles et +",
+      "4": "4 étoiles et +",
+      "5": "5 étoiles seulement",
+      "any": "Toute note"
+    }
+  },
+  "productGrid": {
+    "emptyFiltered": "Aucun article ne correspond aux filtres. Assouplissez la disponibilité ou la note minimale.",
+    "emptyCategory": "Aucun produit dans cette catégorie pour l’instant."
+  },
+  "productCard": {
+    "viewAria": "{{name}} — voir le détail",
+    "viewDetails": "Voir le détail →",
+    "discountBadge": "-{{discount}}%",
+    "originalPrice": "Prix d’origine"
+  },
+  "product": {
+    "breadcrumb": "Fil d’Ariane",
+    "shop": "Boutique",
+    "characteristicsTitle": "Caractéristiques",
+    "quantity": "Quantité",
+    "addToCart": "Ajouter au panier",
+    "cookieNote": ""
+  },
+  "starRating": {
+    "aria": "Moyenne {{rating}} sur 5 étoiles, {{count}} avis",
+    "aria_one": "Moyenne {{rating}} sur 5 étoiles, {{count}} avis",
+    "suffix_one": "avis",
+    "suffix_other": "avis"
+  },
+  "cart": {
+    "title": "Votre panier",
+    "empty": "Votre panier est vide.",
+    "continueShopping": "Poursuivre les achats",
+    "orderSummaryAria": "Récapitulatif de commande",
+    "estimatedTotal": "Total estimé (articles)",
+    "totalAria": "Total {{total}}",
+    "smallOrderNote": "Livraison à domicile : les commandes inférieures à {{threshold}} (articles) ajoutent des frais de livraison de {{fee}} au paiement. Des options express sont disponibles à l’étape livraison.",
+    "goCheckout": "Passer à la commande",
+    "each": "{{price}} l’unité",
+    "qty": "Qté",
+    "update": "Mettre à jour",
+    "remove": "Retirer",
+    "lineTotal": "Sous-total ligne"
+  },
+  "checkout": {
+    "stepsNav": "Progression de la commande",
+    "breadcrumb": "Étapes de commande",
+    "checkout": "Commande",
+    "stepDelivery": "Livraison",
+    "stepPayment": "Paiement",
+    "stepSummary": "Récapitulatif",
+    "cartLink": "Panier"
+  },
+  "delivery": {
+    "title": "Livraison",
+    "subtitle": "Étape 1 sur 3 — Choisissez la livraison à domicile ou le retrait en magasin. Des frais de port s'appliquent sous certaines conditions.",
+    "howHeading": "Comment souhaitez-vous recevoir votre commande ?",
+    "optionLegend": "Mode de réception",
+    "shippingTitle": "Livraison à une adresse",
+    "pickupTitle": "Retrait en magasin",
+    "pickupDesc": "Aucun frais de port.",
+    "previewLi1": "L'envoi à domicile est facturé {{fee}} (gratuit à partir de {{threshold}} d'achats)",
+    "previewLi1_applies": "",
+    "previewLi1_not": "",
+    "cardLegendShipping": "Détails de livraison",
+    "addressHeading": "Adresse de livraison",
+    "addressHint": "Tous les montants sont en CHF. Utilisez une adresse d’exemple pour cet exercice.",
+    "street": "Rue et numéro",
+    "postalCode": "NPA",
+    "city": "Localité",
+    "expressTitle": "Express",
+    "expressShort": "Livraison express (supplément : {{fee}}) : un jour de transit au lieu de trois.",
+    "bottomSummaryTitle": "Récapitulatif livraison",
+    "bottomTotalDeliveryFees": "Total frais de livraison",
+    "bottomReadyForPickup": "Prêt au retrait estimé :",
+    "pickupHeading": "Magasin de retrait",
+    "shopLocation": "Point de retrait",
+    "selectShop": "Choisir un magasin…",
+    "savePending": "Enregistrement…",
+    "continuePayment": "Continuer vers le paiement"
+  },
+  "payment": {
+    "title": "Paiement",
+    "subtitle": "Étape 2 sur 3 — Choisissez le mode de paiement envisagé. Rien n’est débité ; les données de carte ne sont pas stockées.",
+    "heading": "Mode de paiement",
+    "intro": "Indiquez comment vous paieriez dans la réalité. Les champs ci-dessous servent uniquement à s’exercer — aucun débit et aucune conservation de numéro de carte.",
+    "legend": "Paiement",
+    "methodCard": "Carte bancaire",
+    "methodBill": "Facture (sur facture)",
+    "methodTwint": "TWINT",
+    "savePending": "Enregistrement…",
+    "chooseFirst": "Choisissez d’abord un mode de paiement",
+    "continueCard": "Aller au récapitulatif",
+    "continueBill": "Aller au récapitulatif",
+    "card": {
+      "legend": "Coordonnées de carte",
+      "intro": "Ce formulaire sert uniquement à vous entraîner. N’utilisez pas un vrai numéro de carte.",
+      "number": "Numéro de carte",
+      "name": "Nom sur la carte",
+      "expiry": "Expiration",
+      "cvc": "Code de sécurité"
+    },
+    "bill": {
+      "legend": "Informations de facturation",
+      "intro": "Après un vrai achat, la facture serait envoyée par e-mail. Ici vous ne remplissez les champs que pour vous exercer.",
+      "orgName": "Organisation ou nom complet",
+      "email": "E-mail pour la facture",
+      "reference": "Bon de commande / référence (facultatif)"
+    },
+    "billing": {
+      "street": "Rue et numéro",
+      "postalCode": "NPA",
+      "city": "Localité"
+    },
+    "twint": {
+      "title": "Payer avec TWINT",
+      "body": "Dans une vraie boutique, un QR code ouvrirait l’application TWINT pour confirmer le montant. Cette simulation ne se connecte pas à TWINT.",
+      "qrAria": "QR décoratif (placeholder)",
+      "qrCaption": "Zone QR (démo uniquement)",
+      "hint": "Quand vous êtes prêt, passez au récapitulatif comme si vous aviez payé avec TWINT.",
+      "done": "J’ai terminé sur TWINT — Aller au récapitulatif"
+    },
+    "hints": {
+      "cardNumber": "4111 1111 1111 1111 (numéro de test)",
+      "name": "Alex Martin",
+      "expiry": "09 / 28",
+      "cvc": "123 (trois chiffres au dos)",
+      "street": "Rue du Lac 12",
+      "postal": "1003",
+      "city": "Lausanne",
+      "org": "Collège Champittet",
+      "email": "facturation@ecole-demo.ch",
+      "reference": "PO-2026-0042 ou Dept. Sciences"
+    }
+  },
+  "summary": {
+    "breadcrumbCurrent": "Récapitulatif",
+    "title": "Récapitulatif de commande",
+    "subtitle": "Étape 3 sur 3 — Vérifiez tout, puis confirmez votre commande.",
+    "itemsHeading": "Articles",
+    "multiply": "×",
+    "deliveryHeading": "Livraison",
+    "shipTo": "Expédier à",
+    "pickupAt": "Retrait à",
+    "expressSelected": "Livraison express sélectionnée (+{{fee}}).",
+    "standardSelected": "Livraison standard (sans supplément express).",
+    "estimatedArrival": "Arrivée estimée :",
+    "changeDelivery": "Modifier la livraison",
+    "paymentHeading": "Paiement",
+    "cardMasked": " : •••• •••• •••• {{last4}}",
+    "paymentNote": "— libellés seulement dans cette simulation.",
+    "changePayment": "Modifier le paiement",
+    "totalsHeading": "Totaux",
+    "goodsSubtotal": "Articles (sous-total)",
+    "deliveryUnderThreshold": "Livraison (commande sous le seuil)",
+    "expressDelivery": "Livraison express",
+    "noSurcharges": "Aucun supplément de livraison pour cette commande.",
+    "pickupNoFees": "Pas de frais de port (retrait).",
+    "total": "Total",
+    "readyDemo": "Prêt à confirmer",
+    "confirmOrder": "Confirmer la commande"
+  },
+  "confirmation": {
+    "title": "Merci — commande enregistrée",
+    "subtitle": "Il s’agit d’une confirmation fictive. Aucun paiement n’a été effectué et rien ne sera livré.",
+    "placedOn": "Passée le",
+    "itemsHeading": "Articles",
+    "fulfillmentHeading": "Réception",
+    "deliveryTo": "Livraison à",
+    "estimatedArrival": "Arrivée estimée :",
+    "pickupAt": "Retrait à",
+    "paymentLine": "Paiement :",
+    "amountsHeading": "Montants",
+    "goodsSubtotal": "Articles (sous-total) :",
+    "deliverySmall": "Livraison (petite commande) :",
+    "expressLine": "Livraison express :",
+    "total": "Total",
+    "print": "Imprimer",
+    "save": "Enregistrer",
+    "startAnother": "Nouvelle commande"
+  },
+  "paymentMethod": {
+    "card": "Carte bancaire",
+    "bill": "Facture (sur facture)",
+    "twint": "TWINT"
+  },
+  "receiptFilenamePrefix": "quittance",
+  "errors": {
+    "cardNumber": "Saisissez votre numéro de carte plausible (13 à 19 chiffres). C’est une démo — utilisez un faux numéro.",
+    "cardName": "Saisissez le nom figurant sur la carte.",
+    "cardExpiry": "Saisissez l’expiration au format MM/AA (par ex. 09/28).",
+    "cardCvc": "Saisissez le code de sécurité (3 ou 4 chiffres sur la carte).",
+    "billingStreet": "Saisissez la rue et le numéro de facturation.",
+    "billingPostal": "Saisissez le NPA de facturation.",
+    "billingCity": "Saisissez la localité de facturation.",
+    "billOrg": "Saisissez une organisation ou un nom complet pour la facture.",
+    "billEmail": "Saisissez une adresse e-mail valide pour la facture.",
+    "chooseDeliveryMode": "Choisissez la livraison ou le retrait en magasin.",
+    "street": "Saisissez une rue et un numéro.",
+    "postal": "Saisissez un code postal.",
+    "city": "Saisissez une localité.",
+    "pickupShop": "Choisissez un magasin pour le retrait.",
+    "choosePayment": "Choisissez un mode de paiement."
+  },
+  "review": {
+    "sectionTitle": "Avis",
+    "linkLabel_one": "avis",
+    "linkLabel_other": "avis",
+    "emptyTitle": "Pas encore d'avis",
+    "emptyBody": "Ce produit n'a pas encore d'avis."
+  },
+  "bank": {
+    "breadcrumb": "Fil d’Ariane bancaire",
+    "nav": {
+      "payments": "Paiements",
+      "transfers": "Transferts"
+    },
+    "common": {
+      "yes": "Oui",
+      "no": "Non",
+      "demoNote": "Version de démonstration: aucune opération n’est exécutée."
+    },
+    "accounts": {
+      "private": "Compte privé - CH12 0900 0000 1111 2222 3",
+      "savings": "Compte épargne - CH54 0900 0000 3333 4444 5",
+      "business": "Compte entreprise - CH86 0900 0000 5555 6666 7"
+    },
+    "payment": {
+      "title": "Paiements",
+      "subtitle": "Préparez un paiement domestique ou international. Le formulaire est complet côté design, mais aucune donnée n’est envoyée.",
+      "actions": {
+        "validateDemo": "Valider (démo)"
+      },
+      "sections": {
+        "beneficiary": "1. Bénéficiaire",
+        "paymentDetails": "2. Détails du paiement",
+        "details": "3. Détails",
+        "debtorOptional": "4. Optionnel: Débiteur / Payable par"
+      },
+      "fields": {
+        "iban": "IBAN",
+        "beneficiaryName": "Nom / Raison sociale",
+        "country": "Pays",
+        "cityRequired": "Ville / Localité (obligatoire)",
+        "streetOptional": "Rue (facultatif)",
+        "postalCodeOptional": "NPA (facultatif)",
+        "paymentType": "Type de paiement",
+        "firstExecutionDate": "Date de première exécution",
+        "frequency": "Fréquence",
+        "holidayRule": "Exécution avant/après week-ends et jours fériés",
+        "period": "Période",
+        "periodEndDate": "Date de fin",
+        "debitAccount": "Compte à débiter",
+        "amount": "Montant (CHF)",
+        "express": "Express ?",
+        "executionDate": "Date d’exécution",
+        "rfReference": "Référence RF",
+        "communicationToBeneficiary": "Communication au bénéficiaire",
+        "accountingText": "Texte comptable pour vous",
+        "debtorName": "Nom / Raison sociale",
+        "city": "Ville / Localité",
+        "street": "Rue",
+        "postalCode": "NPA"
+      },
+      "options": {
+        "oneTime": "Ponctuel",
+        "standingOrder": "Ordre permanent",
+        "monthly": "Mensuelle",
+        "quarterly": "Trimestrielle",
+        "yearly": "Annuelle",
+        "beforeHoliday": "Avant week-end / jour férié",
+        "afterHoliday": "Après week-end / jour férié",
+        "unlimited": "Illimitée",
+        "endDate": "Jusqu’à une date de fin"
+      },
+      "placeholders": {
+        "companyOrName": "Nom de la personne ou de l’entreprise"
+      },
+      "hints": {
+        "expressFee": "Express activé: supplément de CHF 5, exécution le jour même."
+      }
+    },
+    "transfer": {
+      "title": "Transferts",
+      "subtitle": "Effectuez un transfert entre comptes en mode démonstration, sans impact réel.",
+      "actions": {
+        "validateDemo": "Valider le transfert (démo)"
+      },
+      "sections": {
+        "transfer": "Transfert"
+      },
+      "fields": {
+        "debitAccount": "Compte à débiter",
+        "creditAccount": "Compte à créditer",
+        "amount": "Montant (CHF)",
+        "execution": "Exécution",
+        "executionDate": "Date d’exécution",
+        "accountingTextOptional": "Texte comptable pour vous (facultatif)"
+      },
+      "options": {
+        "executionImmediate": "Immédiate",
+        "executionDate": "Saisir une date"
+      },
+      "hints": {
+        "immediateNoFee": "Exécution immédiate: aucun frais additionnel."
+      }
+    }
+  }
+}

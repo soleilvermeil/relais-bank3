@@ -1,0 +1,604 @@
+{
+  "products": {
+    "lap-chipnest-student-14": {
+      "name": "ChipNest Student 14",
+      "description": "Un ordinateur portable étudiant fiable pour prendre des notes, faire des recherches et suivre les cours au quotidien.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD NVMe 512 Go\nAutonomie : jusqu’à 10 heures\nChâssis : polycarbonate"
+    },
+    "lap-chipnest-basic-15": {
+      "name": "ChipNest Basic 15",
+      "description": "Un ordinateur portable d'entrée de gamme abordable pour la navigation légère, les e-mails et les tâches bureautiques simples.",
+      "characteristics": "RAM : 8 Go\nStockage : eMMC 256 Go\nAutonomie : jusqu’à 6 heures\nChâssis : plastique ABS"
+    },
+    "lap-chipnest-flex-14": {
+      "name": "ChipNest Flex 14",
+      "description": "Un ordinateur portable compact du quotidien, entre entrée et milieu de gamme : correct pour un multitâche léger si l'on accepte un peu de bruit de ventilation et un écran moins lumineux.",
+      "characteristics": "RAM : 12 Go\nStockage : SSD NVMe 512 Go\nAutonomie : jusqu’à 8 heures\nChâssis : couvercle alu, base plastique"
+    },
+    "lap-novaforge-pro-16": {
+      "name": "NovaForge ProWork 16",
+      "description": "Un ordinateur portable premium conçu pour les créateurs exigeants et les utilisateurs avancés.",
+      "characteristics": "RAM : 32 Go\nStockage : SSD NVMe 1 To\nAutonomie : jusqu’à 12 heures\nChâssis : aluminium usiné CNC"
+    },
+    "lap-novaforge-studio-air": {
+      "name": "NovaForge Studio Air 15",
+      "description": "Un ordinateur portable haut de gamme et élégant pour les professionnels mobiles qui privilégient le style et la portabilité.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD NVMe 1 To\nAutonomie : jusqu’à 7 heures\nChâssis : alliage d’aluminium"
+    },
+    "lap-novaforge-everyday-14": {
+      "name": "NovaForge Everyday 14",
+      "description": "Un ordinateur portable NovaForge épuré pensé pour la productivité au bureau, avec de bonnes performances, une fabrication premium et un format moderne et léger.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD NVMe 512 Go\nAutonomie : jusqu’à 9 heures\nChâssis : alliage de magnésium"
+    },
+    "lap-voltedge-zen-15": {
+      "name": "VoltEdge Zen 15",
+      "description": "Un 15\" équilibré, souvent recommandé comme choix sûr pour l'université et le télétravail sans payer le prix d'un modèle flagship.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD NVMe 1 To\nAutonomie : jusqu’à 11 heures\nChâssis : aluminium"
+    },
+    "lap-voltedge-work-15": {
+      "name": "VoltEdge Work 15",
+      "description": "Une configuration VoltEdge pratique, conçue pour une productivité quotidienne fiable, avec un multitâche fluide et une prise en main simple.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD SATA 512 Go\nAutonomie : jusqu’à 8 heures\nChâssis : aluminium"
+    },
+    "lap-voltedge-lite-14": {
+      "name": "VoltEdge Lite 14",
+      "description": "Un modèle 14\" ultra-portable axé sur la mobilité, avec un design facile à transporter et une autonomie confortable pour le travail et les études.",
+      "characteristics": "RAM : 8 Go (soudée)\nStockage : SSD NVMe 512 Go\nAutonomie : jusqu’à 10 heures\nChâssis : aluminium + plastique"
+    },
+    "lap-luminakey-show-16": {
+      "name": "LuminaKey Show 16",
+      "description": "Un ordinateur premium orienté design, avec écran OLED éclatant et haut-parleurs immersifs pour les présentations, la création et les médias.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD NVMe 1 To\nAutonomie : jusqu’à 8 heures\nChâssis : aluminium"
+    },
+    "lap-luminakey-glide-13": {
+      "name": "LuminaKey Glide 13",
+      "description": "Un ultra-portable élégant pour les professionnels qui veulent un design soigné, un démarrage rapide et une productivité sans effort en déplacement.",
+      "characteristics": "RAM : 16 Go (soudée)\nStockage : SSD NVMe 512 Go\nAutonomie : jusqu’à 6 heures\nChâssis : aluminium"
+    },
+    "lap-luminakey-pulse-14": {
+      "name": "LuminaKey Pulse 14",
+      "description": "Un modèle 14\" soigné qui associe un écran lumineux à une autonomie équilibrée, idéal pour les rythmes de travail et d'études hybrides.",
+      "characteristics": "RAM : 16 Go\nStockage : SSD NVMe 512 Go\nAutonomie : jusqu’à 9 heures\nChâssis : aluminium"
+    },
+    "hea-auricle-go-wired": {
+      "name": "Auricle Go Wired",
+      "description": "Un casque filaire au très bon rapport qualité-prix pour des appels clairs, les cours et l'écoute quotidienne.",
+      "characteristics": "Connexion : filaire 3,5 mm\nAutonomie : non applicable\nRéduction de bruit active : non\nMicro : perche amovible"
+    },
+    "hea-auricle-quiet-pro": {
+      "name": "Auricle Quiet Pro",
+      "description": "Un casque haut de gamme pour les voyageurs fréquents qui recherchent un son immersif et peu fatigant.",
+      "characteristics": "Connexion : Bluetooth 5.3 + jack 3,5 mm\nAutonomie : jusqu’à 30 heures\nRéduction de bruit active : ANC hybride\nMicro : réseau de 6 micros"
+    },
+    "hea-auricle-desk-one": {
+      "name": "Auricle Desk One",
+      "description": "Un casque supra-auriculaire orienté bureau, optimisé pour des appels nets et une voix bien captée, afin de rendre les réunions à distance plus fluides et professionnelles.",
+      "characteristics": "Connexion : Bluetooth 5.2 + dongle USB-C\nAutonomie : jusqu’à 22 heures\nRéduction de bruit active : ANC légère\nMicro : perche + transparence"
+    },
+    "hea-tinbuzz-pocket": {
+      "name": "TinBuzz Pocket Buds",
+      "description": "Des écouteurs compacts et économiques pour une écoute occasionnelle sur de courts trajets.",
+      "characteristics": "Connexion : Bluetooth 5.1\nAutonomie : jusqu’à 12 heures avec boîtier\nRéduction de bruit active : non\nMicro : double micro intégré"
+    },
+    "hea-tinbuzz-elite-900": {
+      "name": "TinBuzz Elite 900 « Pro »",
+      "description": "Un casque circum-auriculaire axé sur le style pour celles et ceux qui veulent la praticité du sans-fil à prix réduit.",
+      "characteristics": "Connexion : Bluetooth 5.0\nAutonomie : jusqu’à 14 heures\nRéduction de bruit active : ANC basique\nMicro : double micro intégré"
+    },
+    "hea-tinbuzz-wire-one": {
+      "name": "TinBuzz Wire One",
+      "description": "Un casque filaire abordable, prêt à l'emploi instantanément pour les cours, les appels et l'écoute de tous les jours.",
+      "characteristics": "Connexion : filaire 3,5 mm\nAutonomie : non applicable\nRéduction de bruit active : non\nMicro : télécommande filaire"
+    },
+    "hea-soundweave-open-60": {
+      "name": "SoundWeave Open 60",
+      "description": "Un casque ouvert conçu pour un son large et naturel qui améliore les sessions d'écoute à la maison.",
+      "characteristics": "Connexion : jack 3,5 mm + adaptateur 6,35 mm\nAutonomie : non applicable\nOuvert : oui\nImpédance : 32 Ω"
+    },
+    "hea-soundweave-pod-air": {
+      "name": "SoundWeave Pod Air",
+      "description": "Des écouteurs true wireless au rendu riche et chaleureux, agréables pour la musique et faciles à utiliser au quotidien.",
+      "characteristics": "Connexion : Bluetooth 5.2\nAutonomie : jusqu’à 20 heures avec boîtier\nRéduction de bruit active : non\nMicro : micros sur tige"
+    },
+    "hea-soundweave-bass-hd": {
+      "name": "SoundWeave Bass HD",
+      "description": "Un casque circum-auriculaire orienté basses, pensé pour des playlists énergiques et une écoute immersive en déplacement.",
+      "characteristics": "Connexion : Bluetooth 5.1\nAutonomie : jusqu’à 18 heures\nRéduction de bruit active : non\nMicro : micro intégré unique"
+    },
+    "hea-pulseline-fit-s": {
+      "name": "PulseLine Fit S",
+      "description": "Des écouteurs sport avec ailettes de maintien et résistance à la transpiration, appréciés des coureurs qui priorisent la stabilité.",
+      "characteristics": "Connexion : Bluetooth 5.3\nAutonomie : jusqu’à 9 h (écouteurs)\nÉtanchéité : IPX7\nMicro : double faisceau"
+    },
+    "hea-pulseline-office": {
+      "name": "PulseLine Office",
+      "description": "Un casque léger pour le travail hybride : micro correct, son simple et tarif plus bas que de nombreux concurrents.",
+      "characteristics": "Connexion : Bluetooth 5.2 + dongle USB\nAutonomie : jusqu’à 24 heures\nRéduction de bruit active : non\nMicro : perche rabattable"
+    },
+    "hea-pulseline-anc-go": {
+      "name": "PulseLine ANC Go",
+      "description": "Un casque ANC compact conçu pour les trajets et les déplacements, avec des commandes sans fil pratiques et un confort ciblé pour l'usage quotidien.",
+      "characteristics": "Connexion : Bluetooth 5.2\nAutonomie : jusqu’à 16 heures\nRéduction de bruit active : ANC feedforward\nMicro : double micro"
+    },
+    "usb-quickbyte-flash-128": {
+      "name": "QuickByte Flash 128 Go",
+      "description": "Une clé USB du quotidien, intelligente et économique, pour les étudiants et les fichiers bureautiques.",
+      "characteristics": "Capacité : 128 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 110 Mo/s\nMatériau : plastique"
+    },
+    "usb-quickbyte-economy-32": {
+      "name": "QuickByte Economy 32 Go",
+      "description": "Une clé USB basique à petit prix pour les transferts rapides et la sauvegarde de petits documents.",
+      "characteristics": "Capacité : 32 Go\nInterface : USB-A 2.0\nVitesse de lecture : jusqu’à 25 Mo/s\nMatériau : plastique"
+    },
+    "usb-quickbyte-pro-64": {
+      "name": "QuickByte Pro 64 Go",
+      "description": "Un modèle QuickByte milieu de gamme : plus rapide que la version Economy, mais moins constant en écriture soutenue que les gammes premium.",
+      "characteristics": "Capacité : 64 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 150 Mo/s\nMatériau : plastique + capuchon métal"
+    },
+    "usb-arkive-titanium-512": {
+      "name": "Arkive Titanium 512 Go",
+      "description": "Une clé haut de gamme à grande capacité pour les professionnels qui déplacent de gros fichiers chaque jour.",
+      "characteristics": "Capacité : 512 Go\nInterface : USB-A/USB-C 3.2 Gen 2\nVitesse de lecture : jusqu’à 420 Mo/s\nMatériau : alliage de zinc"
+    },
+    "usb-arkive-slim-256": {
+      "name": "Arkive Slim 256 Go",
+      "description": "Une clé USB métallique compacte pour les voyageurs fréquents qui veulent un stockage de poche fiable.",
+      "characteristics": "Capacité : 256 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 170 Mo/s\nMatériau : aluminium"
+    },
+    "usb-arkive-desk-128": {
+      "name": "Arkive Desk 128 Go",
+      "description": "Une clé Arkive fiable, pensée pour le bureau, optimisée pour les sauvegardes fréquentes, les transferts stables et une organisation quotidienne simple.",
+      "characteristics": "Capacité : 128 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 200 Mo/s\nMatériau : aluminium"
+    },
+    "usb-datariver-swift-128": {
+      "name": "DataRiver Swift 128 Go",
+      "description": "Une clé grand public à double connecteur USB-C/A, pensée pour les étudiants qui passent d'un ordinateur portable à un autre.",
+      "characteristics": "Capacité : 128 Go\nInterface : USB-A + USB-C 3.2 Gen 1\nVitesse de lecture : jusqu’à 180 Mo/s\nMatériau : boîtier plastique"
+    },
+    "usb-datariver-go-32": {
+      "name": "DataRiver Go 32 Go",
+      "description": "Une clé USB ultra-compacte et discrète, conçue pour rester branchée en continu dans les systèmes embarqués, les ordinateurs portables et les lecteurs multimédias.",
+      "characteristics": "Capacité : 32 Go\nInterface : USB-A 2.0\nVitesse de lecture : jusqu’à 40 Mo/s\nMatériau : plastique"
+    },
+    "usb-datariver-max-256": {
+      "name": "DataRiver Max 256 Go",
+      "description": "Un modèle DataRiver à grande capacité qui offre un stockage généreux et de bonnes performances de transfert au quotidien à un prix compétitif.",
+      "characteristics": "Capacité : 256 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 210 Mo/s\nMatériau : métal + plastique"
+    },
+    "usb-neovault-shield-128": {
+      "name": "NeoVault Shield 128 Go",
+      "description": "Une clé renforcée avec pare-chocs en caoutchouc, appréciée des techniciens de terrain qui privilégient la résistance aux chutes.",
+      "characteristics": "Capacité : 128 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 160 Mo/s\nMatériau : noyau métal, gaine caoutchouc"
+    },
+    "usb-neovault-micro-64": {
+      "name": "NeoVault Micro 64 Go",
+      "description": "Une mini-clé NeoVault facile à emporter, pensée pour le stockage portable avec accès rapide aux fichiers du quotidien.",
+      "characteristics": "Capacité : 64 Go\nInterface : USB-A 3.2 Gen 1\nVitesse de lecture : jusqu’à 120 Mo/s\nMatériau : alliage de zinc"
+    },
+    "usb-neovault-twin-256": {
+      "name": "NeoVault Twin 256 Go",
+      "description": "Une clé NeoVault double interface, avec connectivité flexible et fonctions de sécurité intégrées pour les usages multi-appareils modernes.",
+      "characteristics": "Capacité : 256 Go\nInterface : USB-A + USB-C 3.2 Gen 1\nVitesse de lecture : jusqu’à 190 Mo/s\nMatériau : aluminium brossé"
+    },
+    "bik-smoothroll-commuter-7": {
+      "name": "SmoothRoll Commuter 7",
+      "description": "Un vélo de ville fiable pour les trajets quotidiens, destiné à celles et ceux qui recherchent confort et assurance.",
+      "characteristics": "Matériau du cadre : aluminium\nNombre de vitesses : 7\nType de freins : freins sur jante\nPoids : 13,8 kg"
+    },
+    "bik-smoothroll-gravel-x": {
+      "name": "SmoothRoll Gravel X",
+      "description": "Un gravel haut de gamme pour les cyclistes ambitieux qui enchaînent les longues sorties sur surfaces mixtes.",
+      "characteristics": "Matériau du cadre : aluminium + fourche carbone\nNombre de vitesses : 11\nType de freins : freins à disque hydrauliques\nPoids : 10,1 kg"
+    },
+    "bik-smoothroll-city-lite": {
+      "name": "SmoothRoll City Lite",
+      "description": "Un vélo urbain léger à transmission intégrée soignée, conçu pour des trajets faciles et un usage quotidien avec peu d'entretien.",
+      "characteristics": "Matériau du cadre : aluminium\nNombre de vitesses : 8 (moyeu intégré)\nType de freins : roller + disque avant\nPoids : 12,4 kg"
+    },
+    "bik-creakwheel-street": {
+      "name": "CreakWheel Street One",
+      "description": "Un vélo urbain simple pour de courts trajets plats et les débutants avec un budget serré.",
+      "characteristics": "Matériau du cadre : acier\nNombre de vitesses : mono-vitesse\nType de freins : freins à étrier\nPoids : 15,6 kg"
+    },
+    "bik-creakwheel-carbon-air": {
+      "name": "CreakWheel Carbon Air",
+      "description": "Un vélo léger orienté route pour les passionnés qui privilégient la vitesse et une maniabilité vive.",
+      "characteristics": "Matériau du cadre : fibre de carbone\nNombre de vitesses : 12\nType de freins : freins à disque mécaniques\nPoids : 9,3 kg"
+    },
+    "bik-creakwheel-path-8": {
+      "name": "CreakWheel Path 8",
+      "description": "Un vélo hybride accessible avec transmission 8 vitesses polyvalente pour les courses en ville, les trajets quotidiens et les sorties loisir du week-end.",
+      "characteristics": "Matériau du cadre : aluminium\nNombre de vitesses : 8\nType de freins : freins à disque mécaniques\nPoids : 14,2 kg"
+    },
+    "bik-northspan-tour-9": {
+      "name": "NorthSpan Tour 9",
+      "description": "Un vélo orienté randonnée avec points de fixation porte-bagages et géométrie stable, apprécié pour les sorties du week-end et le transport léger.",
+      "characteristics": "Matériau du cadre : acier\nNombre de vitesses : 9\nType de freins : freins à disque hydrauliques\nPoids : 14,8 kg"
+    },
+    "bik-northspan-kids-24": {
+      "name": "NorthSpan Kids 24",
+      "description": "Un vélo à roues de 24\" pour les grands enfants : maniabilité facile, même si certains parents notent que la selle pourrait être améliorée.",
+      "characteristics": "Matériau du cadre : aluminium\nNombre de vitesses : 7\nType de freins : freins sur jante\nPoids : 11,2 kg"
+    },
+    "bik-northspan-trail-10": {
+      "name": "NorthSpan Trail 10",
+      "description": "Un VTT d'entrée de gamme au style marqué et à la géométrie prête pour les sentiers, pour explorer le tout-terrain avec confiance.",
+      "characteristics": "Matériau du cadre : aluminium\nNombre de vitesses : 10\nType de freins : freins à disque mécaniques\nPoids : 13,9 kg"
+    },
+    "bik-gridline-fix-one": {
+      "name": "GridLine Fix One",
+      "description": "Un vélo fixe/single-speed au look épuré, conçu pour la ville minimaliste avec agilité et sensation de route directe.",
+      "characteristics": "Matériau du cadre : acier\nNombre de vitesses : fixe / roue libre réversible\nType de freins : étrier avant + option rétropédalage\nPoids : 10,8 kg"
+    },
+    "bik-gridline-fold-lite": {
+      "name": "GridLine Fold Lite",
+      "description": "Un vélo pliant pour les trajets multimodaux : compact une fois replié, avec une légère flexion relevée par les cyclistes plus lourds.",
+      "characteristics": "Matériau du cadre : aluminium\nNombre de vitesses : 7\nType de freins : freins sur jante\nPoids : 12,9 kg (pliage compact)"
+    },
+    "bik-gridline-speed-11": {
+      "name": "GridLine Speed 11",
+      "description": "Un vélo rapide inspiré de la route, optimisé pour de bonnes performances sur asphalte et une maniabilité réactive au quotidien.",
+      "characteristics": "Matériau du cadre : aluminium + fourche carbone\nNombre de vitesses : 11\nType de freins : freins à disque hydrauliques\nPoids : 9,8 kg"
+    },
+    "cof-beantrail-ground-250": {
+      "name": "Café moulu BeanTrail 250 g",
+      "description": "CHF 1,92 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine : Brésil"
+    },
+    "cof-beantrail-ground-500": {
+      "name": "Café moulu BeanTrail 500 g",
+      "description": "CHF 1,78 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine : Brésil"
+    },
+    "cof-beantrail-instant-200": {
+      "name": "Café instantané BeanTrail 200 g",
+      "description": "CHF 1,95 / 100 g",
+      "characteristics": "Certification : aucune\nFormat : granulés instantanés"
+    },
+    "cof-montcrest-whole-250": {
+      "name": "Café en grains MontCrest 250 g",
+      "description": "CHF 3,96 / 100 g",
+      "characteristics": "Certification : bio + FAIRTRADE®\nOrigine : Blue Mountains, Jamaïque"
+    },
+    "cof-montcrest-whole-1kg": {
+      "name": "Café en grains MontCrest 1 kg",
+      "description": "CHF 3,49 / 100 g",
+      "characteristics": "Certification : bio + FAIRTRADE®\nOrigine : Blue Mountains, Jamaïque"
+    },
+    "cof-montcrest-espresso-500": {
+      "name": "Café torréfaction espresso MontCrest 500 g",
+      "description": "CHF 3,38 / 100 g",
+      "characteristics": "Certification : bio + FAIRTRADE®\nTorréfaction : espresso"
+    },
+    "cof-sunrise-house-400": {
+      "name": "Café mélange maison SunriseRoast 400 g",
+      "description": "CHF 2,88 / 100 g",
+      "characteristics": "Certification : Rainforest Alliance\nOrigine : mélange (Amériques)"
+    },
+    "cof-sunrise-moka-250": {
+      "name": "Café moulu moka SunriseRoast 250 g",
+      "description": "CHF 2,72 / 100 g",
+      "characteristics": "Certification : aucune\nMouture : fine (cafetière moka)"
+    },
+    "cof-sunrise-filter-1kg": {
+      "name": "Café filtre SunriseRoast 1 kg",
+      "description": "CHF 2,49 / 100 g",
+      "characteristics": "Certification : bio\nTorréfaction : moyenne"
+    },
+    "cof-coastalcup-classic-500": {
+      "name": "Café torréfaction classique CoastalCup 500 g",
+      "description": "CHF 1,10 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine : mélange Vietnam / Brésil"
+    },
+    "cof-coastalcup-dark-1kg": {
+      "name": "Café torréfaction foncée CoastalCup 1 kg",
+      "description": "CHF 1,19 / 100 g",
+      "characteristics": "Certification : aucune\nTorréfaction : foncée (gras signalé)"
+    },
+    "cof-coastalcup-pods-10": {
+      "name": "Dosettes compostables CoastalCup (×10)",
+      "description": "CHF 0,48 / dosette",
+      "characteristics": "Certification : aucune\nCompatibilité : machines type Nespresso®"
+    },
+    "ric-grainfield-long-1kg": {
+      "name": "Riz long GrainField 1 kg",
+      "description": "CHF 3,60 / kg",
+      "characteristics": "Certification : aucune"
+    },
+    "ric-grainfield-long-2kg": {
+      "name": "Riz long GrainField 2 kg",
+      "description": "CHF 3,35 / kg",
+      "characteristics": "Certification : aucune"
+    },
+    "ric-grainfield-sushi-500": {
+      "name": "Riz sushi GrainField 500 g",
+      "description": "CHF 4,40 / kg",
+      "characteristics": "Certification : aucune\nVariété : grain court"
+    },
+    "ric-rizroyal-basmati-1kg": {
+      "name": "Riz basmati RizRoyal 1 kg",
+      "description": "CHF 6,90 / kg",
+      "characteristics": "Certification : bio"
+    },
+    "ric-rizroyal-basmati-5kg": {
+      "name": "Riz basmati RizRoyal 5 kg",
+      "description": "CHF 5,98 / kg",
+      "characteristics": "Certification : bio"
+    },
+    "ric-rizroyal-jasmine-2kg": {
+      "name": "Riz jasmin RizRoyal 2 kg",
+      "description": "CHF 12,45 / kg",
+      "characteristics": "Certification : bio\nOrigine : Thaïlande"
+    },
+    "ric-harbor-arborio-1kg": {
+      "name": "Riz arborio HarborRice 1 kg",
+      "description": "CHF 5,90 / kg",
+      "characteristics": "Certification : aucune\nUsage : risotto"
+    },
+    "ric-harbor-wild-500": {
+      "name": "Mélange riz sauvage HarborRice 500 g",
+      "description": "CHF 15,60 / kg",
+      "characteristics": "Certification : aucune\nMélange : sauvage + long grain"
+    },
+    "ric-harbor-blend-2kg": {
+      "name": "Mélange du quotidien HarborRice 2 kg",
+      "description": "CHF 4,70 / kg",
+      "characteristics": "Certification : aucune\nMélange : parboiled + blanc"
+    },
+    "ric-summit-brown-1kg": {
+      "name": "Riz complet SummitGrain 1 kg",
+      "description": "CHF 4,80 / kg",
+      "characteristics": "Certification : IP-SUISSE"
+    },
+    "ric-summit-white-5kg": {
+      "name": "Riz blanc SummitGrain 5 kg",
+      "description": "CHF 3,70 / kg",
+      "characteristics": "Certification : aucune"
+    },
+    "ric-summit-red-1kg": {
+      "name": "Riz rouge SummitGrain 1 kg",
+      "description": "CHF 5,20 / kg",
+      "characteristics": "Certification : bio"
+    },
+    "pot-terresimple-waxy-1kg": {
+      "name": "Pommes de terre fermes TerreSimple 1 kg",
+      "description": "CHF 2,60 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "pot-terresimple-waxy-2kg": {
+      "name": "Pommes de terre fermes TerreSimple 2 kg",
+      "description": "CHF 2,45 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "pot-terresimple-firm-1kg": {
+      "name": "Pommes de terre farineuses TerreSimple 1 kg",
+      "description": "CHF 2,85 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "pot-alpharvest-firm-1kg": {
+      "name": "Pommes de terre fermes AlpHarvest 1 kg",
+      "description": "CHF 4,70 / kg",
+      "characteristics": "Origine : Suisse"
+    },
+    "pot-alpharvest-firm-2_5kg": {
+      "name": "Pommes de terre fermes AlpHarvest 2,5 kg",
+      "description": "CHF 4,36 / kg",
+      "characteristics": "Origine : Suisse"
+    },
+    "pot-alpharvest-waxy-2kg": {
+      "name": "Pommes de terre fermes AlpHarvest 2 kg",
+      "description": "CHF 4,60 / kg",
+      "characteristics": "Origine : Suisse"
+    },
+    "pot-soilmark-mixed-1_5kg": {
+      "name": "Pommes de terre panachées SoilMark 1,5 kg",
+      "description": "CHF 2,73 / kg",
+      "characteristics": "Origine : France / Allemagne"
+    },
+    "pot-soilmark-baby-500": {
+      "name": "Pommes de terre grenaille SoilMark 500 g",
+      "description": "CHF 7,00 / kg",
+      "characteristics": "Origine : Pays-Bas"
+    },
+    "pot-soilmark-bake-2kg": {
+      "name": "Pommes de terre pour four SoilMark 2 kg",
+      "description": "CHF 2,90 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "pot-valdor-red-1kg": {
+      "name": "Pommes de terre à chair rouge Valdor 1 kg",
+      "description": "CHF 5,20 / kg",
+      "characteristics": "Origine : Valais"
+    },
+    "pot-valdor-tier-2_5kg": {
+      "name": "Sac deuxième choix Valdor 2,5 kg",
+      "description": "CHF 4,60 / kg",
+      "characteristics": "Origine : lots mélangés (calibre variable)"
+    },
+    "pot-valdor-salad-750": {
+      "name": "Pommes de terre salade Valdor 750 g",
+      "description": "CHF 6,40 / kg",
+      "characteristics": "Origine : Suisse"
+    },
+    "mlk-alpdaily-uht-1l": {
+      "name": "Lait UHT AlpDaily 1 L",
+      "description": "CHF 1,50 / L",
+      "characteristics": "Niveau de bien-être animal : standard"
+    },
+    "mlk-alpdaily-uht-1_5l": {
+      "name": "Lait UHT AlpDaily 1,5 L",
+      "description": "CHF 1,40 / L",
+      "characteristics": "Niveau de bien-être animal : standard"
+    },
+    "mlk-alpdaily-skim-1l": {
+      "name": "Lait UHT demi-écrémé AlpDaily 1 L",
+      "description": "CHF 1,45 / L",
+      "characteristics": "Matières grasses : ~0,1 %\nNiveau de bien-être animal : standard"
+    },
+    "mlk-montlait-fresh-1l": {
+      "name": "Lait frais MontLait 1 L",
+      "description": "CHF 2,80 / L",
+      "characteristics": "Niveau de bien-être animal : pâturage+"
+    },
+    "mlk-montlait-fresh-2l": {
+      "name": "Lait frais MontLait 2 L",
+      "description": "CHF 2,70 / L",
+      "characteristics": "Niveau de bien-être animal : pâturage+"
+    },
+    "mlk-montlait-barista-1l": {
+      "name": "Lait frais barista MontLait 1 L",
+      "description": "CHF 3,90 / L",
+      "characteristics": "Niveau de bien-être animal : pâturage+\nProtéines : plus élevées (mousse)"
+    },
+    "mlk-rivermead-semi-1l": {
+      "name": "Lait UHT demi-écrémé RiverMead 1 L",
+      "description": "CHF 2,20 / L",
+      "characteristics": "Niveau de bien-être animal : standard+"
+    },
+    "mlk-rivermead-choco-500": {
+      "name": "Boisson chocolatée RiverMead 500 mL",
+      "description": "CHF 5,00 / L (éq.)",
+      "characteristics": "Sucre : ajouté\nCacao : faible"
+    },
+    "mlk-rivermead-oat-1l": {
+      "name": "Boisson avoine RiverMead 1 L",
+      "description": "CHF 2,90 / L",
+      "characteristics": "Enrichi : calcium\nGluten : traces possibles"
+    },
+    "mlk-peakcrest-grass-1l": {
+      "name": "Lait frais herbage PeakCrest 1 L",
+      "description": "CHF 3,60 / L",
+      "characteristics": "Niveau de bien-être animal : pâturage+\nMatières grasses : ~3,6 %"
+    },
+    "mlk-peakcrest-uht-2l": {
+      "name": "Lait UHT entier PeakCrest 2 L",
+      "description": "CHF 2,25 / L",
+      "characteristics": "Niveau de bien-être animal : standard+\nLongue conservation"
+    },
+    "mlk-peakcrest-lacto-1l": {
+      "name": "Lait sans lactose PeakCrest 1 L",
+      "description": "CHF 2,80 / L",
+      "characteristics": "Sans lactose : traité aux enzymes\nNiveau de bien-être animal : standard+"
+    },
+    "yog-dairyjoy-plain-180": {
+      "name": "Yogourt nature DairyJoy 180 g",
+      "description": "CHF 0,53 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine du lait : Suisse"
+    },
+    "yog-dairyjoy-plain-500": {
+      "name": "Yogourt nature DairyJoy 500 g",
+      "description": "CHF 0,44 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine du lait : Suisse"
+    },
+    "yog-dairyjoy-greek-400": {
+      "name": "Yogourt style grec DairyJoy 400 g",
+      "description": "CHF 0,70 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine du lait : Suisse"
+    },
+    "yog-cremanoble-plain-180": {
+      "name": "Yogourt nature CremaNoble 180 g",
+      "description": "CHF 0,94 / 100 g",
+      "characteristics": "Certification : bio\nOrigine du lait : Gruyère"
+    },
+    "yog-cremanoble-plain-1kg": {
+      "name": "Yogourt nature CremaNoble 1 kg",
+      "description": "CHF 0,79 / 100 g",
+      "characteristics": "Certification : bio\nOrigine du lait : Gruyère"
+    },
+    "yog-cremanoble-greek-500": {
+      "name": "Yogourt style grec CremaNoble 500 g",
+      "description": "CHF 1,18 / 100 g",
+      "characteristics": "Certification : bio\nOrigine du lait : Gruyère"
+    },
+    "yog-alpinecream-mountain-400": {
+      "name": "Yogourt nature montagne AlpineCream 400 g",
+      "description": "CHF 0,88 / 100 g",
+      "characteristics": "Certification : aucune\nOrigine du lait : Oberland bernois"
+    },
+    "yog-alpinecream-bio-1kg": {
+      "name": "Yogourt bio seau AlpineCream 1 kg",
+      "description": "CHF 0,68 / 100 g",
+      "characteristics": "Certification : bio\nTexture : lots plus liquides signalés"
+    },
+    "yog-alpinecream-light-600": {
+      "name": "Yogourt nature léger AlpineCream 600 g",
+      "description": "CHF 0,65 / 100 g",
+      "characteristics": "Matières grasses : réduites\nSucré : non sucré"
+    },
+    "yog-swissfold-plain-250": {
+      "name": "Yogourt nature pot SwissFold 250 g",
+      "description": "CHF 0,84 / 100 g",
+      "characteristics": "Certification : aucune\nStyle : brassé, doux"
+    },
+    "yog-swissfold-family-1kg": {
+      "name": "Yogourt nature famille SwissFold 1 kg",
+      "description": "CHF 0,48 / 100 g",
+      "characteristics": "Certification : aucune\nTexture : plus fluide que les gammes premium"
+    },
+    "yog-swissfold-luxury-400": {
+      "name": "Yogourt nature « luxury » SwissFold 400 g",
+      "description": "CHF 1,38 / 100 g",
+      "characteristics": "Certification : aucune\nCrème : séparation occasionnelle"
+    },
+    "tom-campovivo-round-500": {
+      "name": "Tomates rondes CampoVivo 500 g",
+      "description": "CHF 4,80 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "tom-campovivo-round-1kg": {
+      "name": "Tomates rondes CampoVivo 1 kg",
+      "description": "CHF 4,50 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "tom-campovivo-cherry-400": {
+      "name": "Tomates cerises CampoVivo 400 g",
+      "description": "CHF 7,75 / kg",
+      "characteristics": "Origine : Europe"
+    },
+    "tom-rossoprime-vine-500": {
+      "name": "Tomates en grappe RossoPrime 500 g",
+      "description": "CHF 8,40 / kg",
+      "characteristics": "Origine : Valais"
+    },
+    "tom-rossoprime-vine-750": {
+      "name": "Tomates en grappe RossoPrime 750 g",
+      "description": "CHF 8,13 / kg",
+      "characteristics": "Origine : Valais"
+    },
+    "tom-rossoprime-beef-500": {
+      "name": "Tomates cœur de bœuf RossoPrime 500 g",
+      "description": "CHF 11,60 / kg",
+      "characteristics": "Origine : Valais"
+    },
+    "tom-gardenlane-salsa-1kg": {
+      "name": "Tomates à sauce GardenLane 1 kg",
+      "description": "CHF 4,90 / kg",
+      "characteristics": "Origine : Espagne"
+    },
+    "tom-gardenlane-plum-800": {
+      "name": "Tomates allongées GardenLane 800 g",
+      "description": "CHF 6,88 / kg",
+      "characteristics": "Origine : Italie"
+    },
+    "tom-gardenlane-mini-250": {
+      "name": "Mini tomates type San Marzano GardenLane 250 g",
+      "description": "CHF 11,20 / kg",
+      "characteristics": "Origine : Italie"
+    },
+    "tom-sunripe-kumato-500": {
+      "name": "Tomates style Kumato® SunRipe 500 g",
+      "description": "CHF 11,80 / kg",
+      "characteristics": "Origine : Belgique / Espagne"
+    },
+    "tom-sunripe-roma-1kg": {
+      "name": "Tomates Roma SunRipe 1 kg",
+      "description": "CHF 7,20 / kg",
+      "characteristics": "Origine : Maroc (saisonnier)"
+    },
+    "tom-sunripe-vine-400": {
+      "name": "Tomates en grappe SunRipe 400 g",
+      "description": "CHF 10,50 / kg",
+      "characteristics": "Origine : Pays-Bas"
+    }
+  }
+}

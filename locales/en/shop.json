@@ -1,0 +1,291 @@
+{
+  "category": {
+    "laptop": "Laptops",
+    "headset": "Headsets",
+    "usb-stick": "USB sticks",
+    "bicycle": "Bicycles",
+    "coffee": "Coffee",
+    "rice": "Rice",
+    "potato": "Potatoes",
+    "milk": "Milk",
+    "plain-yogurt": "Plain yogurt",
+    "tomato": "Tomatoes"
+  },
+  "macroCategory": {
+    "electronics": "Electronics",
+    "sports-outdoors": "Sports & outdoors",
+    "pantry": "Pantry",
+    "fresh-food": "Fresh food"
+  },
+  "availability": {
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "inDays_one": "Available in {{count}} day",
+    "inDays_other": "Available in {{count}} days",
+    "inWeeks_one": "Available in {{count}} week",
+    "inWeeks_other": "Available in {{count}} weeks"
+  },
+  "home": {
+    "title": "Find something you like",
+    "intro": "Pick a category, open a product to read more, then add it to your cart.",
+    "showing_one": "Showing {{count}} item",
+    "showing_other": "Showing {{count}} items",
+    "filtersActive": "(filters active)"
+  },
+  "catalog": {
+    "legend": "Browse options",
+    "intro": "Narrow the list by category, brand, or name; sort by price, rating, or availability.",
+    "searchLabel": "Search by name",
+    "searchAria": "Search products by name",
+    "searchSubmit": "Search",
+    "category": "Category",
+    "allCategories": "All categories",
+    "brand": "Brand",
+    "allBrands": "All brands",
+    "minRating": "Minimum rating",
+    "availability": "Availability",
+    "reviewsCount": "Number of reviews",
+    "priceRange": "Price range (CHF)",
+    "priceMin": "Min price",
+    "priceMax": "Max price",
+    "sortBy": "Sort by",
+    "clearSection": "Clear filters",
+    "clearAll": "Clear all filters",
+    "availabilityOption": {
+      "any": "Any availability",
+      "now": "Available now",
+      "3d": "Available within 3 days",
+      "1w": "Available within 1 week",
+      "1m": "Available within 1 month"
+    },
+    "minReviewsOption": {
+      "100": "100+ reviews",
+      "1000": "1000+ reviews",
+      "any": "Any review count"
+    },
+    "sort": {
+      "smart": "Recommended",
+      "discount-desc": "Discount",
+      "featured": "Featured (catalog order)",
+      "availability-first": "Availability",
+      "popularity-desc": "Popularity",
+      "price-asc": "Price: low to high",
+      "price-desc": "Price: high to low",
+      "rating-desc": "Rating: high to low",
+      "rating-asc": "Rating: low to high",
+      "name": "Name: A to Z"
+    },
+    "minRatingOption": {
+      "3": "3+ stars",
+      "4": "4+ stars",
+      "5": "5 stars only",
+      "any": "Any rating"
+    }
+  },
+  "productGrid": {
+    "emptyFiltered": "No items match your filters. Try relaxing availability or minimum rating.",
+    "emptyCategory": "No products in this category yet."
+  },
+  "productCard": {
+    "viewAria": "{{name}} — view details",
+    "viewDetails": "View details →",
+    "discountBadge": "-{{discount}}%",
+    "originalPrice": "Original price"
+  },
+  "product": {
+    "breadcrumb": "Breadcrumb",
+    "shop": "Shop",
+    "characteristicsTitle": "Characteristics",
+    "quantity": "Quantity",
+    "addToCart": "Add to cart",
+    "cookieNote": ""
+  },
+  "starRating": {
+    "aria": "Average {{rating}} out of 5 stars, {{count}} ratings",
+    "aria_one": "Average {{rating}} out of 5 stars, {{count}} rating",
+    "suffix_one": "rating",
+    "suffix_other": "ratings"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "Continue shopping",
+    "orderSummaryAria": "Order summary",
+    "estimatedTotal": "Estimated total (goods)",
+    "totalAria": "Total {{total}}",
+    "smallOrderNote": "Home delivery: orders under {{threshold}} (goods) add a {{fee}} delivery fee at checkout. Express options are available on the delivery step.",
+    "goCheckout": "Go to checkout",
+    "each": "{{price}} each",
+    "qty": "Qty",
+    "update": "Update",
+    "remove": "Remove",
+    "lineTotal": "Line total"
+  },
+  "checkout": {
+    "stepsNav": "Checkout progress",
+    "breadcrumb": "Checkout steps",
+    "checkout": "Checkout",
+    "stepDelivery": "Delivery",
+    "stepPayment": "Payment",
+    "stepSummary": "Summary",
+    "cartLink": "Cart"
+  },
+  "delivery": {
+    "title": "Delivery",
+    "subtitle": "Step 1 of 3 — Choose home delivery or pickup. Shipping fees may apply under certain conditions.",
+    "howHeading": "How do you want to receive your order?",
+    "optionLegend": "Delivery option",
+    "shippingTitle": "Delivery to an address",
+    "pickupTitle": "Pick up in shop",
+    "pickupDesc": "Lausanne, Genève, or Morges — no shipping fees.",
+    "previewLi1": "If the goods subtotal is under {{threshold}}, a {{fee}} delivery fee applies{{suffix}}",
+    "previewLi1_applies": " (applies to this cart).",
+    "previewLi1_not": " (not applied to this cart).",
+    "cardLegendShipping": "Delivery details",
+    "addressHeading": "Delivery address",
+    "addressHint": "All amounts are in CHF. Use any example address for this exercise.",
+    "street": "Street and number",
+    "postalCode": "Postal code",
+    "city": "City",
+    "expressTitle": "Express delivery",
+    "expressShort": "Express ({{fee}}) — one calendar day of transit after all items are available, instead of three.",
+    "bottomSummaryTitle": "Your delivery summary",
+    "bottomTotalDeliveryFees": "Total delivery fees",
+    "bottomReadyForPickup": "Estimated ready for pickup:",
+    "pickupHeading": "Pickup shop",
+    "shopLocation": "Shop location",
+    "selectShop": "Select a shop…",
+    "savePending": "Saving…",
+    "continuePayment": "Continue to payment"
+  },
+  "payment": {
+    "title": "Payment",
+    "subtitle": "Step 2 of 3 — Chose how you would pay. Nothing is charged; card details are not stored.",
+    "heading": "Payment method",
+    "intro": "Pick how you would pay in real life. The fields below are only for practice — nothing is charged and card numbers are not stored.",
+    "legend": "Payment",
+    "methodCard": "Credit card",
+    "methodBill": "Bill (invoice)",
+    "methodTwint": "TWINT",
+    "savePending": "Saving…",
+    "chooseFirst": "Choose a payment method first",
+    "continueCard": "Continue to summary",
+    "continueBill": "Continue to summary",
+    "card": {
+      "legend": "Card details",
+      "intro": "This form is for practice only. Do not use a real card number.",
+      "number": "Card number",
+      "name": "Name on card",
+      "expiry": "Expiry",
+      "cvc": "Security code"
+    },
+    "bill": {
+      "legend": "Invoice details",
+      "intro": "We would email the invoice after a real purchase. Here you only fill in the fields to practise.",
+      "orgName": "Organisation or full name",
+      "email": "Invoice email",
+      "reference": "Purchase order / reference (optional)"
+    },
+    "billing": {
+      "street": "Street and number",
+      "postalCode": "Postal code",
+      "city": "City"
+    },
+    "twint": {
+      "title": "Pay with TWINT",
+      "body": "In a real shop, a QR code would open in your TWINT app so you could confirm the amount. This simulation does not connect to TWINT.",
+      "qrAria": "Decorative QR placeholder",
+      "qrCaption": "QR code area (demo only)",
+      "hint": "When you are ready, continue to your order summary as if you had paid in TWINT.",
+      "done": "I’ve finished in TWINT — Continue to summary"
+    },
+    "hints": {
+      "cardNumber": "4111 1111 1111 1111 (test-style number)",
+      "name": "Alex Martin",
+      "expiry": "09 / 28",
+      "cvc": "123 (three digits on the back)",
+      "street": "Rue du Lac 12",
+      "postal": "1003",
+      "city": "Lausanne",
+      "org": "Collège Champittet",
+      "email": "facturation@ecole-demo.ch",
+      "reference": "PO-2026-0042 or Dept. Sciences"
+    }
+  },
+  "summary": {
+    "breadcrumbCurrent": "Summary",
+    "title": "Order summary",
+    "subtitle": "Step 3 of 3 — Review everything, then confirm your demo order.",
+    "itemsHeading": "Items",
+    "multiply": "×",
+    "deliveryHeading": "Delivery",
+    "shipTo": "Ship to",
+    "pickupAt": "Pick up at",
+    "expressSelected": "Express delivery selected (+{{fee}}).",
+    "standardSelected": "Standard delivery (no express surcharge).",
+    "estimatedArrival": "Estimated arrival:",
+    "changeDelivery": "Change delivery",
+    "paymentHeading": "Payment",
+    "cardMasked": ": •••• •••• •••• {{last4}}",
+    "paymentNote": "— labels only in this simulation.",
+    "changePayment": "Change payment",
+    "totalsHeading": "Totals",
+    "goodsSubtotal": "Goods (subtotal)",
+    "deliveryUnderThreshold": "Delivery (order under threshold)",
+    "expressDelivery": "Express delivery",
+    "noSurcharges": "No shipping surcharges for this order.",
+    "pickupNoFees": "No shipping fees (pickup).",
+    "total": "Total",
+    "readyDemo": "Ready to confirm (demo)",
+    "confirmOrder": "Confirm order (demo)"
+  },
+  "confirmation": {
+    "title": "Thank you — order placed",
+    "subtitle": "This is a pretend confirmation. No payment was made and nothing will be delivered.",
+    "placedOn": "Placed on",
+    "itemsHeading": "Items",
+    "fulfillmentHeading": "Fulfillment",
+    "deliveryTo": "Delivery to",
+    "estimatedArrival": "Estimated arrival:",
+    "pickupAt": "Pick up at",
+    "paymentLine": "Payment:",
+    "amountsHeading": "Amounts",
+    "goodsSubtotal": "Goods (subtotal):",
+    "deliverySmall": "Delivery (small order):",
+    "expressLine": "Express:",
+    "total": "Total",
+    "print": "Print",
+    "save": "Save",
+    "startAnother": "Start another order"
+  },
+  "paymentMethod": {
+    "card": "Credit card",
+    "bill": "Bill (invoice)",
+    "twint": "TWINT"
+  },
+  "receiptFilenamePrefix": "receipt",
+  "errors": {
+    "cardNumber": "Enter a plausible card number (13–19 digits). This is a demo — use a fake number.",
+    "cardName": "Enter the name on the card.",
+    "cardExpiry": "Enter expiry as MM/YY (for example 09/28).",
+    "cardCvc": "Enter the security code (3 or 4 digits on the card).",
+    "billingStreet": "Enter the billing street and number.",
+    "billingPostal": "Enter the billing postal code.",
+    "billingCity": "Enter the billing city.",
+    "billOrg": "Enter an organisation or full name for the invoice.",
+    "billEmail": "Enter a valid email address for the invoice.",
+    "chooseDeliveryMode": "Choose delivery or store pickup.",
+    "street": "Enter a street and number.",
+    "postal": "Enter a postal code.",
+    "city": "Enter a city.",
+    "pickupShop": "Pick a shop for collection.",
+    "choosePayment": "Choose a payment method."
+  },
+  "review": {
+    "sectionTitle": "Reviews",
+    "linkLabel_one": "review",
+    "linkLabel_other": "reviews",
+    "emptyTitle": "No reviews yet",
+    "emptyBody": "This product has no reviews yet."
+  }
+}
