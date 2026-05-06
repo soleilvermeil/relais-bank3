@@ -49,6 +49,8 @@ export function BankTransferForm() {
             <TextField
               id="transfer-amount"
               name="amount"
+              type="number"
+              step="0.01"
               inputMode="decimal"
               label={t("bankTransfer.fields.amount")}
               required

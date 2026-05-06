@@ -171,6 +171,8 @@ export function BankPaymentForm() {
             <TextField
               id="amount"
               name="amount"
+              type="number"
+              step="0.01"
               inputMode="decimal"
               label={t("bankPayment.fields.amount")}
               required
