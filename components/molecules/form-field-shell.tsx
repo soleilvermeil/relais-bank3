@@ -38,7 +38,7 @@ export function FormFieldShell({
         {required ? <RequiredMark /> : <OptionalMark />}
       </Label>
       {children}
-      {hint ? <FieldHint hint={hint} /> : null}
+      <FieldHint hint={hint ?? "\u00A0"} />
     </div>
   );
 }
