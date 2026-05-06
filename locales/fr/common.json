@@ -55,6 +55,22 @@
       "details": "Details"
     }
   },
+  "bankAccountDetail": {
+    "title": "Details du compte",
+    "subtitle": "Vue fictive des ordres a venir et de l'historique des transactions pour ce compte.",
+    "sections": {
+      "upcomingOrders": "Ordres en attente et permanents (30 prochains jours)",
+      "pastTransactions": "Transactions passees"
+    },
+    "labels": {
+      "date": "Date",
+      "amount": "Montant"
+    },
+    "types": {
+      "pending": "Ordre en attente",
+      "standing": "Ordre permanent"
+    }
+  },
   "bankPaymentsLanding": {
     "title": "Paiements et transferts",
     "subtitle": "Choisissez l'operation bancaire a preparer. Cette interface pedagogique n'execute aucune transaction reelle.",

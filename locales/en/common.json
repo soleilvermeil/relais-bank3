@@ -55,6 +55,22 @@
       "details": "Details"
     }
   },
+  "bankAccountDetail": {
+    "title": "Account details",
+    "subtitle": "Mock overview of upcoming orders and transaction history for this account.",
+    "sections": {
+      "upcomingOrders": "Pending and standing orders (next 30 days)",
+      "pastTransactions": "Past transactions"
+    },
+    "labels": {
+      "date": "Date",
+      "amount": "Amount"
+    },
+    "types": {
+      "pending": "Pending order",
+      "standing": "Standing order"
+    }
+  },
   "bankPaymentsLanding": {
     "title": "Payments and transfers",
     "subtitle": "Choose the banking operation you want to prepare. This educational interface does not execute real transactions.",
