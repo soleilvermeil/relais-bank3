@@ -62,6 +62,9 @@ function upcomingType(transaction: Transaction): "pending" | "standing" {
   return transaction.payment_type === "standing" ? "standing" : "pending";
 }
 
+const txDetailLinkClass =
+  "font-medium text-foreground underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
 function groupByDate(transactions: Transaction[]): TransactionsByDate[] {
   return transactions.reduce<TransactionsByDate[]>((groups, transaction) => {
     const date = transaction.execution_date ?? "";
@@ -149,8 +152,13 @@ export default async function AccountDetailPage({
                     <div className="border-t border-card-border pt-3">
                       <div className="grid grid-cols-[1fr_auto] items-start gap-4">
                         <div className="space-y-1">
-                          <p className="text-base font-medium text-foreground">
-                            {upcomingDescription(order)}
+                          <p className="text-base font-medium">
+                            <Link
+                              href={`/wealth/transaction/${order.id}?fromAccount=${account.id}`}
+                              className={txDetailLinkClass}
+                            >
+                              {upcomingDescription(order)}
+                            </Link>
                           </p>
                           <p className="text-sm text-muted-foreground">
                             {upcomingType(order) === "pending"
@@ -187,8 +195,13 @@ export default async function AccountDetailPage({
                           className="grid grid-cols-[1fr_auto] items-start gap-4"
                         >
                           <div className="space-y-1">
-                            <p className="text-base font-medium text-foreground">
-                              {transactionLabel(transaction)}
+                            <p className="text-base font-medium">
+                              <Link
+                                href={`/wealth/transaction/${transaction.id}?fromAccount=${account.id}`}
+                                className={txDetailLinkClass}
+                              >
+                                {transactionLabel(transaction)}
+                              </Link>
                             </p>
                           </div>
                           <p

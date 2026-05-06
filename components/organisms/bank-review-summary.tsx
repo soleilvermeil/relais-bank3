@@ -2,6 +2,7 @@ import type { TFunction } from "i18next";
 import { formatChfCurrency } from "@/lib/bank-money";
 import { SectionTitle } from "@/components/atoms/section-title";
 import type { PaymentDraft, TransferDraft } from "@/lib/bank-types";
+import type { TransactionRow } from "@/lib/db/transactions";
 
 const COUNTRY_LABELS: Record<string, string> = {
   ch: "Switzerland / Suisse",
@@ -231,6 +232,84 @@ export function BankTransferReviewSummary({
   return (
     <div className="space-y-8">
       <SummarySection title={t("bankTransfer.sections.transferDetails")} rows={rows} />
+    </div>
+  );
+}
+
+type FlowSummaryProps = {
+  row: TransactionRow;
+  debitAccountLabel: string | null;
+  creditAccountLabel: string | null;
+  t: TFunction;
+};
+
+/** Credits, debits, and card/purchase lines — same card layout as payment/transfer review. */
+export function BankFlowTransactionReviewSummary({
+  row,
+  debitAccountLabel,
+  creditAccountLabel,
+  t,
+}: FlowSummaryProps) {
+  const kindKey =
+    row.kind === "purchaseService"
+      ? "bankTransactionDetail.kinds.purchaseService"
+      : row.kind === "credit"
+        ? "bankTransactionDetail.kinds.credit"
+        : "bankTransactionDetail.kinds.debit";
+
+  const rows: Row[] = [
+    { label: t("bankTransactionDetail.fields.kind"), value: t(kindKey) },
+    {
+      label: t("bankTransactionDetail.fields.executionDate"),
+      value: dash(row.execution_date ?? ""),
+    },
+    {
+      label: t("bankTransactionDetail.fields.amount"),
+      value: formatChfCurrency(row.amount_cents / 100),
+    },
+  ];
+
+  if (debitAccountLabel) {
+    rows.push({
+      label: t("bankTransactionDetail.fields.debitAccount"),
+      value: debitAccountLabel,
+    });
+  }
+  if (creditAccountLabel) {
+    rows.push({
+      label: t("bankTransactionDetail.fields.creditAccount"),
+      value: creditAccountLabel,
+    });
+  }
+
+  const hasCounterparty =
+    (row.counterparty_name ?? "").trim() !== "" || (row.counterparty_iban ?? "").trim() !== "";
+  if (hasCounterparty) {
+    rows.push(
+      {
+        label: t("bankTransactionDetail.fields.counterparty"),
+        value: dash(row.counterparty_name ?? ""),
+      },
+      {
+        label: t("bankTransactionDetail.fields.counterpartyIban"),
+        value: dash(row.counterparty_iban ?? ""),
+      },
+    );
+  }
+
+  if ((row.accounting_text ?? "").trim() !== "") {
+    rows.push({
+      label: t("bankTransactionDetail.fields.accountingText"),
+      value: row.accounting_text ?? "",
+    });
+  }
+
+  return (
+    <div className="space-y-8">
+      <SummarySection
+        title={t("bankTransactionDetail.sections.details")}
+        rows={rows}
+      />
     </div>
   );
 }

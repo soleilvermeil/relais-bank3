@@ -196,5 +196,31 @@
       "makeAnotherPayment": "Effectuer un autre paiement",
       "makeAnotherTransfer": "Effectuer un autre transfert"
     }
+  },
+  "bankTransactionDetail": {
+    "titleFallback": "Detail de l'operation",
+    "subtitle": "Meme presentation que la confirmation d'un paiement ou transfert ; cette ecriture du registre est en lecture seule.",
+    "breadcrumbLeaf": "Detail",
+    "recordedOn": "Enregistree le",
+    "backToAccount": "Retour au compte",
+    "backToWealth": "Retour aux comptes",
+    "sections": {
+      "details": "Operation"
+    },
+    "fields": {
+      "kind": "Type",
+      "executionDate": "Date d'execution",
+      "amount": "Montant",
+      "debitAccount": "Compte debite",
+      "creditAccount": "Compte credite",
+      "counterparty": "Contrepartie",
+      "counterpartyIban": "IBAN de la contrepartie",
+      "accountingText": "Texte comptable pour vous"
+    },
+    "kinds": {
+      "purchaseService": "Achat / service",
+      "credit": "Credit entrant",
+      "debit": "Debit"
+    }
   }
 }

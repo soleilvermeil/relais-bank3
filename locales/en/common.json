@@ -196,5 +196,31 @@
       "makeAnotherPayment": "Make another payment",
       "makeAnotherTransfer": "Make another transfer"
     }
+  },
+  "bankTransactionDetail": {
+    "titleFallback": "Transaction details",
+    "subtitle": "Same summary layout as payment and transfer confirmation; this ledger entry is read-only.",
+    "breadcrumbLeaf": "Details",
+    "recordedOn": "Recorded on",
+    "backToAccount": "Back to account",
+    "backToWealth": "Back to accounts",
+    "sections": {
+      "details": "Transaction"
+    },
+    "fields": {
+      "kind": "Type",
+      "executionDate": "Execution date",
+      "amount": "Amount",
+      "debitAccount": "Debit account",
+      "creditAccount": "Credit account",
+      "counterparty": "Counterparty",
+      "counterpartyIban": "Counterparty IBAN",
+      "accountingText": "Accounting text"
+    },
+    "kinds": {
+      "purchaseService": "Purchase / service",
+      "credit": "Incoming credit",
+      "debit": "Debit"
+    }
   }
 }

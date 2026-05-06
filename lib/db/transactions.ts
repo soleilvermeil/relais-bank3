@@ -77,6 +77,13 @@ export function listTransactionsForAccount(accountId: number): Transaction[] {
   return rows.map((row) => rowToTransaction(row, accountId));
 }
 
+export function getTransactionById(id: number): TransactionRow | null {
+  const row = getDb()
+    .prepare(`SELECT * FROM transactions WHERE id = @id`)
+    .get({ id }) as TransactionRow | undefined;
+  return row ?? null;
+}
+
 /** Net CHF cents for an account: debits use stored amount; transfers credit the other leg with -amount. */
 export function computeBalanceCentsForAccount(accountId: number): number {
   const row = getDb()
