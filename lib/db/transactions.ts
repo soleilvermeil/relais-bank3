@@ -77,6 +77,51 @@ export function listTransactionsForAccount(accountId: number): Transaction[] {
   return rows.map((row) => rowToTransaction(row, accountId));
 }
 
+/** Net CHF cents for an account: debits use stored amount; transfers credit the other leg with -amount. */
+export function computeBalanceCentsForAccount(accountId: number): number {
+  const row = getDb()
+    .prepare(
+      `SELECT
+         COALESCE((SELECT SUM(amount_cents) FROM transactions WHERE debit_account_id = @id), 0)
+         + COALESCE(
+           (SELECT SUM(-amount_cents) FROM transactions
+            WHERE credit_account_id = @id AND kind = 'transfer'),
+           0
+         ) AS balance_cents`,
+    )
+    .get({ id: accountId }) as { balance_cents: number };
+  return row.balance_cents;
+}
+
+/** One round-trip: map account id -> net balance in cents from all transactions. */
+export function computeBalanceCentsByAccountId(): Map<number, number> {
+  const rows = getDb()
+    .prepare(
+      `SELECT a.id AS account_id,
+         COALESCE(d.debit_sum, 0) + COALESCE(c.credit_transfer_sum, 0) AS balance_cents
+       FROM accounts a
+       LEFT JOIN (
+         SELECT debit_account_id AS id, SUM(amount_cents) AS debit_sum
+         FROM transactions
+         WHERE debit_account_id IS NOT NULL
+         GROUP BY debit_account_id
+       ) d ON d.id = a.id
+       LEFT JOIN (
+         SELECT credit_account_id AS id, SUM(-amount_cents) AS credit_transfer_sum
+         FROM transactions
+         WHERE credit_account_id IS NOT NULL AND kind = 'transfer'
+         GROUP BY credit_account_id
+       ) c ON c.id = a.id`,
+    )
+    .all() as { account_id: number; balance_cents: number }[];
+
+  const map = new Map<number, number>();
+  for (const r of rows) {
+    map.set(r.account_id, r.balance_cents);
+  }
+  return map;
+}
+
 export type PaymentInsertInput = {
   debit_account_id: number;
   amount_cents: number;

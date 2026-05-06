@@ -1,4 +1,8 @@
 import { getDb } from "./client";
+import {
+  computeBalanceCentsByAccountId,
+  computeBalanceCentsForAccount,
+} from "./transactions";
 
 export type AccountCategory = "checking" | "savings" | "retirement" | "cards";
 
@@ -21,13 +25,13 @@ export type Account = {
   currency: string;
 };
 
-function rowToAccount(row: AccountRow): Account {
+function rowToAccount(row: AccountRow, balanceCentsFromTx: number): Account {
   return {
     id: row.id,
     category: row.category,
     name: row.name,
     identifier: row.identifier,
-    balance: row.balance_cents / 100,
+    balance: balanceCentsFromTx / 100,
     currency: row.currency,
   };
 }
@@ -53,12 +57,15 @@ export function listAccountsGroupedByCategory(): AccountGroup[] {
     )
     .all() as AccountRow[];
 
+  const balances = computeBalanceCentsByAccountId();
+
   const grouped = new Map<AccountCategory, Account[]>();
   for (const category of CATEGORY_ORDER) {
     grouped.set(category, []);
   }
   for (const row of rows) {
-    grouped.get(row.category)?.push(rowToAccount(row));
+    const cents = balances.get(row.id) ?? 0;
+    grouped.get(row.category)?.push(rowToAccount(row, cents));
   }
 
   return CATEGORY_ORDER.map((category) => ({
@@ -74,7 +81,9 @@ export function getAccountById(id: number): Account | null {
        FROM accounts WHERE id = ?`,
     )
     .get(id) as AccountRow | undefined;
-  return row ? rowToAccount(row) : null;
+  if (!row) return null;
+  const cents = computeBalanceCentsForAccount(id);
+  return rowToAccount(row, cents);
 }
 
 export function listSelectableAccounts(): Account[] {
@@ -86,5 +95,6 @@ export function listSelectableAccounts(): Account[] {
        ORDER BY sort_order ASC, id ASC`,
     )
     .all() as AccountRow[];
-  return rows.map(rowToAccount);
+  const balances = computeBalanceCentsByAccountId();
+  return rows.map((row) => rowToAccount(row, balances.get(row.id) ?? 0));
 }
