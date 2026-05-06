@@ -96,11 +96,11 @@ export default async function AccountDetailPage({
   const allTransactions = listTransactionsForAccount(account.id);
 
   const upcomingOrders = allTransactions
-    .filter((tx) => (tx.execution_date ?? "") >= today)
+    .filter((tx) => (tx.execution_date ?? "") > today)
     .sort((a, b) => (a.execution_date ?? "").localeCompare(b.execution_date ?? ""));
 
   const pastTransactions = allTransactions
-    .filter((tx) => (tx.execution_date ?? "") < today)
+    .filter((tx) => (tx.execution_date ?? "") <= today)
     .sort((a, b) => (b.execution_date ?? "").localeCompare(a.execution_date ?? ""));
 
   const pastTransactionsByDate = groupByDate(pastTransactions);

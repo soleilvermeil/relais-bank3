@@ -52,11 +52,15 @@ export type Transaction = Omit<TransactionRow, "amount_cents" | "is_express"> & 
   is_express: boolean | null;
 };
 
-function rowToTransaction(row: TransactionRow): Transaction {
+function rowToTransaction(row: TransactionRow, accountId: number): Transaction {
   const { amount_cents, is_express, ...rest } = row;
+  const amountForAccount =
+    row.kind === "transfer" && row.credit_account_id === accountId
+      ? Math.abs(amount_cents)
+      : amount_cents;
   return {
     ...rest,
-    amount: amount_cents / 100,
+    amount: amountForAccount / 100,
     is_express:
       is_express === null ? null : is_express === 1,
   };
@@ -70,7 +74,7 @@ export function listTransactionsForAccount(accountId: number): Transaction[] {
        ORDER BY execution_date DESC, id DESC`,
     )
     .all({ id: accountId }) as TransactionRow[];
-  return rows.map(rowToTransaction);
+  return rows.map((row) => rowToTransaction(row, accountId));
 }
 
 export type PaymentInsertInput = {
