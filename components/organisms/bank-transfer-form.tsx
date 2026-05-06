@@ -60,7 +60,6 @@ export function BankTransferForm() {
               value={executionMode}
               onChange={setExecutionMode}
               required
-              columns={1}
               hint={`Example: ${t("bankTransfer.hints.immediateFree")}`}
               options={[
                 { value: "immediate", label: t("bankTransfer.options.immediate") },
@@ -80,7 +79,7 @@ export function BankTransferForm() {
             <TextField
               id="transfer-accounting-text"
               name="accountingTextForYou"
-              label={t("bankTransfer.fields.accountingTextForYouOptional")}
+              label={t("bankTransfer.fields.accountingTextForYou")}
               width="full"
             />
           </div>

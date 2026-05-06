@@ -110,7 +110,7 @@
       "amount": "Montant",
       "execution": "Execution",
       "executionDate": "Date d'execution",
-      "accountingTextForYouOptional": "Texte comptable pour vous (optionnel)"
+      "accountingTextForYou": "Texte comptable pour vous"
     },
     "options": {
       "immediate": "Execution immediate",

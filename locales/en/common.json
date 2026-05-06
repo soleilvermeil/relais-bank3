@@ -110,7 +110,7 @@
       "amount": "Amount",
       "execution": "Execution",
       "executionDate": "Execution date",
-      "accountingTextForYouOptional": "Accounting text for you (optional)"
+      "accountingTextForYou": "Accounting text for you"
     },
     "options": {
       "immediate": "Immediate execution",
