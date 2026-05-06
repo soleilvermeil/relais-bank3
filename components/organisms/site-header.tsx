@@ -12,6 +12,7 @@ export function SiteHeader({ locale }: Props) {
   const { t } = useTranslation("common");
   const pathname = usePathname();
   const isPayments = pathname === "/payments";
+  const isWealth = pathname === "/wealth";
   const isMakePayment = pathname === "/make-payment";
   const isMakeTransfer = pathname === "/make-transfer";
 
@@ -34,6 +35,14 @@ export function SiteHeader({ locale }: Props) {
               }`}
             >
               {t("bankNavigation.payments")}
+            </Link>
+            <Link
+              href="/wealth"
+              className={`rounded-lg px-3 py-1.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                isWealth ? "bg-primary text-primary-foreground" : "text-foreground hover:text-primary"
+              }`}
+            >
+              {t("bankNavigation.wealth")}
             </Link>
             <Link
               href="/make-payment"

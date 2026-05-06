@@ -25,8 +25,35 @@
   "bankNavigation": {
     "breadcrumb": "Fil d'ariane banque",
     "payments": "Paiements",
+    "wealth": "Patrimoine",
     "makePayment": "Effectuer un paiement",
     "makeTransfer": "Effectuer un transfert"
+  },
+  "bankWealth": {
+    "title": "Patrimoine",
+    "subtitle": "Vue d'ensemble de vos comptes par categorie. Tous les soldes affiches ici sont des donnees fictives de demonstration.",
+    "sections": {
+      "checking": "Comptes courants",
+      "savings": "Comptes epargne",
+      "retirement": "Comptes de retraite",
+      "cards": "Cartes de credit"
+    },
+    "accountLabels": {
+      "checking": "Compte courant",
+      "savings": "Compte epargne",
+      "retirement": "Compte retraite",
+      "card": "Carte de credit"
+    },
+    "labels": {
+      "iban": "IBAN",
+      "cardNumber": "Numero de carte",
+      "internalNumber": "Numero interne",
+      "balance": "Solde",
+      "totalByCategory": "Total par categorie"
+    },
+    "actions": {
+      "details": "Details"
+    }
   },
   "bankPaymentsLanding": {
     "title": "Paiements et transferts",

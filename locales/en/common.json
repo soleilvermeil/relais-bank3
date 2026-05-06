@@ -25,8 +25,35 @@
   "bankNavigation": {
     "breadcrumb": "Bank breadcrumb",
     "payments": "Payments",
+    "wealth": "Wealth",
     "makePayment": "Make payment",
     "makeTransfer": "Make transfer"
+  },
+  "bankWealth": {
+    "title": "Wealth",
+    "subtitle": "Overview of your accounts by category. All balances shown here are mock data for demonstration only.",
+    "sections": {
+      "checking": "Checking accounts",
+      "savings": "Savings accounts",
+      "retirement": "Retirement accounts",
+      "cards": "Credit cards"
+    },
+    "accountLabels": {
+      "checking": "Checking account",
+      "savings": "Savings account",
+      "retirement": "Retirement account",
+      "card": "Credit card"
+    },
+    "labels": {
+      "iban": "IBAN",
+      "cardNumber": "Card number",
+      "internalNumber": "Internal number",
+      "balance": "Balance",
+      "totalByCategory": "Total by category"
+    },
+    "actions": {
+      "details": "Details"
+    }
   },
   "bankPaymentsLanding": {
     "title": "Payments and transfers",
