@@ -1,42 +1,22 @@
 import Link from "next/link";
 import { getServerT } from "@/lib/i18n/server";
-import { Button } from "@/components/atoms/button";
+import { formatChfCurrency } from "@/lib/bank-money";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
+import {
+  WealthAccountSection,
+  type WealthAccount,
+} from "@/components/organisms/wealth-account-section";
 
-type Account = {
-  name: string;
-  identifier: string;
-  balance: number;
-};
-
-type AccountSection = {
+type WealthPageSection = {
   title: string;
-  accounts: Account[];
+  accounts: WealthAccount[];
 };
-
-const currency = new Intl.NumberFormat("en-CH", {
-  style: "currency",
-  currency: "CHF",
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
-});
-
-function formatCurrency(amount: number): string {
-  if (amount < 0) {
-    return `-${currency.format(Math.abs(amount))}`;
-  }
-  return currency.format(amount);
-}
-
-function sectionTotal(accounts: Account[]): number {
-  return accounts.reduce((sum, account) => sum + account.balance, 0);
-}
 
 export default async function WealthPage() {
   const t = await getServerT();
 
-  const sections: AccountSection[] = [
+  const sections: WealthPageSection[] = [
     {
       title: t("bankWealth.sections.checking"),
       accounts: [
@@ -50,6 +30,11 @@ export default async function WealthPage() {
           identifier: "CH77 8080 8009 9999 0000 1",
           balance: 3420.0,
         },
+        {
+          name: `${t("bankWealth.accountLabels.checking")} 02`,
+          identifier: "CH77 8080 8009 9999 0000 2",
+          balance: -82.50,
+        },
       ],
     },
     {
@@ -60,11 +45,11 @@ export default async function WealthPage() {
           identifier: "CH93 8080 8000 1111 2222 3",
           balance: 48200.0,
         },
-        {
-          name: `${t("bankWealth.accountLabels.savings")} 02`,
-          identifier: "CH10 8080 8000 3333 4444 5",
-          balance: 15750.8,
-        },
+        // {
+        //   name: `${t("bankWealth.accountLabels.savings")} 02`,
+        //   identifier: "CH10 8080 8000 3333 4444 5",
+        //   balance: 15750.8,
+        // },
       ],
     },
     {
@@ -119,55 +104,14 @@ export default async function WealthPage() {
 
         <div className="space-y-6">
           {sections.map((section) => (
-            <section key={section.title} className="space-y-4">
-              <SectionTitle as="h2">{section.title}</SectionTitle>
-              <div className="rounded-2xl border border-card-border bg-card p-4 sm:p-6">
-                <div>
-                  {section.accounts.map((account, index) => {
-                    return (
-                      <article
-                        key={`${section.title}-${account.identifier}`}
-                        className={index > 0 ? "mt-3 border-t border-card-border pt-3" : ""}
-                      >
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="min-w-0 space-y-1">
-                            <h3 className="text-base font-semibold text-foreground">{account.name}</h3>
-                            <p className="text-sm text-muted-foreground">{account.identifier}</p>
-                          </div>
-                          <div className="flex shrink-0 items-center gap-3">
-                            <p
-                              className={`text-sm font-semibold ${
-                                account.balance < 0 ? "text-red-600" : "text-foreground"
-                              }`}
-                            >
-                              {formatCurrency(account.balance)}
-                            </p>
-                            <div className="hidden sm:block">
-                              <Button variant="secondary">{t("bankWealth.actions.details")}</Button>
-                            </div>
-                          </div>
-                        </div>
-                      </article>
-                    );
-                  })}
-                </div>
-
-                <div className="mt-3 border-t border-card-border pt-3">
-                  <p className="flex items-center justify-between text-sm sm:text-base">
-                    <span className="font-medium text-foreground">
-                      {t("bankWealth.labels.totalByCategory")}
-                    </span>
-                    <span
-                      className={`font-semibold ${
-                        sectionTotal(section.accounts) < 0 ? "text-red-600" : "text-foreground"
-                      }`}
-                    >
-                      {formatCurrency(sectionTotal(section.accounts))}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </section>
+            <WealthAccountSection
+              key={section.title}
+              title={section.title}
+              accounts={section.accounts}
+              totalLabel={t("bankWealth.labels.totalByCategory")}
+              detailsLabel={t("bankWealth.actions.details")}
+              formatCurrency={formatChfCurrency}
+            />
           ))}
         </div>
       </main>
