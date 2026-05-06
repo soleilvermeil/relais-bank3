@@ -3,6 +3,7 @@ import { Button } from "@/components/atoms/button";
 import { SectionTitle } from "@/components/atoms/section-title";
 
 export type WealthAccount = {
+  id: number;
   name: string;
   identifier: string;
   balance: number;
@@ -53,7 +54,7 @@ export function WealthAccountSection({
                     {formatCurrency(account.balance)}
                   </p>
                   <div className="hidden sm:block">
-                    <Link href="/wealth/account" className="inline-flex">
+                    <Link href={`/wealth/account/${account.id}`} className="inline-flex">
                       <Button variant="secondary">{detailsLabel}</Button>
                     </Link>
                   </div>

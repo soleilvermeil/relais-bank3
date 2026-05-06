@@ -2,18 +2,29 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { submitTransfer } from "@/app/actions/bank";
 import { Button } from "@/components/atoms/button";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { RadioGroupField } from "@/components/molecules/radio-group-field";
 import { SelectField } from "@/components/molecules/select-field";
 import { TextField } from "@/components/molecules/text-field";
 
-export function BankTransferForm() {
+export type AccountOption = {
+  id: number;
+  label: string;
+};
+
+type Props = {
+  debitAccounts: AccountOption[];
+  creditAccounts: AccountOption[];
+};
+
+export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
   const { t } = useTranslation("common");
   const [executionMode, setExecutionMode] = useState<"immediate" | "date">("immediate");
 
   return (
-    <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-8" action={submitTransfer}>
       <section aria-labelledby="transfer-details-heading" className="space-y-4">
         <SectionTitle as="h2" id="transfer-details-heading">
           {t("bankTransfer.sections.transferDetails")}
@@ -30,8 +41,11 @@ export function BankTransferForm() {
                 <option value="" disabled>
                   {t("bankTransfer.placeholders.selectDebitAccount")}
                 </option>
-                <option value="chf-main">CH10 ... 1111 (CHF)</option>
-                <option value="savings">CH30 ... 3333 (Savings / Epargne)</option>
+                {debitAccounts.map((account) => (
+                  <option key={account.id} value={String(account.id)}>
+                    {account.label}
+                  </option>
+                ))}
             </SelectField>
             <SelectField
               id="transfer-credit"
@@ -43,8 +57,11 @@ export function BankTransferForm() {
                 <option value="" disabled>
                   {t("bankTransfer.placeholders.selectCreditAccount")}
                 </option>
-                <option value="chf-main">CH10 ... 1111 (CHF)</option>
-                <option value="savings">CH30 ... 3333 (Savings / Epargne)</option>
+                {creditAccounts.map((account) => (
+                  <option key={account.id} value={String(account.id)}>
+                    {account.label}
+                  </option>
+                ))}
             </SelectField>
             <TextField
               id="transfer-amount"

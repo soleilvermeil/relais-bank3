@@ -3,86 +3,24 @@ import { getServerT } from "@/lib/i18n/server";
 import { formatChfCurrency } from "@/lib/bank-money";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
+import { WealthAccountSection } from "@/components/organisms/wealth-account-section";
 import {
-  WealthAccountSection,
-  type WealthAccount,
-} from "@/components/organisms/wealth-account-section";
+  listAccountsGroupedByCategory,
+  type AccountCategory,
+} from "@/lib/db/accounts";
 
-type WealthPageSection = {
-  title: string;
-  accounts: WealthAccount[];
+const SECTION_TITLE_KEY: Record<AccountCategory, string> = {
+  checking: "bankWealth.sections.checking",
+  savings: "bankWealth.sections.savings",
+  retirement: "bankWealth.sections.retirement",
+  cards: "bankWealth.sections.cards",
 };
+
+export const dynamic = "force-dynamic";
 
 export default async function WealthPage() {
   const t = await getServerT();
-
-  const sections: WealthPageSection[] = [
-    {
-      title: t("bankWealth.sections.checking"),
-      accounts: [
-        {
-          name: `${t("bankWealth.accountLabels.checking")} 01`,
-          identifier: "CH14 8080 8001 2345 6789 0",
-          balance: 12580.45,
-        },
-        {
-          name: `${t("bankWealth.accountLabels.checking")} 02`,
-          identifier: "CH77 8080 8009 9999 0000 1",
-          balance: 3420.0,
-        },
-        {
-          name: `${t("bankWealth.accountLabels.checking")} 02`,
-          identifier: "CH77 8080 8009 9999 0000 2",
-          balance: -82.50,
-        },
-      ],
-    },
-    {
-      title: t("bankWealth.sections.savings"),
-      accounts: [
-        {
-          name: `${t("bankWealth.accountLabels.savings")} 01`,
-          identifier: "CH93 8080 8000 1111 2222 3",
-          balance: 48200.0,
-        },
-        // {
-        //   name: `${t("bankWealth.accountLabels.savings")} 02`,
-        //   identifier: "CH10 8080 8000 3333 4444 5",
-        //   balance: 15750.8,
-        // },
-      ],
-    },
-    {
-      title: t("bankWealth.sections.retirement"),
-      accounts: [
-        {
-          name: `${t("bankWealth.accountLabels.retirement")} A`,
-          identifier: "PIL-3A-001928",
-          balance: 71230.15,
-        },
-        {
-          name: `${t("bankWealth.accountLabels.retirement")} B`,
-          identifier: "PEN-3B-004201",
-          balance: 22890.0,
-        },
-      ],
-    },
-    {
-      title: t("bankWealth.sections.cards"),
-      accounts: [
-        {
-          name: `${t("bankWealth.accountLabels.card")} Platinum`,
-          identifier: "XXXX XXXX XXXX 1284",
-          balance: -980.35,
-        },
-        {
-          name: `${t("bankWealth.accountLabels.card")} Travel`,
-          identifier: "XXXX XXXX XXXX 7741",
-          balance: -120.0,
-        },
-      ],
-    },
-  ];
+  const groups = listAccountsGroupedByCategory();
 
   return (
     <Container>
@@ -103,11 +41,16 @@ export default async function WealthPage() {
         </header>
 
         <div className="space-y-6">
-          {sections.map((section) => (
+          {groups.map((group) => (
             <WealthAccountSection
-              key={section.title}
-              title={section.title}
-              accounts={section.accounts}
+              key={group.category}
+              title={t(SECTION_TITLE_KEY[group.category])}
+              accounts={group.accounts.map((account) => ({
+                id: account.id,
+                name: account.name,
+                identifier: account.identifier,
+                balance: account.balance,
+              }))}
               totalLabel={t("bankWealth.labels.totalByCategory")}
               detailsLabel={t("bankWealth.actions.details")}
               formatCurrency={formatChfCurrency}

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { submitPayment } from "@/app/actions/bank";
 import { Button } from "@/components/atoms/button";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { RadioGroupField } from "@/components/molecules/radio-group-field";
@@ -9,14 +10,23 @@ import { SelectField } from "@/components/molecules/select-field";
 import { TextField } from "@/components/molecules/text-field";
 import { TextareaField } from "@/components/molecules/textarea-field";
 
-export function BankPaymentForm() {
+export type AccountOption = {
+  id: number;
+  label: string;
+};
+
+type Props = {
+  debitAccounts: AccountOption[];
+};
+
+export function BankPaymentForm({ debitAccounts }: Props) {
   const { t } = useTranslation("common");
   const [paymentType, setPaymentType] = useState<"oneTime" | "standing">("oneTime");
   const [periodType, setPeriodType] = useState<"unlimited" | "endDate">("unlimited");
   const [express, setExpress] = useState<"yes" | "no">("no");
 
   return (
-    <form className="space-y-10" onSubmit={(e) => e.preventDefault()}>
+    <form className="space-y-10" action={submitPayment}>
       <section aria-labelledby="beneficiary-heading" className="space-y-4">
         <SectionTitle as="h2" id="beneficiary-heading">
           {t("bankPayment.sections.beneficiary")}
@@ -167,8 +177,11 @@ export function BankPaymentForm() {
                 <option value="" disabled>
                   {t("bankPayment.placeholders.selectDebitAccount")}
                 </option>
-                <option value="chf-main">CH10 ... 1111 (CHF)</option>
-                <option value="eur-main">CH20 ... 2222 (EUR)</option>
+                {debitAccounts.map((account) => (
+                  <option key={account.id} value={String(account.id)}>
+                    {account.label}
+                  </option>
+                ))}
             </SelectField>
             <TextField
               id="amount"
