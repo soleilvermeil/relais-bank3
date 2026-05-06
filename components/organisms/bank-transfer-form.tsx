@@ -8,6 +8,7 @@ import { SectionTitle } from "@/components/atoms/section-title";
 import { RadioGroupField } from "@/components/molecules/radio-group-field";
 import { SelectField } from "@/components/molecules/select-field";
 import { TextField } from "@/components/molecules/text-field";
+import type { TransferDraft } from "@/lib/bank-types";
 
 export type AccountOption = {
   id: number;
@@ -17,11 +18,14 @@ export type AccountOption = {
 type Props = {
   debitAccounts: AccountOption[];
   creditAccounts: AccountOption[];
+  initial?: Partial<TransferDraft>;
 };
 
-export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
+export function BankTransferForm({ debitAccounts, creditAccounts, initial }: Props) {
   const { t } = useTranslation("common");
-  const [executionMode, setExecutionMode] = useState<"immediate" | "date">("immediate");
+  const [executionMode, setExecutionMode] = useState<"immediate" | "date">(
+    initial?.executionMode === "date" ? "date" : "immediate",
+  );
 
   return (
     <form className="space-y-8" action={submitTransfer}>
@@ -34,7 +38,7 @@ export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
             <SelectField
               id="transfer-debit"
               name="debitAccount"
-              defaultValue=""
+              defaultValue={initial?.debitAccount ?? ""}
               label={t("bankTransfer.fields.debitAccount")}
               required
             >
@@ -50,7 +54,7 @@ export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
             <SelectField
               id="transfer-credit"
               name="creditAccount"
-              defaultValue=""
+              defaultValue={initial?.creditAccount ?? ""}
               label={t("bankTransfer.fields.creditAccount")}
               required
             >
@@ -72,6 +76,7 @@ export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
               label={t("bankTransfer.fields.amount")}
               required
               hint="Example: 100.00"
+              defaultValue={initial?.amount ?? ""}
             />
             <RadioGroupField
               name="executionMode"
@@ -93,6 +98,7 @@ export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
                 label={t("bankTransfer.fields.executionDate")}
                 required
                 width="full"
+                defaultValue={initial?.executionDate ?? ""}
               />
             ) : null}
             <TextField
@@ -100,6 +106,7 @@ export function BankTransferForm({ debitAccounts, creditAccounts }: Props) {
               name="accountingTextForYou"
               label={t("bankTransfer.fields.accountingTextForYou")}
               width="full"
+              defaultValue={initial?.accountingTextForYou ?? ""}
             />
           </div>
         </div>

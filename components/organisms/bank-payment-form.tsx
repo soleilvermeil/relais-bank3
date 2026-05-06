@@ -9,6 +9,7 @@ import { RadioGroupField } from "@/components/molecules/radio-group-field";
 import { SelectField } from "@/components/molecules/select-field";
 import { TextField } from "@/components/molecules/text-field";
 import { TextareaField } from "@/components/molecules/textarea-field";
+import type { PaymentDraft } from "@/lib/bank-types";
 
 export type AccountOption = {
   id: number;
@@ -17,13 +18,20 @@ export type AccountOption = {
 
 type Props = {
   debitAccounts: AccountOption[];
+  initial?: Partial<PaymentDraft>;
 };
 
-export function BankPaymentForm({ debitAccounts }: Props) {
+export function BankPaymentForm({ debitAccounts, initial }: Props) {
   const { t } = useTranslation("common");
-  const [paymentType, setPaymentType] = useState<"oneTime" | "standing">("oneTime");
-  const [periodType, setPeriodType] = useState<"unlimited" | "endDate">("unlimited");
-  const [express, setExpress] = useState<"yes" | "no">("no");
+  const [paymentType, setPaymentType] = useState<"oneTime" | "standing">(
+    initial?.paymentType === "standing" ? "standing" : "oneTime",
+  );
+  const [periodType, setPeriodType] = useState<"unlimited" | "endDate">(
+    initial?.periodType === "endDate" ? "endDate" : "unlimited",
+  );
+  const [express, setExpress] = useState<"yes" | "no">(
+    initial?.express === "yes" ? "yes" : "no",
+  );
 
   return (
     <form className="space-y-10" action={submitPayment}>
@@ -40,6 +48,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               required
               width="full"
               hint="Example: CH72 1111 2222 3333 4444 5"
+              defaultValue={initial?.beneficiaryIban ?? ""}
             />
             <TextField
               id="beneficiary-name"
@@ -47,6 +56,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               label={t("bankPayment.fields.beneficiaryName")}
               required
               width="full"
+              defaultValue={initial?.beneficiaryName ?? ""}
             />
             <SelectField
               id="beneficiary-country"
@@ -54,7 +64,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               label={t("bankPayment.fields.country")}
               required
               width="full"
-              defaultValue=""
+              defaultValue={initial?.beneficiaryCountry ?? ""}
             >
                 <option value="" disabled>
                   {t("bankPayment.placeholders.selectCountry")}
@@ -69,22 +79,26 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               name="beneficiaryPostalCode"
               label={t("bankPayment.fields.postalCode")}
               required
+              defaultValue={initial?.beneficiaryPostalCode ?? ""}
             />
             <TextField
               id="beneficiary-city"
               name="beneficiaryCity"
               label={t("bankPayment.fields.locality")}
               required
+              defaultValue={initial?.beneficiaryCity ?? ""}
             />
             <TextField
               id="beneficiary-address1"
               name="beneficiaryAddress1"
               label={t("bankPayment.fields.street")}
+              defaultValue={initial?.beneficiaryAddress1 ?? ""}
             />
             <TextField
               id="beneficiary-address2"
               name="beneficiaryAddress2"
               label={t("bankPayment.fields.houseNumber")}
+              defaultValue={initial?.beneficiaryAddress2 ?? ""}
             />
           </div>
         </div>
@@ -116,11 +130,12 @@ export function BankPaymentForm({ debitAccounts }: Props) {
                   type="date"
                   label={t("bankPayment.fields.firstExecutionDate")}
                   required
+                  defaultValue={initial?.firstExecutionDate ?? ""}
                 />
                 <SelectField
                   id="frequency"
                   name="frequency"
-                  defaultValue=""
+                  defaultValue={initial?.frequency ?? ""}
                   label={t("bankPayment.fields.frequency")}
                   required
                 >
@@ -135,7 +150,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
                 <SelectField
                   id="holiday-rule"
                   name="weekendHolidayRule"
-                  defaultValue="after"
+                  defaultValue={initial?.weekendHolidayRule ?? "after"}
                   label={t("bankPayment.fields.weekendHolidayRule")}
                   required
                   width="full"
@@ -162,6 +177,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
                     label={t("bankPayment.fields.endDate")}
                     required
                     width="full"
+                    defaultValue={initial?.endDate ?? ""}
                   />
                 ) : null}
               </>
@@ -170,7 +186,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
             <SelectField
               id="debit-account"
               name="debitAccount"
-              defaultValue=""
+              defaultValue={initial?.debitAccount ?? ""}
               label={t("bankPayment.fields.debitAccount")}
               required
             >
@@ -192,6 +208,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               label={t("bankPayment.fields.amount")}
               required
               hint="Example: 250.00"
+              defaultValue={initial?.amount ?? ""}
             />
 
             <RadioGroupField
@@ -215,6 +232,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
                 label={t("bankPayment.fields.executionDate")}
                 required
                 width="full"
+                defaultValue={initial?.executionDate ?? ""}
               />
             ) : null}
           </div>
@@ -233,6 +251,7 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               label={t("bankPayment.fields.rfReference")}
               width="full"
               hint="Example: RF..."
+              defaultValue={initial?.rfReference ?? ""}
             />
             <TextareaField
               id="communication"
@@ -240,12 +259,14 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               rows={3}
               label={t("bankPayment.fields.communicationToBeneficiary")}
               width="full"
+              defaultValue={initial?.communicationToBeneficiary ?? ""}
             />
             <TextField
               id="accounting-text"
               name="accountingTextForYou"
               label={t("bankPayment.fields.accountingTextForYou")}
               width="full"
+              defaultValue={initial?.accountingTextForYou ?? ""}
             />
           </div>
         </div>
@@ -262,11 +283,12 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               name="debtorName"
               label={t("bankPayment.fields.debtorName")}
               width="full"
+              defaultValue={initial?.debtorName ?? ""}
             />
             <SelectField
               id="debtor-country"
               name="debtorCountry"
-              defaultValue=""
+              defaultValue={initial?.debtorCountry ?? ""}
               label={t("bankPayment.fields.country")}
               width="full"
             >
@@ -282,21 +304,25 @@ export function BankPaymentForm({ debitAccounts }: Props) {
               id="debtor-postal"
               name="debtorPostalCode"
               label={t("bankPayment.fields.postalCode")}
+              defaultValue={initial?.debtorPostalCode ?? ""}
             />
             <TextField
               id="debtor-city"
               name="debtorCity"
               label={t("bankPayment.fields.locality")}
+              defaultValue={initial?.debtorCity ?? ""}
             />
             <TextField
               id="debtor-address1"
               name="debtorAddress1"
               label={t("bankPayment.fields.street")}
+              defaultValue={initial?.debtorAddress1 ?? ""}
             />
             <TextField
               id="debtor-address2"
               name="debtorAddress2"
               label={t("bankPayment.fields.houseNumber")}
+              defaultValue={initial?.debtorAddress2 ?? ""}
             />
           </div>
         </div>

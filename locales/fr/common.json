@@ -173,5 +173,28 @@
     "actions": {
       "review": "Verifier le transfert (demo)"
     }
+  },
+  "bankReview": {
+    "title": "Verification",
+    "titlePayment": "Verifiez votre paiement",
+    "titleTransfer": "Verifiez votre transfert",
+    "subtitle": "Verifiez que tout est correct avant de confirmer. Ce site est pedagogique : aucune transaction reelle n'est executee.",
+    "actions": {
+      "confirm": "Confirmer",
+      "edit": "Revenir et modifier"
+    }
+  },
+  "bankConfirmation": {
+    "title": "Confirmation",
+    "titlePayment": "Paiement enregistre",
+    "titleTransfer": "Transfert enregistre",
+    "subtitle": "Votre operation a ete ajoutee au registre de demonstration.",
+    "placedOn": "Enregistre le",
+    "reference": "Reference",
+    "actions": {
+      "print": "Imprimer",
+      "makeAnotherPayment": "Effectuer un autre paiement",
+      "makeAnotherTransfer": "Effectuer un autre transfert"
+    }
   }
 }

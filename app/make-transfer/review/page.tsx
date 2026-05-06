@@ -1,0 +1,86 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { confirmTransfer } from "@/app/actions/bank";
+import { Button } from "@/components/atoms/button";
+import { Container } from "@/components/atoms/container";
+import { SectionTitle } from "@/components/atoms/section-title";
+import { BankTransferReviewSummary } from "@/components/organisms/bank-review-summary";
+import { readTransferDraftCookie } from "@/lib/bank-cookies";
+import { getAccountById } from "@/lib/db/accounts";
+import { getServerT } from "@/lib/i18n/server";
+
+export const dynamic = "force-dynamic";
+
+export default async function MakeTransferReviewPage() {
+  const draft = await readTransferDraftCookie();
+  if (!draft) {
+    redirect("/make-transfer");
+  }
+
+  const t = await getServerT();
+
+  const debitAccountId = Number(draft.debitAccount);
+  const creditAccountId = Number(draft.creditAccount);
+  const debitAccount = Number.isFinite(debitAccountId)
+    ? getAccountById(debitAccountId)
+    : null;
+  const creditAccount = Number.isFinite(creditAccountId)
+    ? getAccountById(creditAccountId)
+    : null;
+  const debitAccountLabel = debitAccount
+    ? `${debitAccount.identifier} (${debitAccount.name})`
+    : draft.debitAccount;
+  const creditAccountLabel = creditAccount
+    ? `${creditAccount.identifier} (${creditAccount.name})`
+    : draft.creditAccount;
+
+  return (
+    <Container>
+      <main id="main-content" className="space-y-8">
+        <nav
+          aria-label={t("bankNavigation.breadcrumb")}
+          className="text-sm text-muted-foreground print:hidden"
+        >
+          <Link href="/payments" className="font-medium text-primary hover:underline">
+            {t("bankNavigation.payments")}
+          </Link>
+          <span aria-hidden="true" className="mx-2">
+            /
+          </span>
+          <Link href="/make-transfer" className="font-medium text-primary hover:underline">
+            {t("bankNavigation.makeTransfer")}
+          </Link>
+          <span aria-hidden="true" className="mx-2">
+            /
+          </span>
+          <span className="text-foreground">{t("bankReview.title")}</span>
+        </nav>
+
+        <header className="space-y-3">
+          <SectionTitle as="h1">{t("bankReview.titleTransfer")}</SectionTitle>
+          <p className="max-w-3xl text-base text-muted-foreground">
+            {t("bankReview.subtitle")}
+          </p>
+        </header>
+
+        <BankTransferReviewSummary
+          draft={draft}
+          debitAccountLabel={debitAccountLabel}
+          creditAccountLabel={creditAccountLabel}
+          t={t}
+        />
+
+        <div className="flex flex-wrap gap-3 print:hidden">
+          <form action={confirmTransfer}>
+            <Button type="submit" wide>
+              {t("bankReview.actions.confirm")}
+            </Button>
+          </form>
+          <Link href="/make-transfer" className="inline-flex">
+            <Button variant="secondary">{t("bankReview.actions.edit")}</Button>
+          </Link>
+        </div>
+      </main>
+    </Container>
+  );
+}

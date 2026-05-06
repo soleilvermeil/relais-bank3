@@ -3,6 +3,7 @@ import { getServerT } from "@/lib/i18n/server";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankPaymentForm } from "@/components/organisms/bank-payment-form";
+import { readPaymentDraftCookie } from "@/lib/bank-cookies";
 import { listSelectableAccounts } from "@/lib/db/accounts";
 
 export const dynamic = "force-dynamic";
@@ -13,6 +14,7 @@ export default async function MakePaymentPage() {
     id: account.id,
     label: `${account.identifier} (${account.name})`,
   }));
+  const draft = await readPaymentDraftCookie();
 
   return (
     <Container>
@@ -30,7 +32,7 @@ export default async function MakePaymentPage() {
           <SectionTitle as="h1">{t("bankPayment.title")}</SectionTitle>
           <p className="max-w-3xl text-base text-muted-foreground">{t("bankPayment.subtitle")}</p>
         </header>
-        <BankPaymentForm debitAccounts={debitAccounts} />
+        <BankPaymentForm debitAccounts={debitAccounts} initial={draft ?? undefined} />
       </main>
     </Container>
   );

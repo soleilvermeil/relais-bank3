@@ -173,5 +173,28 @@
     "actions": {
       "review": "Review transfer (demo)"
     }
+  },
+  "bankReview": {
+    "title": "Review",
+    "titlePayment": "Review your payment",
+    "titleTransfer": "Review your transfer",
+    "subtitle": "Check that everything is correct before confirming. This is a learning website; no real transaction is executed.",
+    "actions": {
+      "confirm": "Confirm",
+      "edit": "Go back and edit"
+    }
+  },
+  "bankConfirmation": {
+    "title": "Confirmation",
+    "titlePayment": "Payment recorded",
+    "titleTransfer": "Transfer recorded",
+    "subtitle": "Your operation has been added to the demo ledger.",
+    "placedOn": "Placed on",
+    "reference": "Reference",
+    "actions": {
+      "print": "Print",
+      "makeAnotherPayment": "Make another payment",
+      "makeAnotherTransfer": "Make another transfer"
+    }
   }
 }
