@@ -1,13 +1,10 @@
-const chfCurrency = new Intl.NumberFormat("en-CH", {
-  style: "currency",
-  currency: "CHF",
+const chfNumber = new Intl.NumberFormat("en-CH", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
 });
 
 export function formatChfCurrency(amount: number): string {
-  if (amount < 0) {
-    return `-${chfCurrency.format(Math.abs(amount))}`;
-  }
-  return chfCurrency.format(amount);
+  const sign = amount < 0 ? "-" : "+";
+  const formattedNumber = chfNumber.format(Math.abs(amount)).replaceAll("’", "'");
+  return `CHF ${formattedNumber}${sign}`;
 }
