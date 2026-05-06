@@ -43,6 +43,7 @@ export function BankPaymentForm() {
               name="beneficiaryCountry"
               label={t("bankPayment.fields.country")}
               required
+              width="full"
               defaultValue=""
             >
                 <option value="" disabled>
@@ -54,25 +55,26 @@ export function BankPaymentForm() {
                 <option value="it">Italy / Italie</option>
             </SelectField>
             <TextField
+              id="beneficiary-postal"
+              name="beneficiaryPostalCode"
+              label={t("bankPayment.fields.postalCode")}
+              required
+            />
+            <TextField
               id="beneficiary-city"
               name="beneficiaryCity"
-              label={t("bankPayment.fields.city")}
+              label={t("bankPayment.fields.locality")}
               required
             />
             <TextField
               id="beneficiary-address1"
               name="beneficiaryAddress1"
-              label={t("bankPayment.fields.addressLine1Optional")}
+              label={t("bankPayment.fields.street")}
             />
             <TextField
               id="beneficiary-address2"
               name="beneficiaryAddress2"
-              label={t("bankPayment.fields.addressLine2Optional")}
-            />
-            <TextField
-              id="beneficiary-postal"
-              name="beneficiaryPostalCode"
-              label={t("bankPayment.fields.postalCodeOptional")}
+              label={t("bankPayment.fields.houseNumber")}
             />
           </div>
         </div>
@@ -253,6 +255,7 @@ export function BankPaymentForm() {
               name="debtorCountry"
               defaultValue=""
               label={t("bankPayment.fields.country")}
+              width="full"
             >
                 <option value="" disabled>
                   {t("bankPayment.placeholders.selectCountry")}
@@ -262,21 +265,25 @@ export function BankPaymentForm() {
                 <option value="de">Germany / Allemagne</option>
                 <option value="it">Italy / Italie</option>
             </SelectField>
-            <TextField id="debtor-city" name="debtorCity" label={t("bankPayment.fields.city")} />
+            <TextField
+              id="debtor-postal"
+              name="debtorPostalCode"
+              label={t("bankPayment.fields.postalCode")}
+            />
+            <TextField
+              id="debtor-city"
+              name="debtorCity"
+              label={t("bankPayment.fields.locality")}
+            />
             <TextField
               id="debtor-address1"
               name="debtorAddress1"
-              label={t("bankPayment.fields.addressLine1Optional")}
+              label={t("bankPayment.fields.street")}
             />
             <TextField
               id="debtor-address2"
               name="debtorAddress2"
-              label={t("bankPayment.fields.addressLine2Optional")}
-            />
-            <TextField
-              id="debtor-postal"
-              name="debtorPostalCode"
-              label={t("bankPayment.fields.postalCodeOptional")}
+              label={t("bankPayment.fields.houseNumber")}
             />
           </div>
         </div>
