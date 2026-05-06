@@ -1,14 +1,13 @@
-type Props = { example: string; id?: string };
+type Props = { hint: string; id?: string };
 
 /** Short hint under an input so learners know what format is expected. */
-export function FieldHint({ example, id }: Props) {
+export function FieldHint({ hint, id }: Props) {
   return (
     <p
       id={id}
       className="mt-1 text-xs leading-relaxed text-muted-foreground"
     >
-      <span className="font-medium text-foreground/80">Example: </span>
-      {example}
+      {hint}
     </p>
   );
 }

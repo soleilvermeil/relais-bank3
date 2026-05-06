@@ -40,7 +40,7 @@ export function PaymentCardFields({
         />
         <FieldHint
           id="hint-cardNumber"
-          example={t("payment.hints.cardNumber")}
+          hint={`Example: ${t("payment.hints.cardNumber")}`}
         />
       </div>
       <div className="space-y-1">
@@ -51,7 +51,7 @@ export function PaymentCardFields({
           autoComplete="cc-name"
           defaultValue=""
         />
-        <FieldHint example={t("payment.hints.name")} />
+        <FieldHint hint={`Example: ${t("payment.hints.name")}`} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1">
@@ -62,7 +62,7 @@ export function PaymentCardFields({
             autoComplete="cc-exp"
             defaultValue=""
           />
-          <FieldHint example={t("payment.hints.expiry")} />
+          <FieldHint hint={`Example: ${t("payment.hints.expiry")}`} />
         </div>
         <div className="space-y-1">
           <Label htmlFor="cardCvc">{t("payment.card.cvc")}</Label>
@@ -73,7 +73,7 @@ export function PaymentCardFields({
             autoComplete="cc-csc"
             defaultValue=""
           />
-          <FieldHint example={t("payment.hints.cvc")} />
+          <FieldHint hint={`Example: ${t("payment.hints.cvc")}`} />
         </div>
       </div>
 

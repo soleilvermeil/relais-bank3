@@ -36,7 +36,7 @@ export function PaymentBillFields({
           autoComplete="organization"
           defaultValue=""
         />
-        <FieldHint example={t("payment.hints.org")} />
+        <FieldHint hint={`Example: ${t("payment.hints.org")}`} />
       </div>
 
       <PaymentBillingAddressFields
@@ -55,12 +55,12 @@ export function PaymentBillFields({
           autoComplete="email"
           defaultValue=""
         />
-        <FieldHint example={t("payment.hints.email")} />
+        <FieldHint hint={`Example: ${t("payment.hints.email")}`} />
       </div>
       <div className="space-y-1">
         <Label htmlFor="billReference">{t("payment.bill.reference")}</Label>
         <Input id="billReference" name="billReference" defaultValue="" />
-        <FieldHint example={t("payment.hints.reference")} />
+        <FieldHint hint={`Example: ${t("payment.hints.reference")}`} />
       </div>
     </fieldset>
   );

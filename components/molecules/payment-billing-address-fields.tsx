@@ -30,7 +30,7 @@ export function PaymentBillingAddressFields({
           autoComplete="billing street-address"
           defaultValue={prefillFromShipping ? deliveryLine1 : ""}
         />
-        <FieldHint example={t("payment.hints.street")} />
+        <FieldHint hint={`Example: ${t("payment.hints.street")}`} />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1">
@@ -41,7 +41,7 @@ export function PaymentBillingAddressFields({
             autoComplete="billing postal-code"
             defaultValue={prefillFromShipping ? deliveryPostalCode : ""}
           />
-          <FieldHint example={t("payment.hints.postal")} />
+          <FieldHint hint={`Example: ${t("payment.hints.postal")}`} />
         </div>
         <div className="space-y-1">
           <Label htmlFor="billingCity">{t("payment.billing.city")}</Label>
@@ -51,7 +51,7 @@ export function PaymentBillingAddressFields({
             autoComplete="billing address-level2"
             defaultValue={prefillFromShipping ? deliveryCity : ""}
           />
-          <FieldHint example={t("payment.hints.city")} />
+          <FieldHint hint={`Example: ${t("payment.hints.city")}`} />
         </div>
       </div>
     </div>
