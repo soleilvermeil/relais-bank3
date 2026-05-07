@@ -44,6 +44,10 @@
       "retirement": "Retirement account",
       "card": "Credit card"
     },
+    "naming": {
+      "main": "{{base}} main",
+      "numbered": "{{base}} {{index}}"
+    },
     "labels": {
       "iban": "IBAN",
       "cardNumber": "Card number",
@@ -69,6 +73,14 @@
     "types": {
       "pending": "Pending order",
       "standing": "Standing order"
+    },
+    "transactionLabels": {
+      "purchaseService": "Purchase/Service on {{date}}, {{counterparty}}",
+      "debitTo": "Debit to {{target}}",
+      "creditFrom": "Credit from {{source}}",
+      "debitToPaymentBeneficiary": "Debit to payment beneficiary",
+      "ownAccount": "own account",
+      "scheduledOrder": "Scheduled order"
     }
   },
   "bankPaymentsLanding": {

@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { TFunction } from "i18next";
 import { getServerT } from "@/lib/i18n/server";
 import { formatChfCurrency } from "@/lib/bank-money";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
-import { getAccountById } from "@/lib/db/accounts";
+import { listAccountsGroupedByCategory, localizeAccountGroups } from "@/lib/db/accounts";
 import {
   listTransactionsForAccount,
   type Transaction,
@@ -26,17 +27,26 @@ function formatShortDate(isoDate: string): string {
   return `${day}.${month}.${year.slice(-2)}`;
 }
 
-function transactionLabel(transaction: Transaction): string {
+function transactionLabel(
+  transaction: Transaction,
+  accountNameById: Map<number, string>,
+  t: TFunction,
+): string {
   if (transaction.kind === "purchaseService") {
-    return `Purchase/Service on ${formatShortDate(transaction.execution_date ?? "")}, ${
-      transaction.counterparty_name ?? ""
-    }`;
+    return t("bankAccountDetail.transactionLabels.purchaseService", {
+      date: formatShortDate(transaction.execution_date ?? ""),
+      counterparty: transaction.counterparty_name ?? "",
+    });
   }
   if (transaction.kind === "debit") {
-    return `Debit to ${transaction.counterparty_name ?? ""}`;
+    return t("bankAccountDetail.transactionLabels.debitTo", {
+      target: transaction.counterparty_name ?? "",
+    });
   }
   if (transaction.kind === "credit") {
-    return `Credit from ${transaction.counterparty_name ?? ""}`;
+    return t("bankAccountDetail.transactionLabels.creditFrom", {
+      source: transaction.counterparty_name ?? "",
+    });
   }
   if (transaction.kind === "payment") {
     const target =
@@ -44,25 +54,28 @@ function transactionLabel(transaction: Transaction): string {
       transaction.communication_to_beneficiary ??
       transaction.accounting_text ??
       "";
-    return target.trim() === "" ? "Debit to payment beneficiary" : `Debit to ${target}`;
+    return target.trim() === ""
+      ? t("bankAccountDetail.transactionLabels.debitToPaymentBeneficiary")
+      : t("bankAccountDetail.transactionLabels.debitTo", { target });
   }
   const transferCounterpartyAccountId =
     transaction.amount > 0 ? transaction.debit_account_id : transaction.credit_account_id;
   const transferTarget =
     transferCounterpartyAccountId != null
-      ? (getAccountById(transferCounterpartyAccountId)?.name ?? "own account")
-      : "own account";
+      ? (accountNameById.get(transferCounterpartyAccountId) ??
+        t("bankAccountDetail.transactionLabels.ownAccount"))
+      : t("bankAccountDetail.transactionLabels.ownAccount");
   return transaction.amount > 0
-    ? `Credit from ${transferTarget}`
-    : `Debit to ${transferTarget}`;
+    ? t("bankAccountDetail.transactionLabels.creditFrom", { source: transferTarget })
+    : t("bankAccountDetail.transactionLabels.debitTo", { target: transferTarget });
 }
 
-function upcomingDescription(transaction: Transaction): string {
+function upcomingDescription(transaction: Transaction, t: TFunction): string {
   return (
     transaction.accounting_text ??
     transaction.beneficiary_name ??
     transaction.communication_to_beneficiary ??
-    "Scheduled order"
+    t("bankAccountDetail.transactionLabels.scheduledOrder")
   );
 }
 
@@ -97,12 +110,15 @@ export default async function AccountDetailPage({
     notFound();
   }
 
-  const account = getAccountById(accountId);
+  const t = await getServerT();
+  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(), t);
+  const localizedAccounts = localizedGroups.flatMap((group) => group.accounts);
+  const accountById = new Map(localizedAccounts.map((account) => [account.id, account]));
+  const accountNameById = new Map(localizedAccounts.map((account) => [account.id, account.name]));
+  const account = accountById.get(accountId);
   if (!account) {
     notFound();
   }
-
-  const t = await getServerT();
   const today = todayIsoDate();
   const allTransactions = listTransactionsForAccount(account.id);
 
@@ -165,7 +181,7 @@ export default async function AccountDetailPage({
                               href={`/home/transaction/${order.id}?fromAccount=${account.id}`}
                               className={txDetailLinkClass}
                             >
-                              {upcomingDescription(order)}
+                              {upcomingDescription(order, t)}
                             </Link>
                           </p>
                           <p className="text-sm text-muted-foreground">
@@ -208,7 +224,7 @@ export default async function AccountDetailPage({
                                 href={`/home/transaction/${transaction.id}?fromAccount=${account.id}`}
                                 className={txDetailLinkClass}
                               >
-                                {transactionLabel(transaction)}
+                                {transactionLabel(transaction, accountNameById, t)}
                               </Link>
                             </p>
                           </div>

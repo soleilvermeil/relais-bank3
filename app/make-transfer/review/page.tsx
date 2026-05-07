@@ -6,7 +6,7 @@ import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankTransferReviewSummary } from "@/components/organisms/bank-review-summary";
 import { readTransferDraftCookie } from "@/lib/bank-cookies";
-import { getAccountById } from "@/lib/db/accounts";
+import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 import { getServerT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
@@ -18,14 +18,16 @@ export default async function MakeTransferReviewPage() {
   }
 
   const t = await getServerT();
+  const selectableAccounts = localizeAccounts(listSelectableAccounts(), t);
+  const accountById = new Map(selectableAccounts.map((account) => [account.id, account]));
 
   const debitAccountId = Number(draft.debitAccount);
   const creditAccountId = Number(draft.creditAccount);
   const debitAccount = Number.isFinite(debitAccountId)
-    ? getAccountById(debitAccountId)
+    ? (accountById.get(debitAccountId) ?? null)
     : null;
   const creditAccount = Number.isFinite(creditAccountId)
-    ? getAccountById(creditAccountId)
+    ? (accountById.get(creditAccountId) ?? null)
     : null;
   const debitAccountLabel = debitAccount
     ? `${debitAccount.identifier} (${debitAccount.name})`

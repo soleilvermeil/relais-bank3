@@ -5,6 +5,7 @@ import { SectionTitle } from "@/components/atoms/section-title";
 import { WealthAccountSection } from "@/components/organisms/wealth-account-section";
 import {
   listAccountsGroupedByCategory,
+  localizeAccountGroups,
   type AccountCategory,
 } from "@/lib/db/accounts";
 
@@ -19,7 +20,7 @@ export const dynamic = "force-dynamic";
 
 export default async function WealthPage() {
   const t = await getServerT();
-  const groups = listAccountsGroupedByCategory();
+  const groups = localizeAccountGroups(listAccountsGroupedByCategory(), t);
 
   return (
     <Container>

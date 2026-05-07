@@ -44,6 +44,10 @@
       "retirement": "Compte retraite",
       "card": "Carte de credit"
     },
+    "naming": {
+      "main": "{{base}} principal",
+      "numbered": "{{base}} {{index}}"
+    },
     "labels": {
       "iban": "IBAN",
       "cardNumber": "Numero de carte",
@@ -69,6 +73,14 @@
     "types": {
       "pending": "Ordre en attente",
       "standing": "Ordre permanent"
+    },
+    "transactionLabels": {
+      "purchaseService": "Achat/Service du {{date}}, {{counterparty}}",
+      "debitTo": "Debit vers {{target}}",
+      "creditFrom": "Credit de {{source}}",
+      "debitToPaymentBeneficiary": "Debit vers beneficiaire de paiement",
+      "ownAccount": "compte propre",
+      "scheduledOrder": "Ordre planifie"
     }
   },
   "bankPaymentsLanding": {

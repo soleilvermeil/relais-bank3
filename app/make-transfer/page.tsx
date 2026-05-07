@@ -4,13 +4,13 @@ import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankTransferForm } from "@/components/organisms/bank-transfer-form";
 import { readTransferDraftCookie } from "@/lib/bank-cookies";
-import { listSelectableAccounts } from "@/lib/db/accounts";
+import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 
 export const dynamic = "force-dynamic";
 
 export default async function MakeTransferPage() {
   const t = await getServerT();
-  const accounts = listSelectableAccounts().map((account) => ({
+  const accounts = localizeAccounts(listSelectableAccounts(), t).map((account) => ({
     id: account.id,
     label: `${account.identifier} (${account.name})`,
   }));

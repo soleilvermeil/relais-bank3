@@ -3,6 +3,7 @@ import {
   computeBalanceCentsByAccountId,
   computeBalanceCentsForAccount,
 } from "./transactions";
+import type { TFunction } from "i18next";
 
 export type AccountCategory = "checking" | "savings" | "retirement" | "cards";
 
@@ -47,6 +48,51 @@ export type AccountGroup = {
   category: AccountCategory;
   accounts: Account[];
 };
+
+function categoryBaseLabelKey(category: AccountCategory): string {
+  if (category === "cards") return "card";
+  return category;
+}
+
+export function localizedAccountName(
+  category: AccountCategory,
+  index: number,
+  totalInCategory: number,
+  t: TFunction,
+): string {
+  const baseLabel = t(`bankWealth.accountLabels.${categoryBaseLabelKey(category)}`);
+  if (totalInCategory === 1) {
+    return t("bankWealth.naming.main", { base: baseLabel });
+  }
+  return t("bankWealth.naming.numbered", { base: baseLabel, index });
+}
+
+export function localizeAccounts(accounts: Account[], t: TFunction): Account[] {
+  const totalByCategory = new Map<AccountCategory, number>();
+  const indexByCategory = new Map<AccountCategory, number>();
+
+  for (const account of accounts) {
+    totalByCategory.set(account.category, (totalByCategory.get(account.category) ?? 0) + 1);
+  }
+
+  return accounts.map((account) => {
+    const index = (indexByCategory.get(account.category) ?? 0) + 1;
+    indexByCategory.set(account.category, index);
+    const totalInCategory = totalByCategory.get(account.category) ?? 1;
+
+    return {
+      ...account,
+      name: localizedAccountName(account.category, index, totalInCategory, t),
+    };
+  });
+}
+
+export function localizeAccountGroups(groups: AccountGroup[], t: TFunction): AccountGroup[] {
+  return groups.map((group) => ({
+    ...group,
+    accounts: localizeAccounts(group.accounts, t),
+  }));
+}
 
 export function listAccountsGroupedByCategory(): AccountGroup[] {
   const rows = getDb()

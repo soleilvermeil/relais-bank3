@@ -13,16 +13,19 @@ import {
   transactionRowToPaymentDraft,
   transactionRowToTransferDraft,
 } from "@/lib/bank-transaction-mappers";
-import { getAccountById } from "@/lib/db/accounts";
+import { listAccountsGroupedByCategory, localizeAccountGroups } from "@/lib/db/accounts";
 import { getTransactionById } from "@/lib/db/transactions";
 import { getIntlLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
-function accountLabel(id: number | null): string {
+function accountLabel(
+  id: number | null,
+  accountById: Map<number, { identifier: string; name: string }>,
+): string {
   if (id == null) return "";
-  const acc = getAccountById(id);
+  const acc = accountById.get(id);
   return acc ? `${acc.identifier} (${acc.name})` : `#${id}`;
 }
 
@@ -45,18 +48,22 @@ export default async function WealthTransactionDetailPage({
     notFound();
   }
 
+  const t = await getServerT();
+  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(), t);
+  const localizedAccounts = localizedGroups.flatMap((group) => group.accounts);
+  const accountById = new Map(localizedAccounts.map((account) => [account.id, account]));
+
   const fromAccountId = fromRaw != null ? Number(fromRaw) : NaN;
   const backAccount =
     Number.isFinite(fromAccountId) && fromAccountId > 0
-      ? getAccountById(fromAccountId)
+      ? (accountById.get(fromAccountId) ?? null)
       : null;
 
-  const t = await getServerT();
   const intlLocale = await getIntlLocale();
   const createdAt = new Date(row.created_at);
 
-  const debitLabel = accountLabel(row.debit_account_id);
-  const creditLabel = accountLabel(row.credit_account_id);
+  const debitLabel = accountLabel(row.debit_account_id, accountById);
+  const creditLabel = accountLabel(row.credit_account_id, accountById);
 
   const backHref = backAccount ? `/home/account/${backAccount.id}` : "/home";
   const backLabel = backAccount
@@ -77,7 +84,7 @@ export default async function WealthTransactionDetailPage({
   if (row.kind === "payment") {
     const draft = transactionRowToPaymentDraft(row);
     const debitAccountId = Number(draft.debitAccount);
-    const debitAcc = Number.isFinite(debitAccountId) ? getAccountById(debitAccountId) : null;
+    const debitAcc = Number.isFinite(debitAccountId) ? (accountById.get(debitAccountId) ?? null) : null;
     const debitAccountLabel = debitAcc
       ? `${debitAcc.identifier} (${debitAcc.name})`
       : draft.debitAccount;
@@ -88,8 +95,8 @@ export default async function WealthTransactionDetailPage({
     const draft = transactionRowToTransferDraft(row);
     const dId = Number(draft.debitAccount);
     const cId = Number(draft.creditAccount);
-    const debitAcc = Number.isFinite(dId) ? getAccountById(dId) : null;
-    const creditAcc = Number.isFinite(cId) ? getAccountById(cId) : null;
+    const debitAcc = Number.isFinite(dId) ? (accountById.get(dId) ?? null) : null;
+    const creditAcc = Number.isFinite(cId) ? (accountById.get(cId) ?? null) : null;
     body = (
       <BankTransferReviewSummary
         draft={draft}

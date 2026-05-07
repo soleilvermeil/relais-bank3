@@ -7,7 +7,7 @@ import { SectionTitle } from "@/components/atoms/section-title";
 import { BankPaymentReviewSummary } from "@/components/organisms/bank-review-summary";
 import { BankPrintButton } from "@/components/molecules/bank-print-button";
 import { readLastPaymentCookie } from "@/lib/bank-cookies";
-import { getAccountById } from "@/lib/db/accounts";
+import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 import { getIntlLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
 
@@ -21,10 +21,12 @@ export default async function MakePaymentConfirmationPage() {
 
   const t = await getServerT();
   const intlLocale = await getIntlLocale();
+  const selectableAccounts = localizeAccounts(listSelectableAccounts(), t);
+  const accountById = new Map(selectableAccounts.map((account) => [account.id, account]));
 
   const debitAccountId = Number(snapshot.debitAccount);
   const debitAccount = Number.isFinite(debitAccountId)
-    ? getAccountById(debitAccountId)
+    ? (accountById.get(debitAccountId) ?? null)
     : null;
   const debitAccountLabel = debitAccount
     ? `${debitAccount.identifier} (${debitAccount.name})`

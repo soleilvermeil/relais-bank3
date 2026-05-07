@@ -92,7 +92,7 @@ export function seedDb(db: Database.Database): void {
       rfReference: "RF18 5390 0754 7034 0000 1123",
       beneficiaryPostalCode: "1003",
       beneficiaryCity: "Lausanne",
-      description: "Loyer",
+      description: "Paiement de mon loyer",
     },
     {
       amountCents: AMOUNTS.healthInsurance,
@@ -101,7 +101,7 @@ export function seedDb(db: Database.Database): void {
       rfReference: "RF28 2035 6402 1500 9800 7714",
       beneficiaryPostalCode: "1920",
       beneficiaryCity: "Martigny",
-      description: "Assurance maladie",
+      description: "Paiement de mon assurance maladie",
     },
     {
       amountCents: AMOUNTS.internet,
@@ -110,7 +110,7 @@ export function seedDb(db: Database.Database): void {
       rfReference: "RF72 9981 4400 0071 5560 2048",
       beneficiaryPostalCode: "3050",
       beneficiaryCity: "Bern",
-      description: "Internet",
+      description: "Paiement de ma facture Internet",
     },
   ] as const;
 

@@ -4,13 +4,13 @@ import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankPaymentForm } from "@/components/organisms/bank-payment-form";
 import { readPaymentDraftCookie } from "@/lib/bank-cookies";
-import { listSelectableAccounts } from "@/lib/db/accounts";
+import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 
 export const dynamic = "force-dynamic";
 
 export default async function MakePaymentPage() {
   const t = await getServerT();
-  const debitAccounts = listSelectableAccounts().map((account) => ({
+  const debitAccounts = localizeAccounts(listSelectableAccounts(), t).map((account) => ({
     id: account.id,
     label: `${account.identifier} (${account.name})`,
   }));

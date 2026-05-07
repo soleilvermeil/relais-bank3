@@ -6,7 +6,7 @@ import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankPaymentReviewSummary } from "@/components/organisms/bank-review-summary";
 import { readPaymentDraftCookie } from "@/lib/bank-cookies";
-import { getAccountById } from "@/lib/db/accounts";
+import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 import { getServerT } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
@@ -18,10 +18,12 @@ export default async function MakePaymentReviewPage() {
   }
 
   const t = await getServerT();
+  const selectableAccounts = localizeAccounts(listSelectableAccounts(), t);
+  const accountById = new Map(selectableAccounts.map((account) => [account.id, account]));
 
   const debitAccountId = Number(draft.debitAccount);
   const debitAccount = Number.isFinite(debitAccountId)
-    ? getAccountById(debitAccountId)
+    ? (accountById.get(debitAccountId) ?? null)
     : null;
   const debitAccountLabel = debitAccount
     ? `${debitAccount.identifier} (${debitAccount.name})`
