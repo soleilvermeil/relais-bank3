@@ -27,7 +27,8 @@
     "payments": "Paiements",
     "wealth": "Accueil",
     "makePayment": "Effectuer un paiement",
-    "makeTransfer": "Effectuer un transfert"
+    "makeTransfer": "Effectuer un transfert",
+    "scanQr": "Scanner un QR code"
   },
   "bankWealth": {
     "title": "Accueil",
@@ -92,7 +93,27 @@
       "paymentCta": "Aller au formulaire de paiement",
       "transferTitle": "Make transfer / Effectuer un transfert",
       "transferDescription": "Deplacez des fonds entre vos propres comptes.",
-      "transferCta": "Aller au formulaire de transfert"
+      "transferCta": "Aller au formulaire de transfert",
+      "scanTitle": "Scanner un QR-facture / Scan QR-bill",
+      "scanDescription": "Pointez la camera vers un QR-facture suisse (SPC). Le formulaire de paiement s'ouvrira avec les champs pre-remplis.",
+      "scanCta": "Ouvrir le scanner"
+    }
+  },
+  "bankScanQr": {
+    "title": "Scanner un QR-facture",
+    "subtitle": "Autorisez l'acces a la camera, puis placez le QR d'un bulletin de versement suisse dans le cadre. Les autres QR codes sont ignores.",
+    "videoLabel": "Apercu camera pour la lecture du QR",
+    "states": {
+      "requesting": "Demande d'acces a la camera…",
+      "scanning": "Lecture en cours…",
+      "submitting": "Ouverture du formulaire de paiement…",
+      "permissionDenied": "L'acces a la camera a ete refuse. Vous pouvez toujours saisir le paiement manuellement.",
+      "notSupported": "Ce navigateur ne permet pas d'utiliser la camera depuis cette page.",
+      "invalidQr": "Impossible d'utiliser ce QR code. Reessayez ou saisissez le paiement manuellement."
+    },
+    "actions": {
+      "manualEntry": "Saisir le paiement manuellement",
+      "tryAgain": "Reessayer"
     }
   },
   "bankPayment": {

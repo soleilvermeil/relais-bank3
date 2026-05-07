@@ -27,7 +27,8 @@
     "payments": "Payments",
     "wealth": "Home",
     "makePayment": "Make payment",
-    "makeTransfer": "Make transfer"
+    "makeTransfer": "Make transfer",
+    "scanQr": "Scan QR code"
   },
   "bankWealth": {
     "title": "Home",
@@ -92,7 +93,27 @@
       "paymentCta": "Go to payment form",
       "transferTitle": "Make a transfer / Effectuer un transfert",
       "transferDescription": "Move funds between your own accounts.",
-      "transferCta": "Go to transfer form"
+      "transferCta": "Go to transfer form",
+      "scanTitle": "Scan QR-bill / Scanner un QR-facture",
+      "scanDescription": "Point your camera at a Swiss QR-bill (SPC). We will open the payment form with the fields prefilled.",
+      "scanCta": "Open scanner"
+    }
+  },
+  "bankScanQr": {
+    "title": "Scan QR-bill",
+    "subtitle": "Allow camera access, then hold a Swiss payment slip QR code steady in the frame. Other QR codes are ignored.",
+    "videoLabel": "Camera preview for QR scanning",
+    "states": {
+      "requesting": "Requesting camera…",
+      "scanning": "Scanning…",
+      "submitting": "Opening payment form…",
+      "permissionDenied": "Camera access was denied. You can still enter the payment details manually.",
+      "notSupported": "This browser does not support camera access from this page.",
+      "invalidQr": "Could not apply this QR code. Try again or enter the payment manually."
+    },
+    "actions": {
+      "manualEntry": "Enter payment manually",
+      "tryAgain": "Try again"
     }
   },
   "bankPayment": {

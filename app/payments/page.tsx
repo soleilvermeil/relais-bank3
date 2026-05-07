@@ -17,7 +17,7 @@ export default async function PaymentsPage() {
           </p>
         </header>
 
-        <section className="grid gap-4 rounded-2xl border border-card-border bg-card p-4 sm:grid-cols-2 sm:p-6">
+        <section className="grid gap-4 rounded-2xl border border-card-border bg-card p-4 sm:grid-cols-3 sm:p-6">
           <article className="space-y-3 rounded-2xl border border-card-border p-4">
             <h2 className="text-lg font-semibold text-foreground">
               {t("bankPaymentsLanding.cards.paymentTitle")}
@@ -38,6 +38,17 @@ export default async function PaymentsPage() {
             </p>
             <Link href="/make-transfer" className="inline-flex">
               <Button>{t("bankPaymentsLanding.cards.transferCta")}</Button>
+            </Link>
+          </article>
+          <article className="space-y-3 rounded-2xl border border-card-border p-4">
+            <h2 className="text-lg font-semibold text-foreground">
+              {t("bankPaymentsLanding.cards.scanTitle")}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {t("bankPaymentsLanding.cards.scanDescription")}
+            </p>
+            <Link href="/scan-qr" className="inline-flex">
+              <Button>{t("bankPaymentsLanding.cards.scanCta")}</Button>
             </Link>
           </article>
         </section>

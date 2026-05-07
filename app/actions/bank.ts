@@ -21,6 +21,7 @@ import {
   writePaymentDraftCookie,
   writeTransferDraftCookie,
 } from "@/lib/bank-cookies";
+import { parseSwissQrBill } from "@/lib/qr-bill";
 import type {
   ExecutionMode,
   ExpressChoice,
@@ -127,6 +128,15 @@ function transferDraftFromFormData(formData: FormData): TransferDraft {
     executionDate: readString(formData, "executionDate"),
     accountingTextForYou: readString(formData, "accountingTextForYou"),
   };
+}
+
+export async function submitScannedQrBill(payload: string): Promise<void> {
+  const draft = parseSwissQrBill(payload);
+  if (!draft) {
+    throw new Error("Invalid Swiss QR-bill payload");
+  }
+  await writePaymentDraftCookie(draft);
+  redirect("/make-payment");
 }
 
 export async function submitPayment(formData: FormData): Promise<void> {
