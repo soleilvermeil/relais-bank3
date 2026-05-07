@@ -14,7 +14,10 @@ import {
   transactionRowToTransferDraft,
 } from "@/lib/bank-transaction-mappers";
 import { listAccountsGroupedByCategory, localizeAccountGroups } from "@/lib/db/accounts";
-import { getTransactionById } from "@/lib/db/transactions";
+import {
+  getStandingOrderOccurrenceBySyntheticId,
+  getTransactionById,
+} from "@/lib/db/transactions";
 import { getIntlLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
 
@@ -34,17 +37,22 @@ export default async function WealthTransactionDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ fromAccount?: string }>;
+  searchParams: Promise<{ fromAccount?: string; mode?: string }>;
 }) {
-  const { id: idRaw } = await params;
-  const { fromAccount: fromRaw } = await searchParams;
+  const { id: idParam } = await params;
+  const idRaw = decodeURIComponent(idParam);
+  const { fromAccount: fromRaw, mode } = await searchParams;
+  const showStandingSummary = mode === "standing-summary";
+  const isSyntheticStanding = idRaw.startsWith("so:");
+  const syntheticOccurrence = isSyntheticStanding
+    ? getStandingOrderOccurrenceBySyntheticId(idRaw)
+    : null;
   const txId = Number(idRaw);
-  if (!Number.isFinite(txId) || txId <= 0) {
-    notFound();
-  }
-
-  const row = getTransactionById(txId);
-  if (!row) {
+  const row =
+    !isSyntheticStanding && Number.isFinite(txId) && txId > 0
+      ? getTransactionById(txId)
+      : null;
+  if (!row && !syntheticOccurrence) {
     notFound();
   }
 
@@ -60,10 +68,15 @@ export default async function WealthTransactionDetailPage({
       : null;
 
   const intlLocale = await getIntlLocale();
-  const createdAt = new Date(row.created_at);
+  const createdAt = new Date(
+    row?.created_at ?? syntheticOccurrence?.standingOrder.created_at ?? new Date().toISOString(),
+  );
 
-  const debitLabel = accountLabel(row.debit_account_id, accountById);
-  const creditLabel = accountLabel(row.credit_account_id, accountById);
+  const debitLabel = accountLabel(
+    row?.debit_account_id ?? syntheticOccurrence?.standingOrder.debit_account_id ?? null,
+    accountById,
+  );
+  const creditLabel = accountLabel(row?.credit_account_id ?? null, accountById);
 
   const backHref = backAccount ? `/home/account/${backAccount.id}` : "/home";
   const backLabel = backAccount
@@ -73,15 +86,103 @@ export default async function WealthTransactionDetailPage({
   const titlePayment = t("bankReview.titlePayment");
   const titleTransfer = t("bankReview.titleTransfer");
   let heading = t("bankTransactionDetail.titleFallback");
-  if (row.kind === "payment") {
+  if (syntheticOccurrence && showStandingSummary) {
     heading = titlePayment;
-  } else if (row.kind === "transfer") {
+  } else if (syntheticOccurrence) {
+    heading = titleTransfer;
+  } else if (row?.kind === "payment") {
+    heading = titlePayment;
+  } else if (row?.kind === "transfer") {
     heading = titleTransfer;
   }
 
   let body: ReactElement | null = null;
 
-  if (row.kind === "payment") {
+  if (syntheticOccurrence) {
+    const standing = syntheticOccurrence.standingOrder;
+    if (showStandingSummary) {
+      const draft = {
+        beneficiaryIban: standing.beneficiary_iban ?? "",
+        beneficiaryBic: standing.beneficiary_bic ?? "",
+        beneficiaryName: standing.beneficiary_name ?? "",
+        beneficiaryCountry: standing.beneficiary_country ?? "",
+        beneficiaryPostalCode: standing.beneficiary_postal_code ?? "",
+        beneficiaryCity: standing.beneficiary_city ?? "",
+        beneficiaryAddress1: standing.beneficiary_address1 ?? "",
+        beneficiaryAddress2: standing.beneficiary_address2 ?? "",
+        paymentType: "standing" as const,
+        firstExecutionDate: standing.start_date,
+        frequency: standing.frequency,
+        weekendHolidayRule: standing.weekend_holiday_rule,
+        periodType: standing.end_date == null ? ("unlimited" as const) : ("endDate" as const),
+        endDate: standing.end_date ?? "",
+        debitAccount: String(standing.debit_account_id),
+        amount: String(Math.abs(standing.amount_cents) / 100),
+        express: "no" as const,
+        executionDate: syntheticOccurrence.execution_date,
+        rfReference: standing.rf_reference ?? "",
+        communicationToBeneficiary: standing.communication_to_beneficiary ?? "",
+        accountingTextForYou: standing.accounting_text ?? "",
+        debtorName: standing.debtor_name ?? "",
+        debtorCountry: standing.debtor_country ?? "",
+        debtorPostalCode: standing.debtor_postal_code ?? "",
+        debtorCity: standing.debtor_city ?? "",
+        debtorAddress1: standing.debtor_address1 ?? "",
+        debtorAddress2: standing.debtor_address2 ?? "",
+      };
+      const debitAcc = accountById.get(standing.debit_account_id) ?? null;
+      const debitAccountLabel = debitAcc
+        ? `${debitAcc.identifier} (${debitAcc.name})`
+        : String(standing.debit_account_id);
+      body = <BankPaymentReviewSummary draft={draft} debitAccountLabel={debitAccountLabel} t={t} />;
+    } else {
+      body = (
+        <BankFlowTransactionReviewSummary
+          row={{
+            id: standing.id,
+            kind: "debit",
+            created_at: standing.created_at,
+            debit_account_id: standing.debit_account_id,
+            credit_account_id: null,
+            amount_cents: standing.amount_cents,
+            currency: standing.currency,
+            execution_date: syntheticOccurrence.execution_date,
+            accounting_text: standing.accounting_text,
+            beneficiary_iban: standing.beneficiary_iban,
+            beneficiary_bic: standing.beneficiary_bic,
+            beneficiary_name: standing.beneficiary_name,
+            beneficiary_country: standing.beneficiary_country,
+            beneficiary_postal_code: standing.beneficiary_postal_code,
+            beneficiary_city: standing.beneficiary_city,
+            beneficiary_address1: standing.beneficiary_address1,
+            beneficiary_address2: standing.beneficiary_address2,
+            payment_type: "standing",
+            first_execution_date: standing.start_date,
+            frequency: standing.frequency,
+            weekend_holiday_rule: standing.weekend_holiday_rule,
+            period_type: standing.end_date == null ? "unlimited" : "endDate",
+            end_date: standing.end_date,
+            is_express: 0,
+            rf_reference: standing.rf_reference,
+            communication_to_beneficiary: standing.communication_to_beneficiary,
+            debtor_name: standing.debtor_name,
+            debtor_country: standing.debtor_country,
+            debtor_postal_code: standing.debtor_postal_code,
+            debtor_city: standing.debtor_city,
+            debtor_address1: standing.debtor_address1,
+            debtor_address2: standing.debtor_address2,
+            execution_mode: null,
+            is_conditionally_visible: 0,
+            counterparty_name: standing.beneficiary_name,
+            counterparty_iban: standing.beneficiary_iban,
+          }}
+          debitAccountLabel={debitLabel}
+          creditAccountLabel={null}
+          t={t}
+        />
+      );
+    }
+  } else if (row?.kind === "payment") {
     const draft = transactionRowToPaymentDraft(row);
     const debitAccountId = Number(draft.debitAccount);
     const debitAcc = Number.isFinite(debitAccountId) ? (accountById.get(debitAccountId) ?? null) : null;
@@ -91,7 +192,7 @@ export default async function WealthTransactionDetailPage({
     body = (
       <BankPaymentReviewSummary draft={draft} debitAccountLabel={debitAccountLabel} t={t} />
     );
-  } else if (row.kind === "transfer") {
+  } else if (row?.kind === "transfer") {
     const draft = transactionRowToTransferDraft(row);
     const dId = Number(draft.debitAccount);
     const cId = Number(draft.creditAccount);
@@ -110,9 +211,10 @@ export default async function WealthTransactionDetailPage({
       />
     );
   } else if (
-    row.kind === "purchaseService" ||
-    row.kind === "credit" ||
-    row.kind === "debit"
+    row &&
+    (row.kind === "purchaseService" ||
+      row.kind === "credit" ||
+      row.kind === "debit")
   ) {
     body = (
       <BankFlowTransactionReviewSummary
@@ -161,10 +263,11 @@ export default async function WealthTransactionDetailPage({
             {t("bankTransactionDetail.subtitle")}
           </p>
           <p className="text-sm text-muted-foreground">
-            {t("bankConfirmation.reference")} #{row.id}
+            {t("bankConfirmation.reference")} #
+            {syntheticOccurrence ? syntheticOccurrence.syntheticId : row?.id}
             {" · "}
             {t("bankTransactionDetail.recordedOn")}{" "}
-            <time dateTime={row.created_at}>
+            <time dateTime={row?.created_at ?? syntheticOccurrence?.standingOrder.created_at}>
               {createdAt.toLocaleString(intlLocale, {
                 dateStyle: "medium",
                 timeStyle: "short",

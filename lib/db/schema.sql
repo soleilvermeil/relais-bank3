@@ -44,11 +44,44 @@ CREATE TABLE IF NOT EXISTS transactions (
   debtor_address2 TEXT,
 
   execution_mode TEXT,
+  is_conditionally_visible INTEGER NOT NULL DEFAULT 0,
 
   counterparty_name TEXT,
   counterparty_iban TEXT
 );
 
+CREATE TABLE IF NOT EXISTS standing_orders (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  debit_account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  amount_cents INTEGER NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'CHF',
+  start_date TEXT NOT NULL,
+  end_date TEXT,
+  frequency TEXT NOT NULL,
+  weekend_holiday_rule TEXT NOT NULL DEFAULT 'after',
+  beneficiary_iban TEXT,
+  beneficiary_bic TEXT,
+  beneficiary_name TEXT,
+  beneficiary_country TEXT,
+  beneficiary_postal_code TEXT,
+  beneficiary_city TEXT,
+  beneficiary_address1 TEXT,
+  beneficiary_address2 TEXT,
+  rf_reference TEXT,
+  communication_to_beneficiary TEXT,
+  accounting_text TEXT,
+  debtor_name TEXT,
+  debtor_country TEXT,
+  debtor_postal_code TEXT,
+  debtor_city TEXT,
+  debtor_address1 TEXT,
+  debtor_address2 TEXT,
+  is_active INTEGER NOT NULL DEFAULT 1
+);
+
 CREATE INDEX IF NOT EXISTS idx_transactions_debit_account ON transactions(debit_account_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_credit_account ON transactions(credit_account_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_execution_date ON transactions(execution_date);
+CREATE INDEX IF NOT EXISTS idx_standing_orders_debit_account ON standing_orders(debit_account_id);
+CREATE INDEX IF NOT EXISTS idx_standing_orders_start_date ON standing_orders(start_date);

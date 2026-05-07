@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { insertPayment, insertTransfer } from "@/lib/db/transactions";
+import { insertPayment, insertStandingOrder, insertTransfer } from "@/lib/db/transactions";
 import {
   clearLastPaymentCookie,
   clearLastTransferCookie,
@@ -139,48 +139,73 @@ export async function confirmPayment(): Promise<void> {
   const amountCents = parseAmountToCents(draft.amount);
   const isExpress = draft.express === "yes";
 
-  const executionDate =
+  const transactionId =
     draft.paymentType === "standing"
-      ? nullIfEmpty(draft.firstExecutionDate)
-      : isExpress
-        ? new Date().toISOString().slice(0, 10)
-        : nullIfEmpty(draft.executionDate);
-
-  const transactionId = insertPayment({
-    debit_account_id: debitAccountId,
-    amount_cents: -Math.abs(amountCents),
-    execution_date: executionDate,
-    accounting_text: nullIfEmpty(draft.accountingTextForYou),
-    beneficiary_iban: nullIfEmpty(draft.beneficiaryIban),
-    beneficiary_bic: nullIfEmpty(draft.beneficiaryBic),
-    beneficiary_name: nullIfEmpty(draft.beneficiaryName),
-    beneficiary_country: nullIfEmpty(draft.beneficiaryCountry),
-    beneficiary_postal_code: nullIfEmpty(draft.beneficiaryPostalCode),
-    beneficiary_city: nullIfEmpty(draft.beneficiaryCity),
-    beneficiary_address1: nullIfEmpty(draft.beneficiaryAddress1),
-    beneficiary_address2: nullIfEmpty(draft.beneficiaryAddress2),
-    payment_type: draft.paymentType,
-    first_execution_date:
-      draft.paymentType === "standing" ? nullIfEmpty(draft.firstExecutionDate) : null,
-    frequency: draft.paymentType === "standing" ? nullIfEmpty(draft.frequency) : null,
-    weekend_holiday_rule:
-      draft.paymentType === "standing" ? nullIfEmpty(draft.weekendHolidayRule) : null,
-    period_type:
-      draft.paymentType === "standing" ? nullIfEmpty(draft.periodType) : null,
-    end_date:
-      draft.paymentType === "standing" && draft.periodType === "endDate"
-        ? nullIfEmpty(draft.endDate)
-        : null,
-    is_express: isExpress,
-    rf_reference: nullIfEmpty(draft.rfReference),
-    communication_to_beneficiary: nullIfEmpty(draft.communicationToBeneficiary),
-    debtor_name: nullIfEmpty(draft.debtorName),
-    debtor_country: nullIfEmpty(draft.debtorCountry),
-    debtor_postal_code: nullIfEmpty(draft.debtorPostalCode),
-    debtor_city: nullIfEmpty(draft.debtorCity),
-    debtor_address1: nullIfEmpty(draft.debtorAddress1),
-    debtor_address2: nullIfEmpty(draft.debtorAddress2),
-  });
+      ? insertStandingOrder({
+          debit_account_id: debitAccountId,
+          amount_cents: -Math.abs(amountCents),
+          start_date: nullIfEmpty(draft.firstExecutionDate) ?? new Date().toISOString().slice(0, 10),
+          end_date:
+            draft.periodType === "endDate"
+              ? nullIfEmpty(draft.endDate)
+              : null,
+          frequency:
+            draft.frequency === "weekly" ||
+            draft.frequency === "monthly" ||
+            draft.frequency === "quarterly" ||
+            draft.frequency === "yearly"
+              ? draft.frequency
+              : "monthly",
+          weekend_holiday_rule: nullIfEmpty(draft.weekendHolidayRule) ?? "after",
+          beneficiary_iban: nullIfEmpty(draft.beneficiaryIban),
+          beneficiary_bic: nullIfEmpty(draft.beneficiaryBic),
+          beneficiary_name: nullIfEmpty(draft.beneficiaryName),
+          beneficiary_country: nullIfEmpty(draft.beneficiaryCountry),
+          beneficiary_postal_code: nullIfEmpty(draft.beneficiaryPostalCode),
+          beneficiary_city: nullIfEmpty(draft.beneficiaryCity),
+          beneficiary_address1: nullIfEmpty(draft.beneficiaryAddress1),
+          beneficiary_address2: nullIfEmpty(draft.beneficiaryAddress2),
+          rf_reference: nullIfEmpty(draft.rfReference),
+          communication_to_beneficiary: nullIfEmpty(draft.communicationToBeneficiary),
+          accounting_text: nullIfEmpty(draft.accountingTextForYou),
+          debtor_name: nullIfEmpty(draft.debtorName),
+          debtor_country: nullIfEmpty(draft.debtorCountry),
+          debtor_postal_code: nullIfEmpty(draft.debtorPostalCode),
+          debtor_city: nullIfEmpty(draft.debtorCity),
+          debtor_address1: nullIfEmpty(draft.debtorAddress1),
+          debtor_address2: nullIfEmpty(draft.debtorAddress2),
+        })
+      : insertPayment({
+          debit_account_id: debitAccountId,
+          amount_cents: -Math.abs(amountCents),
+          execution_date: isExpress
+            ? new Date().toISOString().slice(0, 10)
+            : nullIfEmpty(draft.executionDate),
+          accounting_text: nullIfEmpty(draft.accountingTextForYou),
+          beneficiary_iban: nullIfEmpty(draft.beneficiaryIban),
+          beneficiary_bic: nullIfEmpty(draft.beneficiaryBic),
+          beneficiary_name: nullIfEmpty(draft.beneficiaryName),
+          beneficiary_country: nullIfEmpty(draft.beneficiaryCountry),
+          beneficiary_postal_code: nullIfEmpty(draft.beneficiaryPostalCode),
+          beneficiary_city: nullIfEmpty(draft.beneficiaryCity),
+          beneficiary_address1: nullIfEmpty(draft.beneficiaryAddress1),
+          beneficiary_address2: nullIfEmpty(draft.beneficiaryAddress2),
+          payment_type: "oneTime",
+          first_execution_date: null,
+          frequency: null,
+          weekend_holiday_rule: null,
+          period_type: null,
+          end_date: null,
+          is_express: isExpress,
+          rf_reference: nullIfEmpty(draft.rfReference),
+          communication_to_beneficiary: nullIfEmpty(draft.communicationToBeneficiary),
+          debtor_name: nullIfEmpty(draft.debtorName),
+          debtor_country: nullIfEmpty(draft.debtorCountry),
+          debtor_postal_code: nullIfEmpty(draft.debtorPostalCode),
+          debtor_city: nullIfEmpty(draft.debtorCity),
+          debtor_address1: nullIfEmpty(draft.debtorAddress1),
+          debtor_address2: nullIfEmpty(draft.debtorAddress2),
+        });
 
   await writeLastPaymentCookie({
     ...draft,

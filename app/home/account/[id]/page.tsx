@@ -83,6 +83,13 @@ function upcomingType(transaction: Transaction): "pending" | "standing" {
   return transaction.payment_type === "standing" ? "standing" : "pending";
 }
 
+function standingOrderIdFromSynthetic(txId: number | string): string | null {
+  if (typeof txId !== "string") return null;
+  const [prefix, standingOrderId] = txId.split(":");
+  if (prefix !== "so" || !standingOrderId) return null;
+  return standingOrderId;
+}
+
 const txDetailLinkClass =
   "font-medium text-foreground underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
@@ -122,9 +129,18 @@ export default async function AccountDetailPage({
   const today = todayIsoDate();
   const allTransactions = listTransactionsForAccount(account.id);
 
-  const upcomingOrders = allTransactions
+  const rawUpcomingOrders = allTransactions
     .filter((tx) => (tx.execution_date ?? "") > today)
     .sort((a, b) => (a.execution_date ?? "").localeCompare(b.execution_date ?? ""));
+  const seenStandingOrderIds = new Set<string>();
+  const upcomingOrders = rawUpcomingOrders.filter((tx) => {
+    if (upcomingType(tx) !== "standing") return true;
+    const standingOrderId = standingOrderIdFromSynthetic(tx.id);
+    if (!standingOrderId) return true;
+    if (seenStandingOrderIds.has(standingOrderId)) return false;
+    seenStandingOrderIds.add(standingOrderId);
+    return true;
+  });
 
   const pastTransactions = allTransactions
     .filter((tx) => (tx.execution_date ?? "") <= today)
@@ -172,7 +188,7 @@ export default async function AccountDetailPage({
                         <div className="space-y-1">
                           <p className="text-base font-medium">
                             <Link
-                              href={`/home/transaction/${order.id}?fromAccount=${account.id}`}
+                              href={`/home/transaction/${encodeURIComponent(String(order.id))}?fromAccount=${account.id}${upcomingType(order) === "standing" ? "&mode=standing-summary" : ""}`}
                               className={txDetailLinkClass}
                             >
                               {upcomingDescription(order, t)}
@@ -215,7 +231,7 @@ export default async function AccountDetailPage({
                           <div className="space-y-1">
                             <p className="text-base font-medium">
                               <Link
-                                href={`/home/transaction/${transaction.id}?fromAccount=${account.id}`}
+                                href={`/home/transaction/${encodeURIComponent(String(transaction.id))}?fromAccount=${account.id}`}
                                 className={txDetailLinkClass}
                               >
                                 {transactionLabel(transaction, accountNameById, t)}
