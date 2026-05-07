@@ -574,3 +574,30 @@ export function getStandingOrderOccurrenceBySyntheticId(
     standingOrder,
   };
 }
+
+/** `so:{standingOrderId}` only — not an occurrence (`so:id:date`). */
+export function parseStandingOrderSummarySoId(value: string): number | null {
+  const parts = value.split(":");
+  if (parts.length !== 2) return null;
+  const [prefix, idRaw] = parts;
+  if (prefix !== STANDING_ORDER_SYNTHETIC_PREFIX) return null;
+  const standingOrderId = Number(idRaw);
+  if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) return null;
+  return standingOrderId;
+}
+
+export function getStandingOrderById(id: number): StandingOrderRow | null {
+  const row = getDb()
+    .prepare(`SELECT * FROM standing_orders WHERE id = @id`)
+    .get({ id }) as StandingOrderRow | undefined;
+  return row ?? null;
+}
+
+/** Next execution in the standing-horizon window, or `start_date` if none. */
+export function nextStandingExecutionForSummary(order: StandingOrderRow): string {
+  const today = todayIsoLocal();
+  const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
+  const dates = listStandingExecutionDates(order, today, horizon);
+  if (dates.length > 0) return dates[0]!;
+  return order.start_date;
+}

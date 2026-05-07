@@ -178,7 +178,16 @@ export default async function AccountDetailPage({
                   {t("bankAccountDetail.sections.upcomingOrders")} —
                 </p>
               ) : (
-                upcomingOrders.map((order) => (
+                upcomingOrders.map((order) => {
+                  const standingSummaryId =
+                    upcomingType(order) === "standing"
+                      ? standingOrderIdFromSynthetic(order.id)
+                      : null;
+                  const transactionPath =
+                    standingSummaryId != null
+                      ? `/transaction/so:${standingSummaryId}`
+                      : `/transaction/${encodeURIComponent(String(order.id))}`;
+                  return (
                   <article key={order.id}>
                     <p className="mb-1 text-xs text-muted-foreground">
                       {order.execution_date}
@@ -188,7 +197,7 @@ export default async function AccountDetailPage({
                         <div className="space-y-1">
                           <p className="text-base font-medium">
                             <Link
-                              href={`/home/transaction/${encodeURIComponent(String(order.id))}?fromAccount=${account.id}${upcomingType(order) === "standing" ? "&mode=standing-summary" : ""}`}
+                              href={`${transactionPath}?fromAccount=${account.id}`}
                               className={txDetailLinkClass}
                             >
                               {upcomingDescription(order, t)}
@@ -206,7 +215,8 @@ export default async function AccountDetailPage({
                       </div>
                     </div>
                   </article>
-                ))
+                );
+                })
               )}
             </div>
           </div>
@@ -231,7 +241,7 @@ export default async function AccountDetailPage({
                           <div className="space-y-1">
                             <p className="text-base font-medium">
                               <Link
-                                href={`/home/transaction/${encodeURIComponent(String(transaction.id))}?fromAccount=${account.id}`}
+                                href={`/transaction/${encodeURIComponent(String(transaction.id))}?fromAccount=${account.id}`}
                                 className={txDetailLinkClass}
                               >
                                 {transactionLabel(transaction, accountNameById, t)}
