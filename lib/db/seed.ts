@@ -89,19 +89,28 @@ export function seedDb(db: Database.Database): void {
       amountCents: AMOUNTS.rent,
       beneficiaryName: "Cogestim",
       beneficiaryIban: "CH90 8000 0000 0000 1100 3",
-      description: "Loyer — Cogestim",
+      rfReference: "RF18 5390 0754 7034 0000 1123",
+      beneficiaryPostalCode: "1003",
+      beneficiaryCity: "Lausanne",
+      description: "Loyer",
     },
     {
       amountCents: AMOUNTS.healthInsurance,
       beneficiaryName: "Groupe Mutuel",
       beneficiaryIban: "CH09 0077 7700 0000 1234 2",
-      description: "Assurance maladie — Groupe Mutuel",
+      rfReference: "RF28 2035 6402 1500 9800 7714",
+      beneficiaryPostalCode: "1920",
+      beneficiaryCity: "Martigny",
+      description: "Assurance maladie",
     },
     {
       amountCents: AMOUNTS.internet,
       beneficiaryName: "Swisscom",
       beneficiaryIban: "CH56 0483 5000 0000 5500 2",
-      description: "Internet — Swisscom",
+      rfReference: "RF72 9981 4400 0071 5560 2048",
+      beneficiaryPostalCode: "3050",
+      beneficiaryCity: "Bern",
+      description: "Internet",
     },
   ] as const;
 
@@ -118,15 +127,17 @@ export function seedDb(db: Database.Database): void {
     `INSERT INTO transactions (
        kind, debit_account_id, amount_cents, currency, execution_date,
        beneficiary_name, beneficiary_iban, beneficiary_bic, beneficiary_country,
+       beneficiary_postal_code, beneficiary_city,
        payment_type, first_execution_date, frequency, weekend_holiday_rule,
        period_type, end_date, is_express,
-       accounting_text
+       rf_reference, accounting_text
      ) VALUES (
        'payment', @debit_account_id, @amount_cents, 'CHF', @execution_date,
        @beneficiary_name, @beneficiary_iban, NULL, 'ch',
+       @beneficiary_postal_code, @beneficiary_city,
        'oneTime', NULL, NULL, NULL,
        NULL, NULL, 0,
-       @accounting_text
+       @rf_reference, @accounting_text
      )`,
   );
 
@@ -135,15 +146,17 @@ export function seedDb(db: Database.Database): void {
     `INSERT INTO transactions (
        kind, debit_account_id, amount_cents, currency, execution_date,
        beneficiary_name, beneficiary_iban, beneficiary_bic, beneficiary_country,
+       beneficiary_postal_code, beneficiary_city,
        payment_type, first_execution_date, frequency, weekend_holiday_rule,
        period_type, end_date, is_express,
-       accounting_text
+       rf_reference, accounting_text
      ) VALUES (
        'payment', @debit_account_id, @amount_cents, 'CHF', @execution_date,
        @beneficiary_name, @beneficiary_iban, NULL, 'ch',
+       @beneficiary_postal_code, @beneficiary_city,
        'standing', @first_execution_date, 'monthly', 'after',
        'unlimited', NULL, 0,
-       @accounting_text
+       @rf_reference, @accounting_text
      )`,
   );
 
@@ -310,6 +323,9 @@ export function seedDb(db: Database.Database): void {
             execution_date: billsDate,
             beneficiary_name: bill.beneficiaryName,
             beneficiary_iban: bill.beneficiaryIban,
+            beneficiary_postal_code: bill.beneficiaryPostalCode,
+            beneficiary_city: bill.beneficiaryCity,
+            rf_reference: bill.rfReference,
             accounting_text: bill.description,
           });
         }
@@ -359,6 +375,9 @@ export function seedDb(db: Database.Database): void {
         first_execution_date: nextStandingBillsDate,
         beneficiary_name: bill.beneficiaryName,
         beneficiary_iban: bill.beneficiaryIban,
+        beneficiary_postal_code: bill.beneficiaryPostalCode,
+        beneficiary_city: bill.beneficiaryCity,
+        rf_reference: bill.rfReference,
         accounting_text: bill.description,
       });
     }
