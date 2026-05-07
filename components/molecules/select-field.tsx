@@ -5,6 +5,7 @@ import { FormFieldShell, type FieldWidth } from "@/components/molecules/form-fie
 type Props = Omit<SelectHTMLAttributes<HTMLSelectElement>, "className" | "children"> & {
   label: string;
   hint?: string;
+  error?: string;
   required?: boolean;
   width?: FieldWidth;
   children: ReactNode;
@@ -13,21 +14,29 @@ type Props = Omit<SelectHTMLAttributes<HTMLSelectElement>, "className" | "childr
 export function SelectField({
   label,
   hint,
+  error,
   required = false,
   width = "half",
   id,
   children,
   ...props
 }: Props) {
+  const hasError = Boolean(error);
   return (
     <FormFieldShell
       label={label}
       required={required}
       hint={hint}
+      error={error}
       width={width}
       labelFor={id}
     >
-      <Select id={id} {...props}>
+      <Select
+        id={id}
+        {...props}
+        invalid={hasError}
+        aria-invalid={hasError ? "true" : undefined}
+      >
         {children}
       </Select>
     </FormFieldShell>

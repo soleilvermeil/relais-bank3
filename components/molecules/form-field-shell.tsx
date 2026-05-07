@@ -8,6 +8,7 @@ type Props = {
   label: string;
   required?: boolean;
   hint?: string;
+  error?: string;
   width?: FieldWidth;
   labelFor?: string;
   labelId?: string;
@@ -26,6 +27,7 @@ export function FormFieldShell({
   label,
   required = false,
   hint,
+  error,
   width = "half",
   labelFor,
   labelId,
@@ -37,6 +39,11 @@ export function FormFieldShell({
         {label}
         {required ? <RequiredMark /> : <OptionalMark />}
       </Label>
+      {error ? (
+        <p className="mt-1 text-xs font-medium text-red-600" role="alert">
+          {error}
+        </p>
+      ) : null}
       {children}
       <FieldHint hint={hint ?? "\u00A0"} />
     </div>

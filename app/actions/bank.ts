@@ -78,9 +78,6 @@ function paymentDraftFromFormData(formData: FormData): PaymentDraft {
   const express: ExpressChoice =
     readString(formData, "express") === "yes" ? "yes" : "no";
 
-  readNonEmpty(formData, "debitAccount");
-  readNonEmpty(formData, "amount");
-
   return {
     beneficiaryIban: readString(formData, "beneficiaryIban"),
     beneficiaryBic: readString(formData, "beneficiaryBic"),
@@ -141,6 +138,10 @@ export async function submitScannedQrBill(payload: string): Promise<void> {
 
 export async function submitPayment(formData: FormData): Promise<void> {
   const draft = paymentDraftFromFormData(formData);
+  if (draft.debitAccount === "" || draft.amount === "") {
+    await writePaymentDraftCookie(draft);
+    redirect("/make-payment");
+  }
   await writePaymentDraftCookie(draft);
   redirect("/make-payment/review");
 }

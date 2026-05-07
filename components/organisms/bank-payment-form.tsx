@@ -32,9 +32,65 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
   const [express, setExpress] = useState<"yes" | "no">(
     initial?.express === "yes" ? "yes" : "no",
   );
+  const [beneficiaryIbanError, setBeneficiaryIbanError] = useState<string | null>(null);
+  const [beneficiaryBicError, setBeneficiaryBicError] = useState<string | null>(null);
+  const [debitAccountError, setDebitAccountError] = useState<string | null>(null);
+  const [amountError, setAmountError] = useState<string | null>(null);
+
+  function validateIban(value: string): string | null {
+    const normalized = value.replace(/\s/g, "").toUpperCase();
+    if (normalized.length < 15 || normalized.length > 34) {
+      return "IBAN must contain 15 to 34 characters.";
+    }
+    if (!/[A-Z]/.test(normalized)) {
+      return "IBAN must contain letters.";
+    }
+    if (!/^[A-Z0-9]+$/.test(normalized)) {
+      return "IBAN can only contain letters and numbers.";
+    }
+    return null;
+  }
+
+  function validateBic(value: string): string | null {
+    const normalized = value.replace(/\s/g, "").toUpperCase();
+    if (normalized === "") return null;
+    if (normalized.length < 8 || normalized.length > 11) {
+      return "BIC must contain 8 to 11 characters.";
+    }
+    if ((normalized.match(/[A-Z]/g) ?? []).length < 4) {
+      return "BIC must contain letters.";
+    }
+    if (!/^[A-Z0-9]+$/.test(normalized)) {
+      return "BIC can only contain letters and numbers.";
+    }
+    return null;
+  }
 
   return (
-    <form className="space-y-10" action={submitPayment}>
+    <form
+      className="space-y-10"
+      action={submitPayment}
+      onSubmit={(event) => {
+        const form = event.currentTarget;
+        const data = new FormData(form);
+        const ibanValue = String(data.get("beneficiaryIban") ?? "");
+        const bicValue = String(data.get("beneficiaryBic") ?? "");
+        const debitAccountValue = String(data.get("debitAccount") ?? "");
+        const amountValue = String(data.get("amount") ?? "").trim();
+        const ibanError = validateIban(ibanValue);
+        const bicError = validateBic(bicValue);
+        const nextDebitAccountError =
+          debitAccountValue === "" ? "Please choose a debit account." : null;
+        const nextAmountError = amountValue === "" ? "Amount is required." : null;
+        setBeneficiaryIbanError(ibanError);
+        setBeneficiaryBicError(bicError);
+        setDebitAccountError(nextDebitAccountError);
+        setAmountError(nextAmountError);
+        if (ibanError || bicError || nextDebitAccountError || nextAmountError) {
+          event.preventDefault();
+        }
+      }}
+    >
       <section aria-labelledby="beneficiary-heading" className="space-y-4">
         <SectionTitle as="h2" id="beneficiary-heading">
           {t("bankPayment.sections.beneficiary")}
@@ -48,7 +104,11 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               required
               width="full"
               hint="Example: CH72 1111 2222 3333 4444 5"
+              error={beneficiaryIbanError ?? undefined}
               defaultValue={initial?.beneficiaryIban ?? ""}
+              onBlur={(event) => {
+                setBeneficiaryIbanError(validateIban(event.currentTarget.value));
+              }}
             />
             <TextField
               id="beneficiary-bic"
@@ -56,7 +116,11 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               label={t("bankPayment.fields.beneficiaryBic")}
               width="full"
               hint="Example: POFICHBEXXX"
+              error={beneficiaryBicError ?? undefined}
               defaultValue={initial?.beneficiaryBic ?? ""}
+              onBlur={(event) => {
+                setBeneficiaryBicError(validateBic(event.currentTarget.value));
+              }}
             />
             <TextField
               id="beneficiary-name"
@@ -197,6 +261,11 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               defaultValue={initial?.debitAccount ?? ""}
               label={t("bankPayment.fields.debitAccount")}
               required
+              error={debitAccountError ?? undefined}
+              onChange={(event) => {
+                const next = event.currentTarget.value;
+                setDebitAccountError(next === "" ? "Please choose a debit account." : null);
+              }}
             >
                 <option value="" disabled>
                   {t("bankPayment.placeholders.selectDebitAccount")}
@@ -216,7 +285,12 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               label={t("bankPayment.fields.amount")}
               required
               hint="Example: 250.00"
+              error={amountError ?? undefined}
               defaultValue={initial?.amount ?? ""}
+              onChange={(event) => {
+                const next = event.currentTarget.value.trim();
+                setAmountError(next === "" ? "Amount is required." : null);
+              }}
             />
 
             {paymentType === "oneTime" ? (
