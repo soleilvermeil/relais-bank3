@@ -133,12 +133,6 @@ export default async function WealthTransactionDetailPage({
           aria-label={t("bankNavigation.breadcrumb")}
           className="text-sm text-muted-foreground print:hidden"
         >
-          <Link href="/payments" className="font-medium text-primary hover:underline">
-            {t("bankNavigation.payments")}
-          </Link>
-          <span aria-hidden="true" className="mx-2">
-            /
-          </span>
           <Link href="/home" className="font-medium text-primary hover:underline">
             {t("bankNavigation.wealth")}
           </Link>
