@@ -2,7 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { insertPayment, insertStandingOrder, insertTransfer } from "@/lib/db/transactions";
+import {
+  deleteStandingOrder,
+  insertPayment,
+  insertStandingOrder,
+  insertTransfer,
+  pauseStandingOrder,
+} from "@/lib/db/transactions";
 import {
   clearLastPaymentCookie,
   clearLastTransferCookie,
@@ -264,4 +270,34 @@ export async function confirmTransfer(): Promise<void> {
 export async function dismissTransferConfirmation(): Promise<void> {
   await clearLastTransferCookie();
   redirect("/make-transfer");
+}
+
+export async function pauseStandingOrderAction(formData: FormData): Promise<void> {
+  const standingOrderIdRaw = readNonEmpty(formData, "standingOrderId");
+  const standingOrderId = Number(standingOrderIdRaw);
+  if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) {
+    throw new Error(`Invalid standing order id: ${standingOrderIdRaw}`);
+  }
+  const fromAccountRaw = readString(formData, "fromAccount");
+  pauseStandingOrder(standingOrderId);
+  revalidateBankPaths();
+  if (fromAccountRaw !== "") {
+    redirect(`/home/account/${fromAccountRaw}`);
+  }
+  redirect("/home");
+}
+
+export async function deleteStandingOrderAction(formData: FormData): Promise<void> {
+  const standingOrderIdRaw = readNonEmpty(formData, "standingOrderId");
+  const standingOrderId = Number(standingOrderIdRaw);
+  if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) {
+    throw new Error(`Invalid standing order id: ${standingOrderIdRaw}`);
+  }
+  const fromAccountRaw = readString(formData, "fromAccount");
+  deleteStandingOrder(standingOrderId);
+  revalidateBankPaths();
+  if (fromAccountRaw !== "") {
+    redirect(`/home/account/${fromAccountRaw}`);
+  }
+  redirect("/home");
 }

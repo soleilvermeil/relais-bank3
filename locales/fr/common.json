@@ -234,6 +234,12 @@
       "purchaseService": "Achat / service",
       "credit": "Credit entrant",
       "debit": "Debit"
+    },
+    "actions": {
+      "pauseStandingOrder": "Mettre en pause l'ordre permanent",
+      "resumeStandingOrder": "Reprendre l'ordre permanent",
+      "deleteStandingOrder": "Supprimer l'ordre permanent",
+      "deleteStandingOrderConfirm": "Voulez-vous vraiment supprimer cet ordre permanent ?"
     }
   }
 }

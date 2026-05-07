@@ -507,6 +507,25 @@ export function insertStandingOrder(input: StandingOrderInsertInput): number {
   return Number(result.lastInsertRowid);
 }
 
+export function pauseStandingOrder(id: number): void {
+  getDb()
+    .prepare(
+      `UPDATE standing_orders
+       SET is_active = 0
+       WHERE id = @id`,
+    )
+    .run({ id });
+}
+
+export function deleteStandingOrder(id: number): void {
+  getDb()
+    .prepare(
+      `DELETE FROM standing_orders
+       WHERE id = @id`,
+    )
+    .run({ id });
+}
+
 export type TransferInsertInput = {
   debit_account_id: number;
   credit_account_id: number;

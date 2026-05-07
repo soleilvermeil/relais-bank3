@@ -1,14 +1,17 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Pause, Play } from "lucide-react";
 import {
   BankFlowTransactionReviewSummary,
   BankPaymentReviewSummary,
   BankTransferReviewSummary,
 } from "@/components/organisms/bank-review-summary";
 import { BankPrintButton } from "@/components/molecules/bank-print-button";
+import { ConfirmableDeleteStandingOrderButton } from "@/components/molecules/confirmable-delete-standing-order-button";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
+import { deleteStandingOrderAction } from "@/app/actions/bank";
 import {
   transactionRowToPaymentDraft,
   transactionRowToTransferDraft,
@@ -82,6 +85,9 @@ export default async function WealthTransactionDetailPage({
   const backLabel = backAccount
     ? t("bankTransactionDetail.backToAccount")
     : t("bankTransactionDetail.backToWealth");
+  const standingOrderActionLabel = syntheticOccurrence?.standingOrder.is_active === 1
+    ? t("bankTransactionDetail.actions.pauseStandingOrder")
+    : t("bankTransactionDetail.actions.resumeStandingOrder");
 
   const titlePayment = t("bankReview.titlePayment");
   const titleTransfer = t("bankReview.titleTransfer");
@@ -280,6 +286,39 @@ export default async function WealthTransactionDetailPage({
 
         <div className="flex flex-wrap gap-3 print:hidden">
           <BankPrintButton label={t("bankConfirmation.actions.print")} />
+          {syntheticOccurrence && showStandingSummary ? (
+            <>
+              <button
+                type="button"
+                aria-label={standingOrderActionLabel}
+                title={standingOrderActionLabel}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-card-border bg-muted px-5 py-2.5 text-base font-medium text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]"
+              >
+                {syntheticOccurrence.standingOrder.is_active === 1 ? (
+                  <Pause className="h-5 w-5" aria-hidden />
+                ) : (
+                  <Play className="h-5 w-5" aria-hidden />
+                )}
+                {standingOrderActionLabel}
+              </button>
+              <form action={deleteStandingOrderAction}>
+                <input
+                  type="hidden"
+                  name="standingOrderId"
+                  value={String(syntheticOccurrence.standingOrder.id)}
+                />
+                <input
+                  type="hidden"
+                  name="fromAccount"
+                  value={backAccount ? String(backAccount.id) : ""}
+                />
+                <ConfirmableDeleteStandingOrderButton
+                  label={t("bankTransactionDetail.actions.deleteStandingOrder")}
+                  confirmMessage={t("bankTransactionDetail.actions.deleteStandingOrderConfirm")}
+                />
+              </form>
+            </>
+          ) : null}
           <Link
             href={backHref}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-card-border bg-muted px-5 py-2.5 text-base font-medium text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background active:scale-[0.98]"
