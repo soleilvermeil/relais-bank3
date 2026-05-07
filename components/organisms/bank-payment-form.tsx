@@ -219,29 +219,33 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               defaultValue={initial?.amount ?? ""}
             />
 
-            <RadioGroupField
-              name="express"
-              label={t("bankPayment.fields.express")}
-              value={express}
-              onChange={setExpress}
-              required
-              hint={`Example: ${t("bankPayment.hints.expressFee")}`}
-              options={[
-                { value: "yes", label: t("bankPayment.options.expressYes") },
-                { value: "no", label: t("bankPayment.options.expressNo") },
-              ]}
-            />
+            {paymentType === "oneTime" ? (
+              <>
+                <RadioGroupField
+                  name="express"
+                  label={t("bankPayment.fields.express")}
+                  value={express}
+                  onChange={setExpress}
+                  required
+                  hint={`Example: ${t("bankPayment.hints.expressFee")}`}
+                  options={[
+                    { value: "yes", label: t("bankPayment.options.expressYes") },
+                    { value: "no", label: t("bankPayment.options.expressNo") },
+                  ]}
+                />
 
-            {express === "no" ? (
-              <TextField
-                id="execution-date"
-                name="executionDate"
-                type="date"
-                label={t("bankPayment.fields.executionDate")}
-                required
-                width="full"
-                defaultValue={initial?.executionDate ?? ""}
-              />
+                {express === "no" ? (
+                  <TextField
+                    id="execution-date"
+                    name="executionDate"
+                    type="date"
+                    label={t("bankPayment.fields.executionDate")}
+                    required
+                    width="full"
+                    defaultValue={initial?.executionDate ?? ""}
+                  />
+                ) : null}
+              </>
             ) : null}
           </div>
         </div>
