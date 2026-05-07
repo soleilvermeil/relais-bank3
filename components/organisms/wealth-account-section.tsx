@@ -54,7 +54,7 @@ export function WealthAccountSection({
                     {formatCurrency(account.balance)}
                   </p>
                   <div className="hidden sm:block">
-                    <Link href={`/wealth/account/${account.id}`} className="inline-flex">
+                    <Link href={`/home/account/${account.id}`} className="inline-flex">
                       <Button variant="secondary">{detailsLabel}</Button>
                     </Link>
                   </div>

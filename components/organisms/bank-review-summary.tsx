@@ -106,6 +106,7 @@ export function BankPaymentReviewSummary({
 }: PaymentSummaryProps) {
   const beneficiaryRows: Row[] = [
     { label: t("bankPayment.fields.beneficiaryIban"), value: dash(draft.beneficiaryIban) },
+    { label: t("bankPayment.fields.beneficiaryBic"), value: dash(draft.beneficiaryBic) },
     { label: t("bankPayment.fields.beneficiaryName"), value: dash(draft.beneficiaryName) },
     { label: t("bankPayment.fields.country"), value: countryLabel(draft.beneficiaryCountry) },
     { label: t("bankPayment.fields.postalCode"), value: dash(draft.beneficiaryPostalCode) },

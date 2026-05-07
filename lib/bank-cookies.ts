@@ -58,6 +58,7 @@ function parsePaymentDraft(raw: string | undefined): PaymentDraft | null {
     if (!data || typeof data !== "object") return null;
     return {
       beneficiaryIban: asString(data.beneficiaryIban),
+      beneficiaryBic: asString(data.beneficiaryBic),
       beneficiaryName: asString(data.beneficiaryName),
       beneficiaryCountry: asString(data.beneficiaryCountry),
       beneficiaryPostalCode: asString(data.beneficiaryPostalCode),

@@ -25,12 +25,12 @@
   "bankNavigation": {
     "breadcrumb": "Fil d'ariane banque",
     "payments": "Paiements",
-    "wealth": "Patrimoine",
+    "wealth": "Accueil",
     "makePayment": "Effectuer un paiement",
     "makeTransfer": "Effectuer un transfert"
   },
   "bankWealth": {
-    "title": "Patrimoine",
+    "title": "Accueil",
     "subtitle": "Vue d'ensemble de vos comptes par categorie. Tous les soldes affiches ici sont des donnees fictives de demonstration.",
     "sections": {
       "checking": "Comptes courants",
@@ -94,6 +94,7 @@
     },
     "fields": {
       "beneficiaryIban": "IBAN",
+      "beneficiaryBic": "BIC (optionnel)",
       "beneficiaryName": "Nom / raison sociale",
       "country": "Pays",
       "city": "Ville / localite",

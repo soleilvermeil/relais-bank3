@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { getServerT } from "@/lib/i18n/server";
 import { formatChfCurrency } from "@/lib/bank-money";
 import { Container } from "@/components/atoms/container";
@@ -25,16 +24,6 @@ export default async function WealthPage() {
   return (
     <Container>
       <main id="main-content" className="space-y-8">
-        <nav aria-label={t("bankNavigation.breadcrumb")} className="text-sm text-muted-foreground">
-          <Link href="/payments" className="font-medium text-primary hover:underline">
-            {t("bankNavigation.payments")}
-          </Link>
-          <span aria-hidden="true" className="mx-2">
-            /
-          </span>
-          <span className="text-foreground">{t("bankNavigation.wealth")}</span>
-        </nav>
-
         <header className="space-y-3">
           <SectionTitle as="h1">{t("bankWealth.title")}</SectionTitle>
           <p className="max-w-3xl text-base text-muted-foreground">{t("bankWealth.subtitle")}</p>

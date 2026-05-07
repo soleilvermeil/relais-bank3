@@ -117,13 +117,13 @@ export function seedDb(db: Database.Database): void {
   const insertBillOneTime = db.prepare(
     `INSERT INTO transactions (
        kind, debit_account_id, amount_cents, currency, execution_date,
-       beneficiary_name, beneficiary_iban, beneficiary_country,
+       beneficiary_name, beneficiary_iban, beneficiary_bic, beneficiary_country,
        payment_type, first_execution_date, frequency, weekend_holiday_rule,
        period_type, end_date, is_express,
        accounting_text
      ) VALUES (
        'payment', @debit_account_id, @amount_cents, 'CHF', @execution_date,
-       @beneficiary_name, @beneficiary_iban, 'ch',
+       @beneficiary_name, @beneficiary_iban, NULL, 'ch',
        'oneTime', NULL, NULL, NULL,
        NULL, NULL, 0,
        @accounting_text
@@ -134,13 +134,13 @@ export function seedDb(db: Database.Database): void {
   const insertBillStanding = db.prepare(
     `INSERT INTO transactions (
        kind, debit_account_id, amount_cents, currency, execution_date,
-       beneficiary_name, beneficiary_iban, beneficiary_country,
+       beneficiary_name, beneficiary_iban, beneficiary_bic, beneficiary_country,
        payment_type, first_execution_date, frequency, weekend_holiday_rule,
        period_type, end_date, is_express,
        accounting_text
      ) VALUES (
        'payment', @debit_account_id, @amount_cents, 'CHF', @execution_date,
-       @beneficiary_name, @beneficiary_iban, 'ch',
+       @beneficiary_name, @beneficiary_iban, NULL, 'ch',
        'standing', @first_execution_date, 'monthly', 'after',
        'unlimited', NULL, 0,
        @accounting_text
@@ -263,10 +263,10 @@ export function seedDb(db: Database.Database): void {
 
   /** First calendar day-of-month billing (adjusted) on or after isoDate (inclusive). */
   function firstBillsExecutionOnOrAfter(afterIso: string, billingDay = 15): string {
-    const [sy, sm, sd] = afterIso.split("-").map(Number);
+    const [sy, sm] = afterIso.split("-").map(Number);
     let cy = sy;
     let cm = sm - 1;
-    let candidate = adjustBeforeWeekend(cy, cm, billingDay);
+    const candidate = adjustBeforeWeekend(cy, cm, billingDay);
     if (candidate >= afterIso) return candidate;
     cm += 1;
     if (cm > 11) {

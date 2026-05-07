@@ -19,6 +19,7 @@ export type TransactionRow = {
   accounting_text: string | null;
 
   beneficiary_iban: string | null;
+  beneficiary_bic: string | null;
   beneficiary_name: string | null;
   beneficiary_country: string | null;
   beneficiary_postal_code: string | null;
@@ -135,6 +136,7 @@ export type PaymentInsertInput = {
   execution_date: string | null;
   accounting_text: string | null;
   beneficiary_iban: string | null;
+  beneficiary_bic: string | null;
   beneficiary_name: string | null;
   beneficiary_country: string | null;
   beneficiary_postal_code: string | null;
@@ -164,7 +166,7 @@ export function insertPayment(input: PaymentInsertInput): number {
       `INSERT INTO transactions (
          kind, debit_account_id, amount_cents, currency,
          execution_date, accounting_text,
-         beneficiary_iban, beneficiary_name, beneficiary_country,
+         beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
          beneficiary_postal_code, beneficiary_city,
          beneficiary_address1, beneficiary_address2,
          payment_type, first_execution_date, frequency,
@@ -175,7 +177,7 @@ export function insertPayment(input: PaymentInsertInput): number {
        ) VALUES (
          'payment', @debit_account_id, @amount_cents, 'CHF',
          @execution_date, @accounting_text,
-         @beneficiary_iban, @beneficiary_name, @beneficiary_country,
+         @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
          @beneficiary_postal_code, @beneficiary_city,
          @beneficiary_address1, @beneficiary_address2,
          @payment_type, @first_execution_date, @frequency,

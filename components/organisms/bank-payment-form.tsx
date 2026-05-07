@@ -51,6 +51,14 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               defaultValue={initial?.beneficiaryIban ?? ""}
             />
             <TextField
+              id="beneficiary-bic"
+              name="beneficiaryBic"
+              label={t("bankPayment.fields.beneficiaryBic")}
+              width="full"
+              hint="Example: POFICHBEXXX"
+              defaultValue={initial?.beneficiaryBic ?? ""}
+            />
+            <TextField
               id="beneficiary-name"
               name="beneficiaryName"
               label={t("bankPayment.fields.beneficiaryName")}

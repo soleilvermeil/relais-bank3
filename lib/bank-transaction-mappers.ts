@@ -18,6 +18,7 @@ export function transactionRowToPaymentDraft(row: TransactionRow): PaymentDraft 
   const express = row.is_express === 1 ? "yes" : "no";
   return {
     beneficiaryIban: row.beneficiary_iban ?? "",
+    beneficiaryBic: row.beneficiary_bic ?? "",
     beneficiaryName: row.beneficiary_name ?? "",
     beneficiaryCountry: row.beneficiary_country ?? "",
     beneficiaryPostalCode: row.beneficiary_postal_code ?? "",

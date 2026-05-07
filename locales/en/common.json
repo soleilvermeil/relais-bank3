@@ -25,12 +25,12 @@
   "bankNavigation": {
     "breadcrumb": "Bank breadcrumb",
     "payments": "Payments",
-    "wealth": "Wealth",
+    "wealth": "Home",
     "makePayment": "Make payment",
     "makeTransfer": "Make transfer"
   },
   "bankWealth": {
-    "title": "Wealth",
+    "title": "Home",
     "subtitle": "Overview of your accounts by category. All balances shown here are mock data for demonstration only.",
     "sections": {
       "checking": "Checking accounts",
@@ -94,6 +94,7 @@
     },
     "fields": {
       "beneficiaryIban": "IBAN",
+      "beneficiaryBic": "BIC (optional)",
       "beneficiaryName": "Name / company name",
       "country": "Country",
       "city": "City / town",

@@ -118,7 +118,7 @@ export default async function AccountDetailPage({
           <span aria-hidden="true" className="mx-2">
             /
           </span>
-          <Link href="/wealth" className="font-medium text-primary hover:underline">
+          <Link href="/home" className="font-medium text-primary hover:underline">
             {t("bankNavigation.wealth")}
           </Link>
           <span aria-hidden="true" className="mx-2">
@@ -154,7 +154,7 @@ export default async function AccountDetailPage({
                         <div className="space-y-1">
                           <p className="text-base font-medium">
                             <Link
-                              href={`/wealth/transaction/${order.id}?fromAccount=${account.id}`}
+                              href={`/home/transaction/${order.id}?fromAccount=${account.id}`}
                               className={txDetailLinkClass}
                             >
                               {upcomingDescription(order)}
@@ -197,7 +197,7 @@ export default async function AccountDetailPage({
                           <div className="space-y-1">
                             <p className="text-base font-medium">
                               <Link
-                                href={`/wealth/transaction/${transaction.id}?fromAccount=${account.id}`}
+                                href={`/home/transaction/${transaction.id}?fromAccount=${account.id}`}
                                 className={txDetailLinkClass}
                               >
                                 {transactionLabel(transaction)}

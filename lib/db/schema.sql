@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   accounting_text TEXT,
 
   beneficiary_iban TEXT,
+  beneficiary_bic TEXT,
   beneficiary_name TEXT,
   beneficiary_country TEXT,
   beneficiary_postal_code TEXT,

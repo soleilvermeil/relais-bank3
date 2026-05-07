@@ -5,6 +5,7 @@ export type ExecutionMode = "immediate" | "date";
 
 export type PaymentDraft = {
   beneficiaryIban: string;
+  beneficiaryBic: string;
   beneficiaryName: string;
   beneficiaryCountry: string;
   beneficiaryPostalCode: string;
@@ -54,6 +55,7 @@ export type TransferSnapshot = TransferDraft & {
 export function emptyPaymentDraft(): PaymentDraft {
   return {
     beneficiaryIban: "",
+    beneficiaryBic: "",
     beneficiaryName: "",
     beneficiaryCountry: "",
     beneficiaryPostalCode: "",

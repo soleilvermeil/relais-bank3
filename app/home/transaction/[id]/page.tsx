@@ -58,7 +58,7 @@ export default async function WealthTransactionDetailPage({
   const debitLabel = accountLabel(row.debit_account_id);
   const creditLabel = accountLabel(row.credit_account_id);
 
-  const backHref = backAccount ? `/wealth/account/${backAccount.id}` : "/wealth";
+  const backHref = backAccount ? `/home/account/${backAccount.id}` : "/home";
   const backLabel = backAccount
     ? t("bankTransactionDetail.backToAccount")
     : t("bankTransactionDetail.backToWealth");
@@ -132,7 +132,7 @@ export default async function WealthTransactionDetailPage({
           <span aria-hidden="true" className="mx-2">
             /
           </span>
-          <Link href="/wealth" className="font-medium text-primary hover:underline">
+          <Link href="/home" className="font-medium text-primary hover:underline">
             {t("bankNavigation.wealth")}
           </Link>
           {backAccount ? (

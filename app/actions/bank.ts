@@ -58,8 +58,8 @@ function nullIfEmpty(value: string): string | null {
 }
 
 function revalidateBankPaths(): void {
-  revalidatePath("/wealth");
-  revalidatePath("/wealth/account", "layout");
+  revalidatePath("/home");
+  revalidatePath("/home/account", "layout");
   revalidatePath("/payments");
 }
 
@@ -76,6 +76,7 @@ function paymentDraftFromFormData(formData: FormData): PaymentDraft {
 
   return {
     beneficiaryIban: readString(formData, "beneficiaryIban"),
+    beneficiaryBic: readString(formData, "beneficiaryBic"),
     beneficiaryName: readString(formData, "beneficiaryName"),
     beneficiaryCountry: readString(formData, "beneficiaryCountry"),
     beneficiaryPostalCode: readString(formData, "beneficiaryPostalCode"),
@@ -151,6 +152,7 @@ export async function confirmPayment(): Promise<void> {
     execution_date: executionDate,
     accounting_text: nullIfEmpty(draft.accountingTextForYou),
     beneficiary_iban: nullIfEmpty(draft.beneficiaryIban),
+    beneficiary_bic: nullIfEmpty(draft.beneficiaryBic),
     beneficiary_name: nullIfEmpty(draft.beneficiaryName),
     beneficiary_country: nullIfEmpty(draft.beneficiaryCountry),
     beneficiary_postal_code: nullIfEmpty(draft.beneficiaryPostalCode),
