@@ -39,14 +39,22 @@ function transactionLabel(transaction: Transaction): string {
     return `Credit from ${transaction.counterparty_name ?? ""}`;
   }
   if (transaction.kind === "payment") {
-    return (
+    const target =
       transaction.beneficiary_name ??
-      transaction.accounting_text ??
       transaction.communication_to_beneficiary ??
-      "Payment"
-    );
+      transaction.accounting_text ??
+      "";
+    return target.trim() === "" ? "Debit to payment beneficiary" : `Debit to ${target}`;
   }
-  return transaction.accounting_text ?? "Transfer";
+  const transferCounterpartyAccountId =
+    transaction.amount > 0 ? transaction.debit_account_id : transaction.credit_account_id;
+  const transferTarget =
+    transferCounterpartyAccountId != null
+      ? (getAccountById(transferCounterpartyAccountId)?.name ?? "own account")
+      : "own account";
+  return transaction.amount > 0
+    ? `Credit from ${transferTarget}`
+    : `Debit to ${transferTarget}`;
 }
 
 function upcomingDescription(transaction: Transaction): string {

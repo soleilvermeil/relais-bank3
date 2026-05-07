@@ -332,8 +332,8 @@ export function seedDb(db: Database.Database): void {
       }
 
       if (savingDate <= todayIso) {
-        transferOut(checking1, retirementA, AMOUNTS.threeAContribution, savingDate, "3a contribution");
-        transferOut(checking1, savings1, AMOUNTS.transferToSavings, savingDate, "Monthly saving");
+        transferOut(checking1, retirementA, AMOUNTS.threeAContribution, savingDate, "Pour ma retraite");
+        transferOut(checking1, savings1, AMOUNTS.transferToSavings, savingDate, "Pour mon épargne mensuelle");
       }
 
       const days = daysInMonthUtc(year, monthIndex);
@@ -361,7 +361,7 @@ export function seedDb(db: Database.Database): void {
       }
 
       if (cardPaymentDate <= todayIso) {
-        transferOut(checking1, cardMain, AMOUNTS.cardPayment, cardPaymentDate, "Card payment");
+        transferOut(checking1, cardMain, AMOUNTS.cardPayment, cardPaymentDate, "Pour mes achats en ligne");
       }
     }
 
