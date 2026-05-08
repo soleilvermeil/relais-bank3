@@ -12,7 +12,9 @@ export default async function MakePaymentPage() {
   const t = await getServerT();
   const debitAccounts = localizeAccounts(listSelectableAccounts(), t).map((account) => ({
     id: account.id,
-    label: `${account.identifier} (${account.name})`,
+    name: account.name,
+    identifier: account.identifier,
+    balance: account.balance,
   }));
   const draft = await readPaymentDraftCookie();
 

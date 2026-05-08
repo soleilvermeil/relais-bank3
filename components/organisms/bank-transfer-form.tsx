@@ -5,19 +5,17 @@ import { useTranslation } from "react-i18next";
 import { submitTransfer } from "@/app/actions/bank";
 import { Button } from "@/components/atoms/button";
 import { SectionTitle } from "@/components/atoms/section-title";
+import {
+  AccountDropdownField,
+  type AccountDropdownOption,
+} from "@/components/molecules/account-dropdown-field";
 import { RadioGroupField } from "@/components/molecules/radio-group-field";
-import { SelectField } from "@/components/molecules/select-field";
 import { TextField } from "@/components/molecules/text-field";
 import type { TransferDraft } from "@/lib/bank-types";
 
-export type AccountOption = {
-  id: number;
-  label: string;
-};
-
 type Props = {
-  debitAccounts: AccountOption[];
-  creditAccounts: AccountOption[];
+  debitAccounts: AccountDropdownOption[];
+  creditAccounts: AccountDropdownOption[];
   initial?: Partial<TransferDraft>;
 };
 
@@ -30,6 +28,8 @@ export function BankTransferForm({ debitAccounts, creditAccounts, initial }: Pro
   const [creditAccountError, setCreditAccountError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [executionDateError, setExecutionDateError] = useState<string | null>(null);
+  const [debitAccountValue, setDebitAccountValue] = useState(initial?.debitAccount ?? "");
+  const [creditAccountValue, setCreditAccountValue] = useState(initial?.creditAccount ?? "");
 
   return (
     <form
@@ -81,48 +81,36 @@ export function BankTransferForm({ debitAccounts, creditAccounts, initial }: Pro
         </SectionTitle>
         <div className="rounded-2xl border border-card-border bg-card p-4 sm:p-6">
           <div className="grid gap-4 sm:grid-cols-2">
-            <SelectField
+            <AccountDropdownField
               id="transfer-debit"
               name="debitAccount"
-              defaultValue={initial?.debitAccount ?? ""}
+              value={debitAccountValue}
               label={t("bankTransfer.fields.debitAccount")}
+              placeholder={t("bankTransfer.placeholders.selectDebitAccount")}
+              options={debitAccounts}
               required
+              width="full"
               error={debitAccountError ?? undefined}
-              onChange={(event) => {
-                const next = event.currentTarget.value;
+              onChange={(next) => {
+                setDebitAccountValue(next);
                 setDebitAccountError(next === "" ? "Please choose a debit account." : null);
               }}
-            >
-                <option value="" disabled>
-                  {t("bankTransfer.placeholders.selectDebitAccount")}
-                </option>
-                {debitAccounts.map((account) => (
-                  <option key={account.id} value={String(account.id)}>
-                    {account.label}
-                  </option>
-                ))}
-            </SelectField>
-            <SelectField
+            />
+            <AccountDropdownField
               id="transfer-credit"
               name="creditAccount"
-              defaultValue={initial?.creditAccount ?? ""}
+              value={creditAccountValue}
               label={t("bankTransfer.fields.creditAccount")}
+              placeholder={t("bankTransfer.placeholders.selectCreditAccount")}
+              options={creditAccounts}
               required
+              width="full"
               error={creditAccountError ?? undefined}
-              onChange={(event) => {
-                const next = event.currentTarget.value;
+              onChange={(next) => {
+                setCreditAccountValue(next);
                 setCreditAccountError(next === "" ? "Please choose a credit account." : null);
               }}
-            >
-                <option value="" disabled>
-                  {t("bankTransfer.placeholders.selectCreditAccount")}
-                </option>
-                {creditAccounts.map((account) => (
-                  <option key={account.id} value={String(account.id)}>
-                    {account.label}
-                  </option>
-                ))}
-            </SelectField>
+            />
             <TextField
               id="transfer-amount"
               name="amount"

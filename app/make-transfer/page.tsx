@@ -12,7 +12,9 @@ export default async function MakeTransferPage() {
   const t = await getServerT();
   const accounts = localizeAccounts(listSelectableAccounts(), t).map((account) => ({
     id: account.id,
-    label: `${account.identifier} (${account.name})`,
+    name: account.name,
+    identifier: account.identifier,
+    balance: account.balance,
   }));
   const draft = await readTransferDraftCookie();
 

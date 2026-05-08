@@ -5,19 +5,18 @@ import { useTranslation } from "react-i18next";
 import { submitPayment } from "@/app/actions/bank";
 import { Button } from "@/components/atoms/button";
 import { SectionTitle } from "@/components/atoms/section-title";
+import {
+  AccountDropdownField,
+  type AccountDropdownOption,
+} from "@/components/molecules/account-dropdown-field";
 import { RadioGroupField } from "@/components/molecules/radio-group-field";
 import { SelectField } from "@/components/molecules/select-field";
 import { TextField } from "@/components/molecules/text-field";
 import { TextareaField } from "@/components/molecules/textarea-field";
 import type { PaymentDraft } from "@/lib/bank-types";
 
-export type AccountOption = {
-  id: number;
-  label: string;
-};
-
 type Props = {
-  debitAccounts: AccountOption[];
+  debitAccounts: AccountDropdownOption[];
   initial?: Partial<PaymentDraft>;
 };
 
@@ -34,8 +33,13 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
   );
   const [beneficiaryIbanError, setBeneficiaryIbanError] = useState<string | null>(null);
   const [beneficiaryBicError, setBeneficiaryBicError] = useState<string | null>(null);
+  const [beneficiaryNameError, setBeneficiaryNameError] = useState<string | null>(null);
+  const [beneficiaryCountryError, setBeneficiaryCountryError] = useState<string | null>(null);
+  const [beneficiaryPostalCodeError, setBeneficiaryPostalCodeError] = useState<string | null>(null);
+  const [beneficiaryCityError, setBeneficiaryCityError] = useState<string | null>(null);
   const [debitAccountError, setDebitAccountError] = useState<string | null>(null);
   const [amountError, setAmountError] = useState<string | null>(null);
+  const [debitAccountValue, setDebitAccountValue] = useState(initial?.debitAccount ?? "");
 
   function validateIban(value: string): string | null {
     const normalized = value.replace(/\s/g, "").toUpperCase();
@@ -75,18 +79,43 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
         const data = new FormData(form);
         const ibanValue = String(data.get("beneficiaryIban") ?? "");
         const bicValue = String(data.get("beneficiaryBic") ?? "");
+        const beneficiaryNameValue = String(data.get("beneficiaryName") ?? "").trim();
+        const beneficiaryCountryValue = String(data.get("beneficiaryCountry") ?? "");
+        const beneficiaryPostalCodeValue = String(data.get("beneficiaryPostalCode") ?? "").trim();
+        const beneficiaryCityValue = String(data.get("beneficiaryCity") ?? "").trim();
         const debitAccountValue = String(data.get("debitAccount") ?? "");
         const amountValue = String(data.get("amount") ?? "").trim();
         const ibanError = validateIban(ibanValue);
         const bicError = validateBic(bicValue);
+        const nextBeneficiaryNameError =
+          beneficiaryNameValue === "" ? "Beneficiary name is required." : null;
+        const nextBeneficiaryCountryError =
+          beneficiaryCountryValue === "" ? "Please choose a beneficiary country." : null;
+        const nextBeneficiaryPostalCodeError =
+          beneficiaryPostalCodeValue === "" ? "Beneficiary postal code is required." : null;
+        const nextBeneficiaryCityError =
+          beneficiaryCityValue === "" ? "Beneficiary city/locality is required." : null;
         const nextDebitAccountError =
           debitAccountValue === "" ? "Please choose a debit account." : null;
         const nextAmountError = amountValue === "" ? "Amount is required." : null;
         setBeneficiaryIbanError(ibanError);
         setBeneficiaryBicError(bicError);
+        setBeneficiaryNameError(nextBeneficiaryNameError);
+        setBeneficiaryCountryError(nextBeneficiaryCountryError);
+        setBeneficiaryPostalCodeError(nextBeneficiaryPostalCodeError);
+        setBeneficiaryCityError(nextBeneficiaryCityError);
         setDebitAccountError(nextDebitAccountError);
         setAmountError(nextAmountError);
-        if (ibanError || bicError || nextDebitAccountError || nextAmountError) {
+        if (
+          ibanError ||
+          bicError ||
+          nextBeneficiaryNameError ||
+          nextBeneficiaryCountryError ||
+          nextBeneficiaryPostalCodeError ||
+          nextBeneficiaryCityError ||
+          nextDebitAccountError ||
+          nextAmountError
+        ) {
           event.preventDefault();
           requestAnimationFrame(() => {
             const firstInvalid = form.querySelector<HTMLElement>("[aria-invalid='true']");
@@ -134,7 +163,12 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               label={t("bankPayment.fields.beneficiaryName")}
               required
               width="full"
+              error={beneficiaryNameError ?? undefined}
               defaultValue={initial?.beneficiaryName ?? ""}
+              onChange={(event) => {
+                const next = event.currentTarget.value.trim();
+                setBeneficiaryNameError(next === "" ? "Beneficiary name is required." : null);
+              }}
             />
             <SelectField
               id="beneficiary-country"
@@ -142,7 +176,14 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               label={t("bankPayment.fields.country")}
               required
               width="full"
+              error={beneficiaryCountryError ?? undefined}
               defaultValue={initial?.beneficiaryCountry ?? ""}
+              onChange={(event) => {
+                const next = event.currentTarget.value;
+                setBeneficiaryCountryError(
+                  next === "" ? "Please choose a beneficiary country." : null,
+                );
+              }}
             >
                 <option value="" disabled>
                   {t("bankPayment.placeholders.selectCountry")}
@@ -157,14 +198,28 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               name="beneficiaryPostalCode"
               label={t("bankPayment.fields.postalCode")}
               required
+              error={beneficiaryPostalCodeError ?? undefined}
               defaultValue={initial?.beneficiaryPostalCode ?? ""}
+              onChange={(event) => {
+                const next = event.currentTarget.value.trim();
+                setBeneficiaryPostalCodeError(
+                  next === "" ? "Beneficiary postal code is required." : null,
+                );
+              }}
             />
             <TextField
               id="beneficiary-city"
               name="beneficiaryCity"
               label={t("bankPayment.fields.locality")}
               required
+              error={beneficiaryCityError ?? undefined}
               defaultValue={initial?.beneficiaryCity ?? ""}
+              onChange={(event) => {
+                const next = event.currentTarget.value.trim();
+                setBeneficiaryCityError(
+                  next === "" ? "Beneficiary city/locality is required." : null,
+                );
+              }}
             />
             <TextField
               id="beneficiary-address1"
@@ -261,27 +316,21 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
               </>
             ) : null}
 
-            <SelectField
+            <AccountDropdownField
               id="debit-account"
               name="debitAccount"
-              defaultValue={initial?.debitAccount ?? ""}
+              value={debitAccountValue}
               label={t("bankPayment.fields.debitAccount")}
+              placeholder={t("bankPayment.placeholders.selectDebitAccount")}
+              options={debitAccounts}
               required
+              width="full"
               error={debitAccountError ?? undefined}
-              onChange={(event) => {
-                const next = event.currentTarget.value;
+              onChange={(next) => {
+                setDebitAccountValue(next);
                 setDebitAccountError(next === "" ? "Please choose a debit account." : null);
               }}
-            >
-                <option value="" disabled>
-                  {t("bankPayment.placeholders.selectDebitAccount")}
-                </option>
-                {debitAccounts.map((account) => (
-                  <option key={account.id} value={String(account.id)}>
-                    {account.label}
-                  </option>
-                ))}
-            </SelectField>
+            />
             <TextField
               id="amount"
               name="amount"
