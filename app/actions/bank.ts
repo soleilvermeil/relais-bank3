@@ -113,10 +113,6 @@ function transferDraftFromFormData(formData: FormData): TransferDraft {
   const executionMode: ExecutionMode =
     readString(formData, "executionMode") === "date" ? "date" : "immediate";
 
-  readNonEmpty(formData, "debitAccount");
-  readNonEmpty(formData, "creditAccount");
-  readNonEmpty(formData, "amount");
-
   return {
     debitAccount: readString(formData, "debitAccount"),
     creditAccount: readString(formData, "creditAccount"),
@@ -138,7 +134,25 @@ export async function submitScannedQrBill(payload: string): Promise<void> {
 
 export async function submitPayment(formData: FormData): Promise<void> {
   const draft = paymentDraftFromFormData(formData);
-  if (draft.debitAccount === "" || draft.amount === "") {
+  const missingCorePaymentFields =
+    draft.beneficiaryIban === "" ||
+    draft.beneficiaryName === "" ||
+    draft.beneficiaryCountry === "" ||
+    draft.beneficiaryPostalCode === "" ||
+    draft.beneficiaryCity === "" ||
+    draft.debitAccount === "" ||
+    draft.amount === "";
+  const missingStandingFields =
+    draft.paymentType === "standing" &&
+    (draft.firstExecutionDate === "" ||
+      draft.frequency === "" ||
+      (draft.periodType === "endDate" && draft.endDate === ""));
+  const missingOneTimeFields =
+    draft.paymentType === "oneTime" &&
+    draft.express === "no" &&
+    draft.executionDate === "";
+
+  if (missingCorePaymentFields || missingStandingFields || missingOneTimeFields) {
     await writePaymentDraftCookie(draft);
     redirect("/make-payment");
   }
@@ -241,6 +255,18 @@ export async function dismissPaymentConfirmation(): Promise<void> {
 
 export async function submitTransfer(formData: FormData): Promise<void> {
   const draft = transferDraftFromFormData(formData);
+  const missingCoreTransferFields =
+    draft.debitAccount === "" || draft.creditAccount === "" || draft.amount === "";
+  const missingDateField =
+    draft.executionMode === "date" && draft.executionDate === "";
+
+  if (
+    missingCoreTransferFields ||
+    missingDateField
+  ) {
+    await writeTransferDraftCookie(draft);
+    redirect("/make-transfer");
+  }
   await writeTransferDraftCookie(draft);
   redirect("/make-transfer/review");
 }

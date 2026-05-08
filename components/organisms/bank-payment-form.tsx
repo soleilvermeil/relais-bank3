@@ -88,6 +88,12 @@ export function BankPaymentForm({ debitAccounts, initial }: Props) {
         setAmountError(nextAmountError);
         if (ibanError || bicError || nextDebitAccountError || nextAmountError) {
           event.preventDefault();
+          requestAnimationFrame(() => {
+            const firstInvalid = form.querySelector<HTMLElement>("[aria-invalid='true']");
+            if (!firstInvalid) return;
+            firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+            firstInvalid.focus();
+          });
         }
       }}
     >
