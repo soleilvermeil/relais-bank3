@@ -26,7 +26,7 @@ export default async function MakeTransferConfirmationPage() {
 
   const t = await getServerT();
   const intlLocale = await getIntlLocale();
-  const selectableAccounts = localizeAccounts(listSelectableAccounts(userId), t);
+  const selectableAccounts = localizeAccounts(await listSelectableAccounts(userId), t);
   const accountById = new Map(selectableAccounts.map((account) => [account.id, account]));
 
   const debitAccountId = Number(snapshot.debitAccount);

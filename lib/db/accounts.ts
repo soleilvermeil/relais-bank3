@@ -1,4 +1,4 @@
-import { getDb } from "./client";
+import { dbAll, dbGet } from "./client";
 import {
   computeBalanceCentsByAccountId,
   computeBalanceCentsForAccount,
@@ -94,17 +94,16 @@ export function localizeAccountGroups(groups: AccountGroup[], t: TFunction): Acc
   }));
 }
 
-export function listAccountsGroupedByCategory(userId: number): AccountGroup[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-       FROM accounts
-       WHERE user_id = ?
-       ORDER BY sort_order ASC, id ASC`,
-    )
-    .all(userId) as AccountRow[];
+export async function listAccountsGroupedByCategory(userId: number): Promise<AccountGroup[]> {
+  const rows = await dbAll<AccountRow>(
+    `SELECT id, category, name, identifier, balance_cents, currency, sort_order
+     FROM accounts
+     WHERE user_id = @userId
+     ORDER BY sort_order ASC, id ASC`,
+    { userId },
+  );
 
-  const balances = computeBalanceCentsByAccountId(userId);
+  const balances = await computeBalanceCentsByAccountId(userId);
 
   const grouped = new Map<AccountCategory, Account[]>();
   for (const category of CATEGORY_ORDER) {
@@ -121,27 +120,25 @@ export function listAccountsGroupedByCategory(userId: number): AccountGroup[] {
   })).filter((group) => group.accounts.length > 0);
 }
 
-export function getAccountById(userId: number, id: number): Account | null {
-  const row = getDb()
-    .prepare(
-      `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-       FROM accounts WHERE id = ? AND user_id = ?`,
-    )
-    .get(id, userId) as AccountRow | undefined;
+export async function getAccountById(userId: number, id: number): Promise<Account | null> {
+  const row = await dbGet<AccountRow>(
+    `SELECT id, category, name, identifier, balance_cents, currency, sort_order
+     FROM accounts WHERE id = @id AND user_id = @userId`,
+    { id, userId },
+  );
   if (!row) return null;
-  const cents = computeBalanceCentsForAccount(id, userId);
+  const cents = await computeBalanceCentsForAccount(id, userId);
   return rowToAccount(row, cents);
 }
 
-export function listSelectableAccounts(userId: number): Account[] {
-  const rows = getDb()
-    .prepare(
-      `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-       FROM accounts
-       WHERE user_id = ? AND category IN ('checking', 'savings')
-       ORDER BY sort_order ASC, id ASC`,
-    )
-    .all(userId) as AccountRow[];
-  const balances = computeBalanceCentsByAccountId(userId);
+export async function listSelectableAccounts(userId: number): Promise<Account[]> {
+  const rows = await dbAll<AccountRow>(
+    `SELECT id, category, name, identifier, balance_cents, currency, sort_order
+     FROM accounts
+     WHERE user_id = @userId AND category IN ('checking', 'savings')
+     ORDER BY sort_order ASC, id ASC`,
+    { userId },
+  );
+  const balances = await computeBalanceCentsByAccountId(userId);
   return rows.map((row) => rowToAccount(row, balances.get(row.id) ?? 0));
 }

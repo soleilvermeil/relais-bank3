@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS users (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   contract_number TEXT NOT NULL UNIQUE,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'))
 );
 
 CREATE TABLE IF NOT EXISTS accounts (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   category TEXT NOT NULL CHECK (category IN ('checking', 'savings', 'retirement', 'cards')),
   name TEXT NOT NULL,
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS accounts (
 );
 
 CREATE TABLE IF NOT EXISTS transactions (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('payment', 'transfer', 'purchaseService', 'credit', 'debit')),
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')),
   debit_account_id INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
   credit_account_id INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
   amount_cents INTEGER NOT NULL,
@@ -59,9 +59,9 @@ CREATE TABLE IF NOT EXISTS transactions (
 );
 
 CREATE TABLE IF NOT EXISTS standing_orders (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')),
   debit_account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
   amount_cents INTEGER NOT NULL,
   currency TEXT NOT NULL DEFAULT 'CHF',

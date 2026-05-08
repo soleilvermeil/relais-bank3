@@ -19,7 +19,7 @@ export async function loginAction(
   if (!contract || pwd !== "12345678") {
     return { error: "invalidCredentials" };
   }
-  findOrCreateUser(contract);
+  await findOrCreateUser(contract);
   await writeUserContractCookie(contract);
   redirect("/");
 }

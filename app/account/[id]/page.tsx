@@ -143,7 +143,7 @@ export default async function AccountDetailPage({
   }
 
   const t = await getServerT();
-  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(userId), t);
+  const localizedGroups = localizeAccountGroups(await listAccountsGroupedByCategory(userId), t);
   const localizedAccounts = localizedGroups.flatMap((group) => group.accounts);
   const accountById = new Map(localizedAccounts.map((account) => [account.id, account]));
   const accountNameById = new Map(localizedAccounts.map((account) => [account.id, account.name]));
@@ -152,7 +152,7 @@ export default async function AccountDetailPage({
     notFound();
   }
   const today = todayIsoDate();
-  const allTransactions = listTransactionsForAccount(account.id, userId);
+  const allTransactions = await listTransactionsForAccount(account.id, userId);
 
   const rawUpcomingOrders = allTransactions
     .filter((tx) => (tx.execution_date ?? "") > today)

@@ -17,7 +17,7 @@ export default async function MakeTransferPage() {
   }
 
   const t = await getServerT();
-  const accounts = localizeAccounts(listSelectableAccounts(userId), t).map((account) => ({
+  const accounts = localizeAccounts(await listSelectableAccounts(userId), t).map((account) => ({
     id: account.id,
     name: account.name,
     identifier: account.identifier,

@@ -1,4 +1,4 @@
-import { getDb } from "./client";
+import { dbGet, dbRun, dbTx } from "./client";
 import { seedUserDemo } from "./seed";
 
 export type User = {
@@ -16,30 +16,33 @@ export function parseContractNumber(raw: string): string | null {
   return sum % 10 === 0 ? digits : null;
 }
 
-export function findUserByContract(contract: string): User | null {
-  const row = getDb()
-    .prepare(`SELECT id, contract_number, created_at FROM users WHERE contract_number = ?`)
-    .get(contract) as User | undefined;
+export async function findUserByContract(contract: string): Promise<User | null> {
+  const row = await dbGet<User>(
+    `SELECT id, contract_number, created_at FROM users WHERE contract_number = @contract`,
+    { contract },
+  );
   return row ?? null;
 }
 
-export function findOrCreateUser(contract: string): User {
-  const existing = findUserByContract(contract);
+export async function findOrCreateUser(contract: string): Promise<User> {
+  const existing = await findUserByContract(contract);
   if (existing) return existing;
 
-  const db = getDb();
-  return db.transaction(() => {
-    const result = db.prepare(`INSERT INTO users (contract_number) VALUES (?)`).run(contract);
-    const userId = Number(result.lastInsertRowid);
-    seedUserDemo(db, userId);
-    const row = db
-      .prepare(`SELECT id, contract_number, created_at FROM users WHERE id = ?`)
-      .get(userId) as User | undefined;
+  return dbTx(async (tx) => {
+    const userId = await tx.insert(
+      `INSERT INTO users (contract_number) VALUES (@contract) RETURNING id`,
+      { contract },
+    );
+    await seedUserDemo(tx, userId);
+    const row = await tx.get<User>(
+      `SELECT id, contract_number, created_at FROM users WHERE id = @userId`,
+      { userId },
+    );
     if (!row) throw new Error("Failed to load user after insert");
     return row;
-  })();
+  });
 }
 
-export function deleteUser(userId: number): void {
-  getDb().prepare(`DELETE FROM users WHERE id = ?`).run(userId);
+export async function deleteUser(userId: number): Promise<void> {
+  await dbRun(`DELETE FROM users WHERE id = @userId`, { userId });
 }

@@ -35,7 +35,7 @@ export default async function WealthPage() {
 
 async function ConnectedWealthContent({ userId }: { userId: number }) {
   const t = await getServerT();
-  const groups = localizeAccountGroups(listAccountsGroupedByCategory(userId), t);
+  const groups = localizeAccountGroups(await listAccountsGroupedByCategory(userId), t);
 
   return (
     <Container>

@@ -23,7 +23,7 @@ export default async function MakeTransferReviewPage() {
   }
 
   const t = await getServerT();
-  const selectableAccounts = localizeAccounts(listSelectableAccounts(userId), t);
+  const selectableAccounts = localizeAccounts(await listSelectableAccounts(userId), t);
   const accountById = new Map(selectableAccounts.map((account) => [account.id, account]));
 
   const debitAccountId = Number(draft.debitAccount);

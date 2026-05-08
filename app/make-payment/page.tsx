@@ -17,7 +17,7 @@ export default async function MakePaymentPage() {
   }
 
   const t = await getServerT();
-  const debitAccounts = localizeAccounts(listSelectableAccounts(userId), t).map((account) => ({
+  const debitAccounts = localizeAccounts(await listSelectableAccounts(userId), t).map((account) => ({
     id: account.id,
     name: account.name,
     identifier: account.identifier,

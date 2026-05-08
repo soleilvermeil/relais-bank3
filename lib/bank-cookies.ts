@@ -254,7 +254,7 @@ export async function isUserConnectedFromCookie(): Promise<boolean> {
 export async function getCurrentUserId(): Promise<number | null> {
   const contract = await readUserContractFromCookie();
   if (!contract) return null;
-  const user = findUserByContract(contract);
+  const user = await findUserByContract(contract);
   if (!user) {
     await clearUserContractCookie();
     return null;

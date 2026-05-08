@@ -147,14 +147,14 @@ export default async function TransactionDetailPage({
   const incomingStandingParsed = parseIncomingStandingSyntheticId(idRaw);
 
   const incomingPaymentRow =
-    incomingPaymentId != null ? getIncomingPaymentForUser(incomingPaymentId, userId) : null;
+    incomingPaymentId != null ? await getIncomingPaymentForUser(incomingPaymentId, userId) : null;
   if (incomingPaymentId != null && !incomingPaymentRow) {
     notFound();
   }
 
   const incomingStandingOcc =
     incomingStandingParsed != null
-      ? getIncomingStandingOccurrenceForRecipient(
+      ? await getIncomingStandingOccurrenceForRecipient(
           incomingStandingParsed.standingOrderId,
           incomingStandingParsed.executionDate,
           userId,
@@ -166,7 +166,7 @@ export default async function TransactionDetailPage({
 
   const summaryStandingOrderId = parseStandingOrderSummarySoId(idRaw);
   const summaryOrder =
-    summaryStandingOrderId != null ? getStandingOrderById(summaryStandingOrderId, userId) : null;
+    summaryStandingOrderId != null ? await getStandingOrderById(summaryStandingOrderId, userId) : null;
   if (summaryStandingOrderId != null && !summaryOrder) {
     notFound();
   }
@@ -176,7 +176,7 @@ export default async function TransactionDetailPage({
     incomingPaymentRow == null &&
     incomingStandingOcc == null &&
     idRaw.startsWith("so:")
-      ? getStandingOrderOccurrenceBySyntheticId(idRaw, userId)
+      ? await getStandingOrderOccurrenceBySyntheticId(idRaw, userId)
       : null;
   const txId = Number(idRaw);
   const row =
@@ -187,14 +187,14 @@ export default async function TransactionDetailPage({
     Number.isFinite(txId) &&
     txId > 0 &&
     !idRaw.startsWith("so:")
-      ? getTransactionById(txId, userId)
+      ? await getTransactionById(txId, userId)
       : null;
   if (!row && !occurrence && !summaryOrder && !incomingPaymentRow && !incomingStandingOcc) {
     notFound();
   }
 
   const t = await getServerT();
-  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(userId), t);
+  const localizedGroups = localizeAccountGroups(await listAccountsGroupedByCategory(userId), t);
   const localizedAccounts = localizedGroups.flatMap((group) => group.accounts);
   const accountById = new Map(localizedAccounts.map((account) => [account.id, account]));
 

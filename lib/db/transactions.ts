@@ -1,5 +1,5 @@
 import { normalizeIban } from "@/lib/bank-iban";
-import { getDb } from "./client";
+import { dbAll, dbGet, dbInsert, dbRun } from "./client";
 
 export type TransactionKind =
   | "payment"
@@ -206,24 +206,22 @@ function parseSyntheticStandingOrderId(value: string): { standingOrderId: number
   return { standingOrderId, executionDate };
 }
 
-function listStandingOrdersForAccount(accountId: number, userId: number): StandingOrderRow[] {
-  return getDb()
-    .prepare(
-      `SELECT * FROM standing_orders
-       WHERE debit_account_id = @id AND user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
-       ORDER BY id ASC`,
-    )
-    .all({ id: accountId, userId }) as StandingOrderRow[];
+async function listStandingOrdersForAccount(accountId: number, userId: number): Promise<StandingOrderRow[]> {
+  return dbAll<StandingOrderRow>(
+    `SELECT * FROM standing_orders
+     WHERE debit_account_id = @id AND user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
+     ORDER BY id ASC`,
+    { id: accountId, userId },
+  );
 }
 
-function listAllStandingOrders(userId: number): StandingOrderRow[] {
-  return getDb()
-    .prepare(
-      `SELECT * FROM standing_orders
-       WHERE user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
-       ORDER BY id ASC`,
-    )
-    .all({ userId }) as StandingOrderRow[];
+async function listAllStandingOrders(userId: number): Promise<StandingOrderRow[]> {
+  return dbAll<StandingOrderRow>(
+    `SELECT * FROM standing_orders
+     WHERE user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
+     ORDER BY id ASC`,
+    { userId },
+  );
 }
 
 function listStandingExecutionDates(order: StandingOrderRow, fromIso: string, toIso: string): string[] {
@@ -312,42 +310,40 @@ function rowToTransaction(row: TransactionRow, accountId: number): Transaction {
   };
 }
 
-export function listIncomingPaymentsForIban(
+export async function listIncomingPaymentsForIban(
   iban: string,
   recipientUserId: number,
   today: string,
-): TransactionRow[] {
+): Promise<TransactionRow[]> {
   const normalized = normalizeIban(iban);
   if (normalized === "") return [];
-  return getDb()
-    .prepare(
-      `SELECT * FROM transactions
-       WHERE kind = 'payment'
-         AND COALESCE(payment_type, 'oneTime') != 'standing'
-         AND user_id != @recipientUserId
-         AND beneficiary_iban IS NOT NULL
-         AND execution_date IS NOT NULL
-         AND execution_date <= @today
-         AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
-    )
-    .all({ recipientUserId, today, iban: normalized }) as TransactionRow[];
+  return dbAll<TransactionRow>(
+    `SELECT * FROM transactions
+     WHERE kind = 'payment'
+       AND COALESCE(payment_type, 'oneTime') != 'standing'
+       AND user_id != @recipientUserId
+       AND beneficiary_iban IS NOT NULL
+       AND execution_date IS NOT NULL
+       AND execution_date <= @today
+       AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
+    { recipientUserId, today, iban: normalized },
+  );
 }
 
-export function listIncomingStandingOrdersForIban(
+export async function listIncomingStandingOrdersForIban(
   iban: string,
   recipientUserId: number,
-): StandingOrderRow[] {
+): Promise<StandingOrderRow[]> {
   const normalized = normalizeIban(iban);
   if (normalized === "") return [];
-  return getDb()
-    .prepare(
-      `SELECT * FROM standing_orders
-       WHERE user_id != @recipientUserId
-         AND beneficiary_iban IS NOT NULL
-         AND (is_active = 1 OR is_cancelled = 1)
-         AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
-    )
-    .all({ recipientUserId, iban: normalized }) as StandingOrderRow[];
+  return dbAll<StandingOrderRow>(
+    `SELECT * FROM standing_orders
+     WHERE user_id != @recipientUserId
+       AND beneficiary_iban IS NOT NULL
+       AND (is_active = 1 OR is_cancelled = 1)
+       AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
+    { recipientUserId, iban: normalized },
+  );
 }
 
 function incomingForeignPaymentToCreditTransaction(
@@ -431,27 +427,34 @@ function incomingForeignStandingOccurrenceToCreditTransaction(
   };
 }
 
-function sumIncomingOneTimeCreditsCents(identifier: string, recipientUserId: number, today: string): number {
+async function sumIncomingOneTimeCreditsCents(
+  identifier: string,
+  recipientUserId: number,
+  today: string,
+): Promise<number> {
   const normalized = normalizeIban(identifier);
   if (normalized === "") return 0;
-  const row = getDb()
-    .prepare(
-      `SELECT COALESCE(SUM(ABS(amount_cents)), 0) AS s
-       FROM transactions
-       WHERE kind = 'payment'
-         AND COALESCE(payment_type, 'oneTime') != 'standing'
-         AND user_id != @recipientUserId
-         AND beneficiary_iban IS NOT NULL
-         AND execution_date IS NOT NULL
-         AND execution_date <= @today
-         AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
-    )
-    .get({ recipientUserId, today, iban: normalized }) as { s: number };
-  return row.s;
+  const row = await dbGet<{ s: string | number | null }>(
+    `SELECT COALESCE(SUM(ABS(amount_cents)), 0) AS s
+     FROM transactions
+     WHERE kind = 'payment'
+       AND COALESCE(payment_type, 'oneTime') != 'standing'
+       AND user_id != @recipientUserId
+       AND beneficiary_iban IS NOT NULL
+       AND execution_date IS NOT NULL
+       AND execution_date <= @today
+       AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
+    { recipientUserId, today, iban: normalized },
+  );
+  return Number(row?.s ?? 0);
 }
 
-function sumIncomingStandingCreditsCents(identifier: string, recipientUserId: number, today: string): number {
-  const orders = listIncomingStandingOrdersForIban(identifier, recipientUserId);
+async function sumIncomingStandingCreditsCents(
+  identifier: string,
+  recipientUserId: number,
+  today: string,
+): Promise<number> {
+  const orders = await listIncomingStandingOrdersForIban(identifier, recipientUserId);
   let sum = 0;
   for (const order of orders) {
     const dates = listStandingExecutionDates(order, order.start_date, today);
@@ -460,41 +463,42 @@ function sumIncomingStandingCreditsCents(identifier: string, recipientUserId: nu
   return sum;
 }
 
-export function listTransactionsForAccount(accountId: number, userId: number): Transaction[] {
-  const accountMeta = getDb()
-    .prepare(`SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`)
-    .get({ id: accountId, userId }) as { identifier: string } | undefined;
+export async function listTransactionsForAccount(accountId: number, userId: number): Promise<Transaction[]> {
+  const accountMeta = await dbGet<{ identifier: string }>(
+    `SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`,
+    { id: accountId, userId },
+  );
   if (!accountMeta) {
     return [];
   }
 
   const today = todayIsoLocal();
   const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
-  const rows = getDb()
-    .prepare(
-      `SELECT * FROM transactions
-       WHERE user_id = @userId
-         AND (debit_account_id = @id OR credit_account_id = @id)
-         AND (
-           is_conditionally_visible = 0
-           OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
-         )
-       ORDER BY execution_date DESC, id DESC`,
-    )
-    .all({ id: accountId, userId }) as TransactionRow[];
+  const rows = await dbAll<TransactionRow>(
+    `SELECT * FROM transactions
+     WHERE user_id = @userId
+       AND (debit_account_id = @id OR credit_account_id = @id)
+       AND (
+         is_conditionally_visible = 0
+         OR (is_conditionally_visible = 1 AND execution_date <= @today)
+       )
+     ORDER BY execution_date DESC, id DESC`,
+    { id: accountId, userId, today },
+  );
   const persisted = rows.map((row) => rowToTransaction(row, accountId));
-  const standingOrders = listStandingOrdersForAccount(accountId, userId);
+  const standingOrders = await listStandingOrdersForAccount(accountId, userId);
   const standingOccurrences = standingOrders.flatMap((order) =>
     listStandingExecutionDates(order, order.start_date, horizon).map((executionDate) =>
       standingOrderOccurrenceToTransaction(order, accountId, executionDate),
     ),
   );
 
-  const foreignPayments = listIncomingPaymentsForIban(accountMeta.identifier, userId, today).map((tx) =>
-    incomingForeignPaymentToCreditTransaction(tx, accountId, userId),
+  const incomingRows = await listIncomingPaymentsForIban(accountMeta.identifier, userId, today);
+  const foreignPayments = incomingRows.map((txRow) =>
+    incomingForeignPaymentToCreditTransaction(txRow, accountId, userId),
   );
 
-  const foreignStandingOrders = listIncomingStandingOrdersForIban(accountMeta.identifier, userId);
+  const foreignStandingOrders = await listIncomingStandingOrdersForIban(accountMeta.identifier, userId);
   const foreignStandingCredits = foreignStandingOrders.flatMap((order) =>
     listStandingExecutionDates(order, order.start_date, today).map((executionDate) =>
       incomingForeignStandingOccurrenceToCreditTransaction(order, executionDate, accountId, userId),
@@ -511,66 +515,67 @@ export function listTransactionsForAccount(accountId: number, userId: number): T
   return merged;
 }
 
-export function getTransactionById(id: number, userId: number): TransactionRow | null {
-  const row = getDb()
-    .prepare(`SELECT * FROM transactions WHERE id = @id AND user_id = @userId`)
-    .get({ id, userId }) as TransactionRow | undefined;
+export async function getTransactionById(id: number, userId: number): Promise<TransactionRow | null> {
+  const row = await dbGet<TransactionRow>(
+    `SELECT * FROM transactions WHERE id = @id AND user_id = @userId`,
+    { id, userId },
+  );
   return row ?? null;
 }
 
 /** Foreign user's payment whose beneficiary IBAN matches one of this user's accounts (incoming credit). */
-export function getIncomingPaymentForUser(transactionId: number, recipientUserId: number): TransactionRow | null {
+export async function getIncomingPaymentForUser(
+  transactionId: number,
+  recipientUserId: number,
+): Promise<TransactionRow | null> {
   const today = todayIsoLocal();
-  const row = getDb()
-    .prepare(
-      `SELECT t.* FROM transactions t
-       WHERE t.id = @transactionId
-         AND t.kind = 'payment'
-         AND COALESCE(t.payment_type, 'oneTime') != 'standing'
-         AND t.execution_date IS NOT NULL
-         AND t.execution_date <= @today
-         AND t.user_id != @recipientUserId
-         AND t.beneficiary_iban IS NOT NULL
-         AND EXISTS (
-           SELECT 1 FROM accounts a
-           WHERE a.user_id = @recipientUserId
-             AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(t.beneficiary_iban, ' ', ''))
-         )`,
-    )
-    .get({ transactionId, today, recipientUserId }) as TransactionRow | undefined;
+  const row = await dbGet<TransactionRow>(
+    `SELECT t.* FROM transactions t
+     WHERE t.id = @transactionId
+       AND t.kind = 'payment'
+       AND COALESCE(t.payment_type, 'oneTime') != 'standing'
+       AND t.execution_date IS NOT NULL
+       AND t.execution_date <= @today
+       AND t.user_id != @recipientUserId
+       AND t.beneficiary_iban IS NOT NULL
+       AND EXISTS (
+         SELECT 1 FROM accounts a
+         WHERE a.user_id = @recipientUserId
+           AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(t.beneficiary_iban, ' ', ''))
+       )`,
+    { transactionId, today, recipientUserId },
+  );
   return row ?? null;
 }
 
 /** Foreign standing-order occurrence credited to this user's matching IBAN. */
-export function getIncomingStandingOccurrenceForRecipient(
+export async function getIncomingStandingOccurrenceForRecipient(
   standingOrderId: number,
   executionDate: string,
   recipientUserId: number,
-): StandingOrderOccurrenceDetail | null {
+): Promise<StandingOrderOccurrenceDetail | null> {
   const today = todayIsoLocal();
   if (executionDate > today) return null;
 
-  const order = getDb()
-    .prepare(
-      `SELECT * FROM standing_orders
-       WHERE id = @standingOrderId
-         AND user_id != @recipientUserId
-         AND beneficiary_iban IS NOT NULL`,
-    )
-    .get({ standingOrderId, recipientUserId }) as StandingOrderRow | undefined;
+  const order = await dbGet<StandingOrderRow>(
+    `SELECT * FROM standing_orders
+     WHERE id = @standingOrderId
+       AND user_id != @recipientUserId
+       AND beneficiary_iban IS NOT NULL`,
+    { standingOrderId, recipientUserId },
+  );
   if (!order) return null;
 
-  const ok = getDb()
-    .prepare(
-      `SELECT 1 AS ok FROM accounts a
-       WHERE a.user_id = @recipientUserId
-         AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(@beneficiaryIban, ' ', ''))
-       LIMIT 1`,
-    )
-    .get({
+  const ok = await dbGet<{ ok: number }>(
+    `SELECT 1 AS ok FROM accounts a
+     WHERE a.user_id = @recipientUserId
+       AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(@beneficiaryIban, ' ', ''))
+     LIMIT 1`,
+    {
       recipientUserId,
       beneficiaryIban: order.beneficiary_iban ?? "",
-    }) as { ok: number } | undefined;
+    },
+  );
   if (!ok) return null;
 
   const executedDates = listStandingExecutionDates(order, order.start_date, executionDate);
@@ -645,96 +650,96 @@ export function foreignStandingOccurrenceToRecipientCreditDetailRow(
 }
 
 /** Net CHF cents for an account: debits use stored amount; transfers credit the other leg with -amount. */
-export function computeBalanceCentsForAccount(accountId: number, userId: number): number {
-  const row = getDb()
-    .prepare(
-      `SELECT
-         COALESCE((
-           SELECT SUM(amount_cents)
+export async function computeBalanceCentsForAccount(accountId: number, userId: number): Promise<number> {
+  const today = todayIsoLocal();
+  const row = await dbGet<{ balance_cents: string | number | null }>(
+    `SELECT
+       COALESCE((
+         SELECT SUM(amount_cents)
+         FROM transactions
+         WHERE user_id = @userId
+           AND debit_account_id = @id
+           AND (
+             is_conditionally_visible = 0
+             OR (is_conditionally_visible = 1 AND execution_date <= @today)
+           )
+       ), 0)
+       + COALESCE(
+         (
+           SELECT SUM(-amount_cents)
            FROM transactions
            WHERE user_id = @userId
-             AND debit_account_id = @id
+             AND credit_account_id = @id
+             AND kind = 'transfer'
              AND (
                is_conditionally_visible = 0
-               OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
+               OR (is_conditionally_visible = 1 AND execution_date <= @today)
              )
-         ), 0)
-         + COALESCE(
-           (
-             SELECT SUM(-amount_cents)
-             FROM transactions
-             WHERE user_id = @userId
-               AND credit_account_id = @id
-               AND kind = 'transfer'
-               AND (
-                 is_conditionally_visible = 0
-                 OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
-               )
-           ),
-           0
-         ) AS balance_cents`,
-    )
-    .get({ id: accountId, userId }) as { balance_cents: number };
-  const standingOrders = listStandingOrdersForAccount(accountId, userId);
-  const today = todayIsoLocal();
+         ),
+         0
+       ) AS balance_cents`,
+    { id: accountId, userId, today },
+  );
+  const base = Number(row?.balance_cents ?? 0);
+  const standingOrders = await listStandingOrdersForAccount(accountId, userId);
   let standingCents = 0;
   for (const order of standingOrders) {
     standingCents += listStandingExecutionDates(order, order.start_date, today).length * order.amount_cents;
   }
 
-  const accountMeta = getDb()
-    .prepare(`SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`)
-    .get({ id: accountId, userId }) as { identifier: string } | undefined;
+  const accountMeta = await dbGet<{ identifier: string }>(
+    `SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`,
+    { id: accountId, userId },
+  );
   if (!accountMeta) {
-    return row.balance_cents + standingCents;
+    return base + standingCents;
   }
 
-  const incomingOneTime = sumIncomingOneTimeCreditsCents(accountMeta.identifier, userId, today);
-  const incomingStanding = sumIncomingStandingCreditsCents(accountMeta.identifier, userId, today);
+  const incomingOneTime = await sumIncomingOneTimeCreditsCents(accountMeta.identifier, userId, today);
+  const incomingStanding = await sumIncomingStandingCreditsCents(accountMeta.identifier, userId, today);
 
-  return row.balance_cents + standingCents + incomingOneTime + incomingStanding;
+  return base + standingCents + incomingOneTime + incomingStanding;
 }
 
 /** One round-trip: map account id -> net balance in cents from all transactions. */
-export function computeBalanceCentsByAccountId(userId: number): Map<number, number> {
-  const rows = getDb()
-    .prepare(
-      `SELECT a.id AS account_id,
-         COALESCE(d.debit_sum, 0) + COALESCE(c.credit_transfer_sum, 0) AS balance_cents
-       FROM accounts a
-       LEFT JOIN (
-         SELECT debit_account_id AS id, SUM(amount_cents) AS debit_sum
-         FROM transactions
-         WHERE user_id = @userId
-           AND debit_account_id IS NOT NULL
-           AND (
-             is_conditionally_visible = 0
-             OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
-           )
-         GROUP BY debit_account_id
-       ) d ON d.id = a.id
-       LEFT JOIN (
-         SELECT credit_account_id AS id, SUM(-amount_cents) AS credit_transfer_sum
-         FROM transactions
-         WHERE user_id = @userId
-           AND credit_account_id IS NOT NULL
-           AND kind = 'transfer'
-           AND (
-             is_conditionally_visible = 0
-             OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
-           )
-         GROUP BY credit_account_id
-       ) c ON c.id = a.id
-       WHERE a.user_id = @userId`,
-    )
-    .all({ userId }) as { account_id: number; balance_cents: number }[];
+export async function computeBalanceCentsByAccountId(userId: number): Promise<Map<number, number>> {
+  const today = todayIsoLocal();
+  const rows = await dbAll<{ account_id: number; balance_cents: string | number | null }>(
+    `SELECT a.id AS account_id,
+       COALESCE(d.debit_sum, 0) + COALESCE(c.credit_transfer_sum, 0) AS balance_cents
+     FROM accounts a
+     LEFT JOIN (
+       SELECT debit_account_id AS id, SUM(amount_cents) AS debit_sum
+       FROM transactions
+       WHERE user_id = @userId
+         AND debit_account_id IS NOT NULL
+         AND (
+           is_conditionally_visible = 0
+           OR (is_conditionally_visible = 1 AND execution_date <= @today)
+         )
+       GROUP BY debit_account_id
+     ) d ON d.id = a.id
+     LEFT JOIN (
+       SELECT credit_account_id AS id, SUM(-amount_cents) AS credit_transfer_sum
+       FROM transactions
+       WHERE user_id = @userId
+         AND credit_account_id IS NOT NULL
+         AND kind = 'transfer'
+         AND (
+           is_conditionally_visible = 0
+           OR (is_conditionally_visible = 1 AND execution_date <= @today)
+         )
+       GROUP BY credit_account_id
+     ) c ON c.id = a.id
+     WHERE a.user_id = @userId`,
+    { userId, today },
+  );
 
   const map = new Map<number, number>();
   for (const r of rows) {
-    map.set(r.account_id, r.balance_cents);
+    map.set(r.account_id, Number(r.balance_cents ?? 0));
   }
-  const today = todayIsoLocal();
-  const standingOrders = listAllStandingOrders(userId);
+  const standingOrders = await listAllStandingOrders(userId);
   for (const order of standingOrders) {
     const occurrenceCount = listStandingExecutionDates(order, order.start_date, today).length;
     if (occurrenceCount === 0) continue;
@@ -742,13 +747,14 @@ export function computeBalanceCentsByAccountId(userId: number): Map<number, numb
     map.set(order.debit_account_id, current + occurrenceCount * order.amount_cents);
   }
 
-  const accounts = getDb()
-    .prepare(`SELECT id, identifier FROM accounts WHERE user_id = @userId`)
-    .all({ userId }) as { id: number; identifier: string }[];
+  const accounts = await dbAll<{ id: number; identifier: string }>(
+    `SELECT id, identifier FROM accounts WHERE user_id = @userId`,
+    { userId },
+  );
 
   for (const acc of accounts) {
-    const incomingOneTime = sumIncomingOneTimeCreditsCents(acc.identifier, userId, today);
-    const incomingStanding = sumIncomingStandingCreditsCents(acc.identifier, userId, today);
+    const incomingOneTime = await sumIncomingOneTimeCreditsCents(acc.identifier, userId, today);
+    const incomingStanding = await sumIncomingStandingCreditsCents(acc.identifier, userId, today);
     const extra = incomingOneTime + incomingStanding;
     if (extra === 0) continue;
     const current = map.get(acc.id) ?? 0;
@@ -789,38 +795,36 @@ export type PaymentInsertInput = {
   debtor_address2: string | null;
 };
 
-export function insertPayment(input: PaymentInsertInput): number {
-  const result = getDb()
-    .prepare(
-      `INSERT INTO transactions (
-         user_id, kind, debit_account_id, amount_cents, currency,
-         execution_date, accounting_text,
-         beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
-         beneficiary_postal_code, beneficiary_city,
-         beneficiary_address1, beneficiary_address2,
-         payment_type, first_execution_date, frequency,
-         weekend_holiday_rule, period_type, end_date,
-         is_express, rf_reference, communication_to_beneficiary,
-         debtor_name, debtor_country, debtor_postal_code, is_conditionally_visible,
-         debtor_city, debtor_address1, debtor_address2
-       ) VALUES (
-         @user_id, 'payment', @debit_account_id, @amount_cents, 'CHF',
-         @execution_date, @accounting_text,
-         @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
-         @beneficiary_postal_code, @beneficiary_city,
-         @beneficiary_address1, @beneficiary_address2,
-         @payment_type, @first_execution_date, @frequency,
-         @weekend_holiday_rule, @period_type, @end_date,
-         @is_express, @rf_reference, @communication_to_beneficiary,
-         @debtor_name, @debtor_country, @debtor_postal_code, 0,
-         @debtor_city, @debtor_address1, @debtor_address2
-       )`,
-    )
-    .run({
+export async function insertPayment(input: PaymentInsertInput): Promise<number> {
+  return dbInsert(
+    `INSERT INTO transactions (
+       user_id, kind, debit_account_id, amount_cents, currency,
+       execution_date, accounting_text,
+       beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
+       beneficiary_postal_code, beneficiary_city,
+       beneficiary_address1, beneficiary_address2,
+       payment_type, first_execution_date, frequency,
+       weekend_holiday_rule, period_type, end_date,
+       is_express, rf_reference, communication_to_beneficiary,
+       debtor_name, debtor_country, debtor_postal_code, is_conditionally_visible,
+       debtor_city, debtor_address1, debtor_address2
+     ) VALUES (
+       @user_id, 'payment', @debit_account_id, @amount_cents, 'CHF',
+       @execution_date, @accounting_text,
+       @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
+       @beneficiary_postal_code, @beneficiary_city,
+       @beneficiary_address1, @beneficiary_address2,
+       @payment_type, @first_execution_date, @frequency,
+       @weekend_holiday_rule, @period_type, @end_date,
+       @is_express, @rf_reference, @communication_to_beneficiary,
+       @debtor_name, @debtor_country, @debtor_postal_code, 0,
+       @debtor_city, @debtor_address1, @debtor_address2
+     ) RETURNING id`,
+    {
       ...input,
       is_express: input.is_express ? 1 : 0,
-    });
-  return Number(result.lastInsertRowid);
+    },
+  );
 }
 
 export type StandingOrderInsertInput = {
@@ -850,71 +854,68 @@ export type StandingOrderInsertInput = {
   debtor_address2: string | null;
 };
 
-export function insertStandingOrder(input: StandingOrderInsertInput): number {
-  const result = getDb()
-    .prepare(
-      `INSERT INTO standing_orders (
-         user_id, debit_account_id, amount_cents, currency,
-         start_date, end_date, frequency, weekend_holiday_rule,
-         beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
-         beneficiary_postal_code, beneficiary_city,
-         beneficiary_address1, beneficiary_address2,
-         rf_reference, communication_to_beneficiary, accounting_text,
-         debtor_name, debtor_country, debtor_postal_code,
-         debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
-       ) VALUES (
-         @user_id, @debit_account_id, @amount_cents, 'CHF',
-         @start_date, @end_date, @frequency, @weekend_holiday_rule,
-         @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
-         @beneficiary_postal_code, @beneficiary_city,
-         @beneficiary_address1, @beneficiary_address2,
-         @rf_reference, @communication_to_beneficiary, @accounting_text,
-         @debtor_name, @debtor_country, @debtor_postal_code,
-         @debtor_city, @debtor_address1, @debtor_address2, 1, 0
+export async function insertStandingOrder(input: StandingOrderInsertInput): Promise<number> {
+  return dbInsert(
+    `INSERT INTO standing_orders (
+       user_id, debit_account_id, amount_cents, currency,
+       start_date, end_date, frequency, weekend_holiday_rule,
+       beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
+       beneficiary_postal_code, beneficiary_city,
+       beneficiary_address1, beneficiary_address2,
+       rf_reference, communication_to_beneficiary, accounting_text,
+       debtor_name, debtor_country, debtor_postal_code,
+       debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
+     ) VALUES (
+       @user_id, @debit_account_id, @amount_cents, 'CHF',
+       @start_date, @end_date, @frequency, @weekend_holiday_rule,
+       @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
+       @beneficiary_postal_code, @beneficiary_city,
+       @beneficiary_address1, @beneficiary_address2,
+       @rf_reference, @communication_to_beneficiary, @accounting_text,
+       @debtor_name, @debtor_country, @debtor_postal_code,
+       @debtor_city, @debtor_address1, @debtor_address2, 1, 0
+     ) RETURNING id`,
+    input,
+  );
+}
+
+export async function pauseStandingOrder(id: number, userId: number): Promise<void> {
+  await dbRun(
+    `UPDATE standing_orders
+     SET is_active = 0
+     WHERE id = @id AND user_id = @userId`,
+    { id, userId },
+  );
+}
+
+export async function deleteStandingOrder(id: number, userId: number): Promise<void> {
+  const today = todayIsoLocal();
+  await dbRun(
+    `UPDATE standing_orders
+     SET
+       end_date = CASE
+         WHEN end_date IS NULL OR end_date > @today THEN @today
+         ELSE end_date
+       END,
+       is_active = 0,
+       is_cancelled = 1
+     WHERE id = @id AND user_id = @userId`,
+    { id, userId, today },
+  );
+}
+
+export async function deleteFuturePendingOrderTransaction(id: number, userId: number): Promise<void> {
+  const today = todayIsoLocal();
+  await dbRun(
+    `DELETE FROM transactions
+     WHERE id = @id AND user_id = @userId
+       AND execution_date > @today
+       AND (
+         kind = 'transfer'
+         OR (kind = 'payment' AND COALESCE(payment_type, 'oneTime') != 'standing')
        )`,
-    )
-    .run(input);
-  return Number(result.lastInsertRowid);
-}
-
-export function pauseStandingOrder(id: number, userId: number): void {
-  getDb()
-    .prepare(
-      `UPDATE standing_orders
-       SET is_active = 0
-       WHERE id = @id AND user_id = @userId`,
-    )
-    .run({ id, userId });
-}
-
-export function deleteStandingOrder(id: number, userId: number): void {
-  getDb()
-    .prepare(
-      `UPDATE standing_orders
-       SET
-         end_date = CASE
-           WHEN end_date IS NULL OR end_date > date('now', 'localtime') THEN date('now', 'localtime')
-           ELSE end_date
-         END,
-         is_active = 0,
-         is_cancelled = 1
-       WHERE id = @id AND user_id = @userId`,
-    )
-    .run({ id, userId });
-}
-
-export function deleteFuturePendingOrderTransaction(id: number, userId: number): void {
-  getDb()
-    .prepare(
-      `DELETE FROM transactions
-       WHERE id = @id AND user_id = @userId
-         AND execution_date > date('now', 'localtime')
-         AND (
-           kind = 'transfer'
-           OR (kind = 'payment' AND COALESCE(payment_type, 'oneTime') != 'standing')
-         )`,
-    )
-    .run({ id, userId });
+    { id, userId, today },
+  );
 }
 
 export type TransferInsertInput = {
@@ -927,30 +928,29 @@ export type TransferInsertInput = {
   accounting_text: string | null;
 };
 
-export function insertTransfer(input: TransferInsertInput): number {
-  const result = getDb()
-    .prepare(
-      `INSERT INTO transactions (
-         user_id, kind, debit_account_id, credit_account_id, amount_cents, currency,
-         execution_mode, execution_date, accounting_text, is_conditionally_visible
-       ) VALUES (
-         @user_id, 'transfer', @debit_account_id, @credit_account_id, @amount_cents, 'CHF',
-         @execution_mode, @execution_date, @accounting_text, 0
-       )`,
-    )
-    .run(input);
-  return Number(result.lastInsertRowid);
+export async function insertTransfer(input: TransferInsertInput): Promise<number> {
+  return dbInsert(
+    `INSERT INTO transactions (
+       user_id, kind, debit_account_id, credit_account_id, amount_cents, currency,
+       execution_mode, execution_date, accounting_text, is_conditionally_visible
+     ) VALUES (
+       @user_id, 'transfer', @debit_account_id, @credit_account_id, @amount_cents, 'CHF',
+       @execution_mode, @execution_date, @accounting_text, 0
+     ) RETURNING id`,
+    input,
+  );
 }
 
-export function getStandingOrderOccurrenceBySyntheticId(
+export async function getStandingOrderOccurrenceBySyntheticId(
   syntheticId: string,
   userId: number,
-): StandingOrderOccurrenceDetail | null {
+): Promise<StandingOrderOccurrenceDetail | null> {
   const parsed = parseSyntheticStandingOrderId(syntheticId);
   if (!parsed) return null;
-  const standingOrder = getDb()
-    .prepare(`SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`)
-    .get({ id: parsed.standingOrderId, userId }) as StandingOrderRow | undefined;
+  const standingOrder = await dbGet<StandingOrderRow>(
+    `SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`,
+    { id: parsed.standingOrderId, userId },
+  );
   if (!standingOrder) return null;
   const matches = listStandingExecutionDates(
     standingOrder,
@@ -976,10 +976,11 @@ export function parseStandingOrderSummarySoId(value: string): number | null {
   return standingOrderId;
 }
 
-export function getStandingOrderById(id: number, userId: number): StandingOrderRow | null {
-  const row = getDb()
-    .prepare(`SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`)
-    .get({ id, userId }) as StandingOrderRow | undefined;
+export async function getStandingOrderById(id: number, userId: number): Promise<StandingOrderRow | null> {
+  const row = await dbGet<StandingOrderRow>(
+    `SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`,
+    { id, userId },
+  );
   return row ?? null;
 }
 

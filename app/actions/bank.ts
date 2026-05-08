@@ -179,7 +179,7 @@ export async function confirmPayment(): Promise<void> {
 
   const transactionId =
     draft.paymentType === "standing"
-      ? insertStandingOrder({
+      ? await insertStandingOrder({
           user_id: userId,
           debit_account_id: debitAccountId,
           amount_cents: -Math.abs(amountCents),
@@ -214,7 +214,7 @@ export async function confirmPayment(): Promise<void> {
           debtor_address1: nullIfEmpty(draft.debtorAddress1),
           debtor_address2: nullIfEmpty(draft.debtorAddress2),
         })
-      : insertPayment({
+      : await insertPayment({
           user_id: userId,
           debit_account_id: debitAccountId,
           amount_cents: -Math.abs(amountCents),
@@ -299,7 +299,7 @@ export async function confirmTransfer(): Promise<void> {
       ? nullIfEmpty(draft.executionDate)
       : new Date().toISOString().slice(0, 10);
 
-  const transactionId = insertTransfer({
+  const transactionId = await insertTransfer({
     user_id: userId,
     debit_account_id: debitAccountId,
     credit_account_id: creditAccountId,
@@ -335,7 +335,7 @@ export async function pauseStandingOrderAction(formData: FormData): Promise<void
     throw new Error(`Invalid standing order id: ${standingOrderIdRaw}`);
   }
   const fromAccountRaw = readString(formData, "fromAccount");
-  pauseStandingOrder(standingOrderId, userId);
+  await pauseStandingOrder(standingOrderId, userId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/account/${fromAccountRaw}`);
@@ -354,7 +354,7 @@ export async function deleteStandingOrderAction(formData: FormData): Promise<voi
     throw new Error(`Invalid standing order id: ${standingOrderIdRaw}`);
   }
   const fromAccountRaw = readString(formData, "fromAccount");
-  deleteStandingOrder(standingOrderId, userId);
+  await deleteStandingOrder(standingOrderId, userId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/account/${fromAccountRaw}`);
@@ -373,7 +373,7 @@ export async function deletePendingOrderAction(formData: FormData): Promise<void
     throw new Error(`Invalid transaction id: ${transactionIdRaw}`);
   }
   const fromAccountRaw = readString(formData, "fromAccount");
-  deleteFuturePendingOrderTransaction(transactionId, userId);
+  await deleteFuturePendingOrderTransaction(transactionId, userId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/account/${fromAccountRaw}`);

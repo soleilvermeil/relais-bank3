@@ -1,4 +1,4 @@
-import type Database from "better-sqlite3";
+import type { Tx } from "./client";
 
 type SeedAccount = {
   category: "checking" | "savings" | "retirement" | "cards";
@@ -60,23 +60,23 @@ function buildSeedAccounts(userId: number): SeedAccount[] {
   ];
 }
 
-/** Demo ledger spans years N-1, N and N+1; seeded rows are conditionally visible by execution_date. */
-export function seedUserDemo(db: Database.Database, userId: number): void {
-  const insertAccount = db.prepare(
-    `INSERT INTO accounts (user_id, category, name, identifier, balance_cents, currency, sort_order)
-     VALUES (@user_id, @category, @name, @identifier, 0, 'CHF', @sort_order)`,
-  );
-
+async function insertSeedAccounts(tx: Tx, userId: number): Promise<[number, number, number, number]> {
   const seedAccounts = buildSeedAccounts(userId);
+  const ids: number[] = [];
+  for (const account of seedAccounts) {
+    const id = await tx.insert(
+      `INSERT INTO accounts (user_id, category, name, identifier, balance_cents, currency, sort_order)
+       VALUES (@user_id, @category, @name, @identifier, 0, 'CHF', @sort_order) RETURNING id`,
+      { ...account, user_id: userId },
+    );
+    ids.push(id);
+  }
+  return ids as [number, number, number, number];
+}
 
-  const [checking1, savings1, retirementA, cardMain] = db.transaction(() => {
-    const ids: number[] = [];
-    for (const account of seedAccounts) {
-      const result = insertAccount.run({ ...account, user_id: userId });
-      ids.push(Number(result.lastInsertRowid));
-    }
-    return ids as [number, number, number, number];
-  })();
+/** Demo ledger spans years N-1, N and N+1; seeded rows are conditionally visible by execution_date. */
+export async function seedUserDemo(tx: Tx, userId: number): Promise<void> {
+  const [checking1, savings1, retirementA, cardMain] = await insertSeedAccounts(tx, userId);
 
   const AMOUNTS = {
     paycheck: 400000,
@@ -135,36 +135,6 @@ export function seedUserDemo(db: Database.Database, userId: number): void {
     },
   ] as const;
 
-  const insertPastFlow = db.prepare(
-    `INSERT INTO transactions
-       (user_id, kind, debit_account_id, credit_account_id, amount_cents, currency, execution_date,
-        counterparty_name, counterparty_iban, execution_mode, accounting_text, is_conditionally_visible)
-     VALUES (@user_id, @kind, @debit_account_id, @credit_account_id, @amount_cents, 'CHF', @execution_date,
-        @counterparty_name, @counterparty_iban, @execution_mode, @accounting_text, @is_conditionally_visible)`,
-  );
-
-  const insertStandingOrder = db.prepare(
-    `INSERT INTO standing_orders (
-       user_id, debit_account_id, amount_cents, currency,
-       start_date, end_date, frequency, weekend_holiday_rule,
-       beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
-       beneficiary_postal_code, beneficiary_city,
-       beneficiary_address1, beneficiary_address2,
-       rf_reference, communication_to_beneficiary, accounting_text,
-       debtor_name, debtor_country, debtor_postal_code,
-       debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
-     ) VALUES (
-       @user_id, @debit_account_id, @amount_cents, 'CHF',
-       @start_date, NULL, 'monthly', 'before',
-       @beneficiary_iban, NULL, @beneficiary_name, 'ch',
-       @beneficiary_postal_code, @beneficiary_city,
-       NULL, NULL,
-       @rf_reference, NULL, @accounting_text,
-       NULL, NULL, NULL,
-       NULL, NULL, NULL, 1, 0
-     )`,
-  );
-
   type FlowRow = {
     kind: "payment" | "transfer" | "purchaseService" | "credit" | "debit";
     debit_account_id: number | null;
@@ -178,30 +148,37 @@ export function seedUserDemo(db: Database.Database, userId: number): void {
     is_conditionally_visible: number;
   };
 
-  function flow(r: FlowRow): void {
-    insertPastFlow.run({
-      user_id: userId,
-      kind: r.kind,
-      debit_account_id: r.debit_account_id,
-      credit_account_id: r.credit_account_id,
-      amount_cents: r.amount_cents,
-      execution_date: r.execution_date,
-      counterparty_name: r.counterparty_name,
-      counterparty_iban: r.counterparty_iban,
-      execution_mode: r.execution_mode,
-      accounting_text: r.accounting_text,
-      is_conditionally_visible: r.is_conditionally_visible,
-    });
+  async function flow(r: FlowRow): Promise<void> {
+    await tx.run(
+      `INSERT INTO transactions
+         (user_id, kind, debit_account_id, credit_account_id, amount_cents, currency, execution_date,
+          counterparty_name, counterparty_iban, execution_mode, accounting_text, is_conditionally_visible)
+       VALUES (@user_id, @kind, @debit_account_id, @credit_account_id, @amount_cents, 'CHF', @execution_date,
+          @counterparty_name, @counterparty_iban, @execution_mode, @accounting_text, @is_conditionally_visible)`,
+      {
+        user_id: userId,
+        kind: r.kind,
+        debit_account_id: r.debit_account_id,
+        credit_account_id: r.credit_account_id,
+        amount_cents: r.amount_cents,
+        execution_date: r.execution_date,
+        counterparty_name: r.counterparty_name,
+        counterparty_iban: r.counterparty_iban,
+        execution_mode: r.execution_mode,
+        accounting_text: r.accounting_text,
+        is_conditionally_visible: r.is_conditionally_visible,
+      },
+    );
   }
 
-  function transferOut(
+  async function transferOut(
     debitId: number,
     creditId: number,
     amountCents: number,
     executionDate: string,
     accountingText: string | null,
-  ): void {
-    flow({
+  ): Promise<void> {
+    await flow({
       kind: "transfer",
       debit_account_id: debitId,
       credit_account_id: creditId,
@@ -266,67 +243,86 @@ export function seedUserDemo(db: Database.Database, userId: number): void {
   const standingStartDate = `${currentYear - 1}-01-15`;
 
   for (const bill of RECURRING_BILLS) {
-    insertStandingOrder.run({
-      user_id: userId,
-      debit_account_id: checking1,
-      amount_cents: -bill.amountCents,
-      start_date: standingStartDate,
-      beneficiary_name: bill.beneficiaryName,
-      beneficiary_iban: bill.beneficiaryIban,
-      beneficiary_postal_code: bill.beneficiaryPostalCode,
-      beneficiary_city: bill.beneficiaryCity,
-      rf_reference: bill.rfReference,
-      accounting_text: bill.description,
-    });
+    await tx.run(
+      `INSERT INTO standing_orders (
+         user_id, debit_account_id, amount_cents, currency,
+         start_date, end_date, frequency, weekend_holiday_rule,
+         beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
+         beneficiary_postal_code, beneficiary_city,
+         beneficiary_address1, beneficiary_address2,
+         rf_reference, communication_to_beneficiary, accounting_text,
+         debtor_name, debtor_country, debtor_postal_code,
+         debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
+       ) VALUES (
+         @user_id, @debit_account_id, @amount_cents, 'CHF',
+         @start_date, NULL, 'monthly', 'before',
+         @beneficiary_iban, NULL, @beneficiary_name, 'ch',
+         @beneficiary_postal_code, @beneficiary_city,
+         NULL, NULL,
+         @rf_reference, NULL, @accounting_text,
+         NULL, NULL, NULL,
+         NULL, NULL, NULL, 1, 0
+       )`,
+      {
+        user_id: userId,
+        debit_account_id: checking1,
+        amount_cents: -bill.amountCents,
+        start_date: standingStartDate,
+        beneficiary_name: bill.beneficiaryName,
+        beneficiary_iban: bill.beneficiaryIban,
+        beneficiary_postal_code: bill.beneficiaryPostalCode,
+        beneficiary_city: bill.beneficiaryCity,
+        rf_reference: bill.rfReference,
+        accounting_text: bill.description,
+      },
+    );
   }
 
-  db.transaction(() => {
-    for (const { year, monthIndex } of months) {
-      const salaryDate = adjustBeforeWeekend(year, monthIndex, 25);
-      const savingDate = adjustBeforeWeekend(year, monthIndex, 20);
-      const cardPaymentDate = adjustBeforeWeekend(year, monthIndex, 20);
+  for (const { year, monthIndex } of months) {
+    const salaryDate = adjustBeforeWeekend(year, monthIndex, 25);
+    const savingDate = adjustBeforeWeekend(year, monthIndex, 20);
+    const cardPaymentDate = adjustBeforeWeekend(year, monthIndex, 20);
 
-      flow({
-        kind: "credit",
-        debit_account_id: checking1,
-        credit_account_id: null,
-        amount_cents: AMOUNTS.paycheck,
-        execution_date: salaryDate,
-        counterparty_name: "Fondation Le Relais",
-        counterparty_iban: "CH22 1111 2222 3333 4444 5",
-        execution_mode: null,
-        accounting_text: null,
-        is_conditionally_visible: 1,
-      });
+    await flow({
+      kind: "credit",
+      debit_account_id: checking1,
+      credit_account_id: null,
+      amount_cents: AMOUNTS.paycheck,
+      execution_date: salaryDate,
+      counterparty_name: "Fondation Le Relais",
+      counterparty_iban: "CH22 1111 2222 3333 4444 5",
+      execution_mode: null,
+      accounting_text: null,
+      is_conditionally_visible: 1,
+    });
 
-      transferOut(checking1, retirementA, AMOUNTS.threeAContribution, savingDate, "Pour ma retraite");
-      transferOut(checking1, savings1, AMOUNTS.transferToSavings, savingDate, "Pour mon épargne mensuelle");
+    await transferOut(checking1, retirementA, AMOUNTS.threeAContribution, savingDate, "Pour ma retraite");
+    await transferOut(checking1, savings1, AMOUNTS.transferToSavings, savingDate, "Pour mon épargne mensuelle");
 
-      const days = daysInMonthUtc(year, monthIndex);
-      for (let day = 1; day <= days; day += 1) {
-        const weekday = new Date(Date.UTC(year, monthIndex, day)).getUTCDay();
-        if (weekday === 0) continue;
-        const executionDate = isoDateUtc(year, monthIndex, day);
+    const days = daysInMonthUtc(year, monthIndex);
+    for (let day = 1; day <= days; day += 1) {
+      const weekday = new Date(Date.UTC(year, monthIndex, day)).getUTCDay();
+      if (weekday === 0) continue;
+      const executionDate = isoDateUtc(year, monthIndex, day);
 
-        for (const shop of SHOPS) {
-          if (rng() > shop.dailyProbability) continue;
-          const amountCents = randomLogUniformCents(rng, shop.minCents, shop.maxCents);
-          flow({
-            kind: "purchaseService",
-            debit_account_id: shop.paidWithCard ? cardMain : checking1,
-            credit_account_id: null,
-            amount_cents: -amountCents,
-            execution_date: executionDate,
-            counterparty_name: shop.name,
-            counterparty_iban: null,
-            execution_mode: null,
-            accounting_text: null,
-            is_conditionally_visible: 1,
-          });
-        }
+      for (const shop of SHOPS) {
+        if (rng() > shop.dailyProbability) continue;
+        const amountCents = randomLogUniformCents(rng, shop.minCents, shop.maxCents);
+        await flow({
+          kind: "purchaseService",
+          debit_account_id: shop.paidWithCard ? cardMain : checking1,
+          credit_account_id: null,
+          amount_cents: -amountCents,
+          execution_date: executionDate,
+          counterparty_name: shop.name,
+          counterparty_iban: null,
+          execution_mode: null,
+          accounting_text: null,
+          is_conditionally_visible: 1,
+        });
       }
-
-      transferOut(checking1, cardMain, AMOUNTS.cardPayment, cardPaymentDate, "Pour mes achats en ligne");
     }
-  })();
+
+    await transferOut(checking1, cardMain, AMOUNTS.cardPayment, cardPaymentDate, "Pour mes achats en ligne");
+  }
 }
