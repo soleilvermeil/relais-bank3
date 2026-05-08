@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
+  deleteFuturePendingOrderTransaction,
   deleteStandingOrder,
   insertPayment,
   insertStandingOrder,
@@ -332,6 +333,21 @@ export async function deleteStandingOrderAction(formData: FormData): Promise<voi
   }
   const fromAccountRaw = readString(formData, "fromAccount");
   deleteStandingOrder(standingOrderId);
+  revalidateBankPaths();
+  if (fromAccountRaw !== "") {
+    redirect(`/home/account/${fromAccountRaw}`);
+  }
+  redirect("/home");
+}
+
+export async function deletePendingOrderAction(formData: FormData): Promise<void> {
+  const transactionIdRaw = readNonEmpty(formData, "transactionId");
+  const transactionId = Number(transactionIdRaw);
+  if (!Number.isFinite(transactionId) || transactionId <= 0) {
+    throw new Error(`Invalid transaction id: ${transactionIdRaw}`);
+  }
+  const fromAccountRaw = readString(formData, "fromAccount");
+  deleteFuturePendingOrderTransaction(transactionId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/home/account/${fromAccountRaw}`);

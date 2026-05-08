@@ -263,7 +263,9 @@
       "pauseStandingOrder": "Pause standing order",
       "resumeStandingOrder": "Resume standing order",
       "deleteStandingOrder": "Delete standing order",
-      "deleteStandingOrderConfirm": "Are you sure you want to delete this standing order?"
+      "deleteStandingOrderConfirm": "Are you sure you want to delete this standing order?",
+      "deletePendingOrder": "Delete pending order",
+      "deletePendingOrderConfirm": "Are you sure you want to delete this pending order?"
     }
   }
 }

@@ -11,7 +11,7 @@ import { BankPrintButton } from "@/components/molecules/bank-print-button";
 import { ConfirmableDeleteStandingOrderButton } from "@/components/molecules/confirmable-delete-standing-order-button";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
-import { deleteStandingOrderAction } from "@/app/actions/bank";
+import { deletePendingOrderAction, deleteStandingOrderAction } from "@/app/actions/bank";
 import {
   transactionRowToPaymentDraft,
   transactionRowToTransferDraft,
@@ -185,6 +185,12 @@ export default async function TransactionDetailPage({
     summaryOrder?.is_active === 1
       ? t("bankTransactionDetail.actions.pauseStandingOrder")
       : t("bankTransactionDetail.actions.resumeStandingOrder");
+  const today = new Date().toISOString().slice(0, 10);
+  const canDeletePendingOrder =
+    row != null &&
+    (row.execution_date ?? "") > today &&
+    (row.kind === "transfer" ||
+      (row.kind === "payment" && row.payment_type !== "standing"));
 
   const titlePayment = t("bankReview.titlePayment");
   const titleTransfer = t("bankReview.titleTransfer");
@@ -359,6 +365,20 @@ export default async function TransactionDetailPage({
                 />
               </form>
             </>
+          ) : null}
+          {canDeletePendingOrder ? (
+            <form action={deletePendingOrderAction}>
+              <input type="hidden" name="transactionId" value={String(row.id)} />
+              <input
+                type="hidden"
+                name="fromAccount"
+                value={backAccount ? String(backAccount.id) : ""}
+              />
+              <ConfirmableDeleteStandingOrderButton
+                label={t("bankTransactionDetail.actions.deletePendingOrder")}
+                confirmMessage={t("bankTransactionDetail.actions.deletePendingOrderConfirm")}
+              />
+            </form>
           ) : null}
           <Link
             href={backHref}

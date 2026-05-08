@@ -263,7 +263,9 @@
       "pauseStandingOrder": "Mettre en pause l'ordre permanent",
       "resumeStandingOrder": "Reprendre l'ordre permanent",
       "deleteStandingOrder": "Supprimer l'ordre permanent",
-      "deleteStandingOrderConfirm": "Voulez-vous vraiment supprimer cet ordre permanent ?"
+      "deleteStandingOrderConfirm": "Voulez-vous vraiment supprimer cet ordre permanent ?",
+      "deletePendingOrder": "Supprimer l'ordre en attente",
+      "deletePendingOrderConfirm": "Voulez-vous vraiment supprimer cet ordre en attente ?"
     }
   }
 }

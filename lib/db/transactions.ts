@@ -526,6 +526,20 @@ export function deleteStandingOrder(id: number): void {
     .run({ id });
 }
 
+export function deleteFuturePendingOrderTransaction(id: number): void {
+  getDb()
+    .prepare(
+      `DELETE FROM transactions
+       WHERE id = @id
+         AND execution_date > date('now', 'localtime')
+         AND (
+           kind = 'transfer'
+           OR (kind = 'payment' AND COALESCE(payment_type, 'oneTime') != 'standing')
+         )`,
+    )
+    .run({ id });
+}
+
 export type TransferInsertInput = {
   debit_account_id: number;
   credit_account_id: number;
