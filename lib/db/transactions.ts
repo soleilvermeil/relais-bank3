@@ -1,3 +1,4 @@
+import { normalizeIban } from "@/lib/bank-iban";
 import { getDb } from "./client";
 
 export type TransactionKind =
@@ -99,6 +100,45 @@ export type StandingOrderOccurrenceDetail = {
 
 const STANDING_ORDER_SYNTHETIC_PREFIX = "so";
 const UPCOMING_STANDING_HORIZON_DAYS = 365;
+
+/** Synthetic id for incoming credit from another user's one-time payment (`inc:123`). */
+export const INCOMING_PAYMENT_SYNTHETIC_PREFIX = "inc";
+/** Synthetic id for incoming credit from another user's standing order (`inc-so:7:2026-04-25`). */
+export const INCOMING_STANDING_SYNTHETIC_PREFIX = "inc-so";
+
+export function formatIncomingPaymentSyntheticId(transactionId: number): string {
+  return `${INCOMING_PAYMENT_SYNTHETIC_PREFIX}:${transactionId}`;
+}
+
+export function formatIncomingStandingSyntheticId(
+  standingOrderId: number,
+  executionDate: string,
+): string {
+  return `${INCOMING_STANDING_SYNTHETIC_PREFIX}:${standingOrderId}:${executionDate}`;
+}
+
+export function parseIncomingPaymentSyntheticId(value: string): number | null {
+  const parts = value.split(":");
+  if (parts.length !== 2 || parts[0] !== INCOMING_PAYMENT_SYNTHETIC_PREFIX) return null;
+  const id = Number(parts[1]);
+  return Number.isFinite(id) && id > 0 ? id : null;
+}
+
+export function parseIncomingStandingSyntheticId(
+  value: string,
+): { standingOrderId: number; executionDate: string } | null {
+  const prefix = `${INCOMING_STANDING_SYNTHETIC_PREFIX}:`;
+  if (!value.startsWith(prefix)) return null;
+  const rest = value.slice(prefix.length);
+  const lastColon = rest.lastIndexOf(":");
+  if (lastColon <= 0) return null;
+  const executionDate = rest.slice(lastColon + 1);
+  const idRaw = rest.slice(0, lastColon);
+  const standingOrderId = Number(idRaw);
+  if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(executionDate)) return null;
+  return { standingOrderId, executionDate };
+}
 
 function todayIsoLocal(): string {
   const now = new Date();
@@ -272,7 +312,162 @@ function rowToTransaction(row: TransactionRow, accountId: number): Transaction {
   };
 }
 
+export function listIncomingPaymentsForIban(
+  iban: string,
+  recipientUserId: number,
+  today: string,
+): TransactionRow[] {
+  const normalized = normalizeIban(iban);
+  if (normalized === "") return [];
+  return getDb()
+    .prepare(
+      `SELECT * FROM transactions
+       WHERE kind = 'payment'
+         AND COALESCE(payment_type, 'oneTime') != 'standing'
+         AND user_id != @recipientUserId
+         AND beneficiary_iban IS NOT NULL
+         AND execution_date IS NOT NULL
+         AND execution_date <= @today
+         AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
+    )
+    .all({ recipientUserId, today, iban: normalized }) as TransactionRow[];
+}
+
+export function listIncomingStandingOrdersForIban(
+  iban: string,
+  recipientUserId: number,
+): StandingOrderRow[] {
+  const normalized = normalizeIban(iban);
+  if (normalized === "") return [];
+  return getDb()
+    .prepare(
+      `SELECT * FROM standing_orders
+       WHERE user_id != @recipientUserId
+         AND beneficiary_iban IS NOT NULL
+         AND (is_active = 1 OR is_cancelled = 1)
+         AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
+    )
+    .all({ recipientUserId, iban: normalized }) as StandingOrderRow[];
+}
+
+function incomingForeignPaymentToCreditTransaction(
+  tx: TransactionRow,
+  recipientAccountId: number,
+  recipientUserId: number,
+): Transaction {
+  const synthetic: TransactionRow = {
+    ...tx,
+    user_id: recipientUserId,
+    kind: "credit",
+    debit_account_id: null,
+    credit_account_id: recipientAccountId,
+    amount_cents: Math.abs(tx.amount_cents),
+    payment_type: null,
+    first_execution_date: null,
+    frequency: null,
+    weekend_holiday_rule: null,
+    period_type: null,
+    end_date: null,
+    is_conditionally_visible: 0,
+    counterparty_name: tx.debtor_name,
+    counterparty_iban: null,
+  };
+  const base = rowToTransaction(synthetic, recipientAccountId);
+  return {
+    ...base,
+    id: formatIncomingPaymentSyntheticId(tx.id),
+  };
+}
+
+function incomingForeignStandingOccurrenceToCreditTransaction(
+  order: StandingOrderRow,
+  executionDate: string,
+  recipientAccountId: number,
+  recipientUserId: number,
+): Transaction {
+  const synthetic: TransactionRow = {
+    id: order.id,
+    user_id: recipientUserId,
+    kind: "credit",
+    created_at: order.created_at,
+    debit_account_id: null,
+    credit_account_id: recipientAccountId,
+    amount_cents: Math.abs(order.amount_cents),
+    currency: order.currency,
+    execution_date: executionDate,
+    accounting_text: order.accounting_text,
+    beneficiary_iban: null,
+    beneficiary_bic: null,
+    beneficiary_name: null,
+    beneficiary_country: null,
+    beneficiary_postal_code: null,
+    beneficiary_city: null,
+    beneficiary_address1: null,
+    beneficiary_address2: null,
+    payment_type: null,
+    first_execution_date: null,
+    frequency: null,
+    weekend_holiday_rule: null,
+    period_type: null,
+    end_date: null,
+    is_express: null,
+    rf_reference: order.rf_reference,
+    communication_to_beneficiary: null,
+    debtor_name: order.debtor_name,
+    debtor_country: order.debtor_country,
+    debtor_postal_code: order.debtor_postal_code,
+    debtor_city: order.debtor_city,
+    debtor_address1: order.debtor_address1,
+    debtor_address2: order.debtor_address2,
+    execution_mode: null,
+    is_conditionally_visible: 0,
+    counterparty_name: order.debtor_name,
+    counterparty_iban: null,
+  };
+  const base = rowToTransaction(synthetic, recipientAccountId);
+  return {
+    ...base,
+    id: formatIncomingStandingSyntheticId(order.id, executionDate),
+  };
+}
+
+function sumIncomingOneTimeCreditsCents(identifier: string, recipientUserId: number, today: string): number {
+  const normalized = normalizeIban(identifier);
+  if (normalized === "") return 0;
+  const row = getDb()
+    .prepare(
+      `SELECT COALESCE(SUM(ABS(amount_cents)), 0) AS s
+       FROM transactions
+       WHERE kind = 'payment'
+         AND COALESCE(payment_type, 'oneTime') != 'standing'
+         AND user_id != @recipientUserId
+         AND beneficiary_iban IS NOT NULL
+         AND execution_date IS NOT NULL
+         AND execution_date <= @today
+         AND UPPER(REPLACE(beneficiary_iban, ' ', '')) = @iban`,
+    )
+    .get({ recipientUserId, today, iban: normalized }) as { s: number };
+  return row.s;
+}
+
+function sumIncomingStandingCreditsCents(identifier: string, recipientUserId: number, today: string): number {
+  const orders = listIncomingStandingOrdersForIban(identifier, recipientUserId);
+  let sum = 0;
+  for (const order of orders) {
+    const dates = listStandingExecutionDates(order, order.start_date, today);
+    sum += dates.length * Math.abs(order.amount_cents);
+  }
+  return sum;
+}
+
 export function listTransactionsForAccount(accountId: number, userId: number): Transaction[] {
+  const accountMeta = getDb()
+    .prepare(`SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`)
+    .get({ id: accountId, userId }) as { identifier: string } | undefined;
+  if (!accountMeta) {
+    return [];
+  }
+
   const today = todayIsoLocal();
   const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
   const rows = getDb()
@@ -294,7 +489,19 @@ export function listTransactionsForAccount(accountId: number, userId: number): T
       standingOrderOccurrenceToTransaction(order, accountId, executionDate),
     ),
   );
-  const merged = [...persisted, ...standingOccurrences];
+
+  const foreignPayments = listIncomingPaymentsForIban(accountMeta.identifier, userId, today).map((tx) =>
+    incomingForeignPaymentToCreditTransaction(tx, accountId, userId),
+  );
+
+  const foreignStandingOrders = listIncomingStandingOrdersForIban(accountMeta.identifier, userId);
+  const foreignStandingCredits = foreignStandingOrders.flatMap((order) =>
+    listStandingExecutionDates(order, order.start_date, today).map((executionDate) =>
+      incomingForeignStandingOccurrenceToCreditTransaction(order, executionDate, accountId, userId),
+    ),
+  );
+
+  const merged = [...persisted, ...standingOccurrences, ...foreignPayments, ...foreignStandingCredits];
   merged.sort((a, b) => {
     const dateA = a.execution_date ?? "";
     const dateB = b.execution_date ?? "";
@@ -309,6 +516,132 @@ export function getTransactionById(id: number, userId: number): TransactionRow |
     .prepare(`SELECT * FROM transactions WHERE id = @id AND user_id = @userId`)
     .get({ id, userId }) as TransactionRow | undefined;
   return row ?? null;
+}
+
+/** Foreign user's payment whose beneficiary IBAN matches one of this user's accounts (incoming credit). */
+export function getIncomingPaymentForUser(transactionId: number, recipientUserId: number): TransactionRow | null {
+  const today = todayIsoLocal();
+  const row = getDb()
+    .prepare(
+      `SELECT t.* FROM transactions t
+       WHERE t.id = @transactionId
+         AND t.kind = 'payment'
+         AND COALESCE(t.payment_type, 'oneTime') != 'standing'
+         AND t.execution_date IS NOT NULL
+         AND t.execution_date <= @today
+         AND t.user_id != @recipientUserId
+         AND t.beneficiary_iban IS NOT NULL
+         AND EXISTS (
+           SELECT 1 FROM accounts a
+           WHERE a.user_id = @recipientUserId
+             AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(t.beneficiary_iban, ' ', ''))
+         )`,
+    )
+    .get({ transactionId, today, recipientUserId }) as TransactionRow | undefined;
+  return row ?? null;
+}
+
+/** Foreign standing-order occurrence credited to this user's matching IBAN. */
+export function getIncomingStandingOccurrenceForRecipient(
+  standingOrderId: number,
+  executionDate: string,
+  recipientUserId: number,
+): StandingOrderOccurrenceDetail | null {
+  const today = todayIsoLocal();
+  if (executionDate > today) return null;
+
+  const order = getDb()
+    .prepare(
+      `SELECT * FROM standing_orders
+       WHERE id = @standingOrderId
+         AND user_id != @recipientUserId
+         AND beneficiary_iban IS NOT NULL`,
+    )
+    .get({ standingOrderId, recipientUserId }) as StandingOrderRow | undefined;
+  if (!order) return null;
+
+  const ok = getDb()
+    .prepare(
+      `SELECT 1 AS ok FROM accounts a
+       WHERE a.user_id = @recipientUserId
+         AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(@beneficiaryIban, ' ', ''))
+       LIMIT 1`,
+    )
+    .get({
+      recipientUserId,
+      beneficiaryIban: order.beneficiary_iban ?? "",
+    }) as { ok: number } | undefined;
+  if (!ok) return null;
+
+  const executedDates = listStandingExecutionDates(order, order.start_date, executionDate);
+  if (!executedDates.includes(executionDate)) return null;
+
+  return {
+    syntheticId: formatIncomingStandingSyntheticId(standingOrderId, executionDate),
+    execution_date: executionDate,
+    standingOrder: order,
+  };
+}
+
+/** Transaction row for detail UI when viewing an incoming one-time payment as beneficiary. */
+export function foreignPaymentToRecipientCreditDetailRow(tx: TransactionRow): TransactionRow {
+  return {
+    ...tx,
+    kind: "credit",
+    amount_cents: Math.abs(tx.amount_cents),
+    debit_account_id: null,
+    credit_account_id: null,
+    payment_type: null,
+    is_conditionally_visible: 0,
+    counterparty_name: tx.debtor_name,
+    counterparty_iban: null,
+  };
+}
+
+/** Transaction row for detail UI when viewing an incoming standing occurrence as beneficiary. */
+export function foreignStandingOccurrenceToRecipientCreditDetailRow(
+  occurrence: StandingOrderOccurrenceDetail,
+): TransactionRow {
+  const order = occurrence.standingOrder;
+  return {
+    id: order.id,
+    user_id: order.user_id,
+    kind: "credit",
+    created_at: order.created_at,
+    debit_account_id: null,
+    credit_account_id: null,
+    amount_cents: Math.abs(order.amount_cents),
+    currency: order.currency,
+    execution_date: occurrence.execution_date,
+    accounting_text: order.accounting_text,
+    beneficiary_iban: null,
+    beneficiary_bic: null,
+    beneficiary_name: null,
+    beneficiary_country: null,
+    beneficiary_postal_code: null,
+    beneficiary_city: null,
+    beneficiary_address1: null,
+    beneficiary_address2: null,
+    payment_type: null,
+    first_execution_date: null,
+    frequency: null,
+    weekend_holiday_rule: null,
+    period_type: null,
+    end_date: null,
+    is_express: null,
+    rf_reference: order.rf_reference,
+    communication_to_beneficiary: null,
+    debtor_name: order.debtor_name,
+    debtor_country: order.debtor_country,
+    debtor_postal_code: order.debtor_postal_code,
+    debtor_city: order.debtor_city,
+    debtor_address1: order.debtor_address1,
+    debtor_address2: order.debtor_address2,
+    execution_mode: null,
+    is_conditionally_visible: 0,
+    counterparty_name: order.debtor_name,
+    counterparty_iban: null,
+  };
 }
 
 /** Net CHF cents for an account: debits use stored amount; transfers credit the other leg with -amount. */
@@ -348,7 +681,18 @@ export function computeBalanceCentsForAccount(accountId: number, userId: number)
   for (const order of standingOrders) {
     standingCents += listStandingExecutionDates(order, order.start_date, today).length * order.amount_cents;
   }
-  return row.balance_cents + standingCents;
+
+  const accountMeta = getDb()
+    .prepare(`SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`)
+    .get({ id: accountId, userId }) as { identifier: string } | undefined;
+  if (!accountMeta) {
+    return row.balance_cents + standingCents;
+  }
+
+  const incomingOneTime = sumIncomingOneTimeCreditsCents(accountMeta.identifier, userId, today);
+  const incomingStanding = sumIncomingStandingCreditsCents(accountMeta.identifier, userId, today);
+
+  return row.balance_cents + standingCents + incomingOneTime + incomingStanding;
 }
 
 /** One round-trip: map account id -> net balance in cents from all transactions. */
@@ -397,6 +741,20 @@ export function computeBalanceCentsByAccountId(userId: number): Map<number, numb
     const current = map.get(order.debit_account_id) ?? 0;
     map.set(order.debit_account_id, current + occurrenceCount * order.amount_cents);
   }
+
+  const accounts = getDb()
+    .prepare(`SELECT id, identifier FROM accounts WHERE user_id = @userId`)
+    .all({ userId }) as { id: number; identifier: string }[];
+
+  for (const acc of accounts) {
+    const incomingOneTime = sumIncomingOneTimeCreditsCents(acc.identifier, userId, today);
+    const incomingStanding = sumIncomingStandingCreditsCents(acc.identifier, userId, today);
+    const extra = incomingOneTime + incomingStanding;
+    if (extra === 0) continue;
+    const current = map.get(acc.id) ?? 0;
+    map.set(acc.id, current + extra);
+  }
+
   return map;
 }
 

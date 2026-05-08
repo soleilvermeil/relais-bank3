@@ -98,3 +98,5 @@ CREATE INDEX IF NOT EXISTS idx_transactions_execution_date ON transactions(execu
 CREATE INDEX IF NOT EXISTS idx_standing_orders_user ON standing_orders(user_id);
 CREATE INDEX IF NOT EXISTS idx_standing_orders_debit_account ON standing_orders(debit_account_id);
 CREATE INDEX IF NOT EXISTS idx_standing_orders_start_date ON standing_orders(start_date);
+CREATE INDEX IF NOT EXISTS idx_transactions_beneficiary_iban ON transactions(beneficiary_iban);
+CREATE INDEX IF NOT EXISTS idx_standing_orders_beneficiary_iban ON standing_orders(beneficiary_iban);

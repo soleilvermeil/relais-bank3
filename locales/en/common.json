@@ -91,7 +91,8 @@
       "creditFrom": "Credit from {{source}}",
       "debitToPaymentBeneficiary": "Debit to payment beneficiary",
       "ownAccount": "own account",
-      "scheduledOrder": "Scheduled order"
+      "scheduledOrder": "Scheduled order",
+      "incomingPaymentFallback": "Incoming payment"
     }
   },
   "bankPaymentsLanding": {
@@ -246,6 +247,7 @@
   },
   "bankTransactionDetail": {
     "titleFallback": "Transaction details",
+    "titleIncomingCredit": "Incoming payment",
     "subtitle": "Same summary layout as payment and transfer confirmation; this ledger entry is read-only.",
     "standingOrderCancelledNote": "This standing order was cancelled. Past scheduled debits remain in your history.",
     "standingOrderEndedNote": "This standing order has no further executions scheduled.",

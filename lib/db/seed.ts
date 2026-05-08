@@ -7,33 +7,58 @@ type SeedAccount = {
   sort_order: number;
 };
 
-/** One account per category; stored `balance_cents` is always 0 — balances come from transactions. */
-const SEED_ACCOUNTS: SeedAccount[] = [
-  {
-    category: "checking",
-    name: "Checking 01",
-    identifier: "CH14 8080 8001 2345 6789 0",
-    sort_order: 1,
-  },
-  {
-    category: "savings",
-    name: "Savings 01",
-    identifier: "CH93 8080 8000 1111 2222 3",
-    sort_order: 1,
-  },
-  {
-    category: "retirement",
-    name: "Retirement A",
-    identifier: "PIL-3A-001928",
-    sort_order: 1,
-  },
-  {
-    category: "cards",
-    name: "Card Main",
-    identifier: "XXXX XXXX XXXX 1284",
-    sort_order: 1,
-  },
-];
+function createRng(seed: number): () => number {
+  let state = seed >>> 0;
+  return () => {
+    state ^= state << 13;
+    state ^= state >>> 17;
+    state ^= state << 5;
+    return (state >>> 0) / 4294967296;
+  };
+}
+
+function randomDigits(rng: () => number, n: number): string {
+  let out = "";
+  for (let i = 0; i < n; i += 1) out += String(Math.floor(rng() * 10));
+  return out;
+}
+
+/** Spaced CH IBAN-like string (demo only; checksum not validated). */
+function randomChIban(rng: () => number): string {
+  const d = randomDigits(rng, 19);
+  return `CH${d.slice(0, 2)} ${d.slice(2, 6)} ${d.slice(6, 10)} ${d.slice(10, 14)} ${d.slice(14, 18)} ${d.slice(18)}`;
+}
+
+/** One account per category; identifiers are unique per user via RNG seeded by `userId`. */
+function buildSeedAccounts(userId: number): SeedAccount[] {
+  const idRng = createRng((userId * 2654435761) >>> 0);
+  return [
+    {
+      category: "checking",
+      name: "Checking 01",
+      identifier: randomChIban(idRng),
+      sort_order: 1,
+    },
+    {
+      category: "savings",
+      name: "Savings 01",
+      identifier: randomChIban(idRng),
+      sort_order: 1,
+    },
+    {
+      category: "retirement",
+      name: "Retirement A",
+      identifier: `PIL-3A-${randomDigits(idRng, 6)}`,
+      sort_order: 1,
+    },
+    {
+      category: "cards",
+      name: "Card Main",
+      identifier: `XXXX XXXX XXXX ${randomDigits(idRng, 4)}`,
+      sort_order: 1,
+    },
+  ];
+}
 
 /** Demo ledger spans years N-1, N and N+1; seeded rows are conditionally visible by execution_date. */
 export function seedUserDemo(db: Database.Database, userId: number): void {
@@ -42,9 +67,11 @@ export function seedUserDemo(db: Database.Database, userId: number): void {
      VALUES (@user_id, @category, @name, @identifier, 0, 'CHF', @sort_order)`,
   );
 
+  const seedAccounts = buildSeedAccounts(userId);
+
   const [checking1, savings1, retirementA, cardMain] = db.transaction(() => {
     const ids: number[] = [];
-    for (const account of SEED_ACCOUNTS) {
+    for (const account of seedAccounts) {
       const result = insertAccount.run({ ...account, user_id: userId });
       ids.push(Number(result.lastInsertRowid));
     }
@@ -186,16 +213,6 @@ export function seedUserDemo(db: Database.Database, userId: number): void {
       accounting_text: accountingText,
       is_conditionally_visible: 1,
     });
-  }
-
-  function createRng(seed: number): () => number {
-    let state = seed >>> 0;
-    return () => {
-      state ^= state << 13;
-      state ^= state >>> 17;
-      state ^= state << 5;
-      return (state >>> 0) / 4294967296;
-    };
   }
 
   /** Integer cents: X ≈ 10^U(log10(min), log10(max)), rounded; clamped to [min, max]. Min/max must be > 0. */

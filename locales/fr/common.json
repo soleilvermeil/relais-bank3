@@ -91,7 +91,8 @@
       "creditFrom": "Credit de {{source}}",
       "debitToPaymentBeneficiary": "Debit vers beneficiaire de paiement",
       "ownAccount": "compte propre",
-      "scheduledOrder": "Ordre planifie"
+      "scheduledOrder": "Ordre planifie",
+      "incomingPaymentFallback": "Paiement entrant"
     }
   },
   "bankPaymentsLanding": {
@@ -246,6 +247,7 @@
   },
   "bankTransactionDetail": {
     "titleFallback": "Detail de l'operation",
+    "titleIncomingCredit": "Paiement entrant",
     "subtitle": "Meme presentation que la confirmation d'un paiement ou transfert ; cette ecriture du registre est en lecture seule.",
     "standingOrderCancelledNote": "Cet ordre permanent a ete annule. Les debits planifies passes restent dans votre historique.",
     "standingOrderEndedNote": "Cet ordre permanent n'a plus d'execution prevue.",

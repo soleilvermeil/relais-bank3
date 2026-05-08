@@ -52,8 +52,11 @@ function transactionLabel(
     });
   }
   if (transaction.kind === "credit") {
+    const source =
+      transaction.counterparty_name?.trim() ||
+      t("bankAccountDetail.transactionLabels.incomingPaymentFallback");
     return t("bankAccountDetail.transactionLabels.creditFrom", {
-      source: transaction.counterparty_name ?? "",
+      source,
     });
   }
   if (transaction.kind === "payment") {

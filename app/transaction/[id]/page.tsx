@@ -18,10 +18,16 @@ import {
 } from "@/lib/bank-transaction-mappers";
 import { listAccountsGroupedByCategory, localizeAccountGroups } from "@/lib/db/accounts";
 import {
+  foreignPaymentToRecipientCreditDetailRow,
+  foreignStandingOccurrenceToRecipientCreditDetailRow,
+  getIncomingPaymentForUser,
+  getIncomingStandingOccurrenceForRecipient,
   getStandingOrderById,
   getStandingOrderOccurrenceBySyntheticId,
   getTransactionById,
   nextStandingExecutionForSummary,
+  parseIncomingPaymentSyntheticId,
+  parseIncomingStandingSyntheticId,
   parseStandingOrderSummarySoId,
   standingOrderHasFutureExecution,
   type StandingOrderOccurrenceDetail,
@@ -137,6 +143,27 @@ export default async function TransactionDetailPage({
     redirect("/");
   }
 
+  const incomingPaymentId = parseIncomingPaymentSyntheticId(idRaw);
+  const incomingStandingParsed = parseIncomingStandingSyntheticId(idRaw);
+
+  const incomingPaymentRow =
+    incomingPaymentId != null ? getIncomingPaymentForUser(incomingPaymentId, userId) : null;
+  if (incomingPaymentId != null && !incomingPaymentRow) {
+    notFound();
+  }
+
+  const incomingStandingOcc =
+    incomingStandingParsed != null
+      ? getIncomingStandingOccurrenceForRecipient(
+          incomingStandingParsed.standingOrderId,
+          incomingStandingParsed.executionDate,
+          userId,
+        )
+      : null;
+  if (incomingStandingParsed != null && !incomingStandingOcc) {
+    notFound();
+  }
+
   const summaryStandingOrderId = parseStandingOrderSummarySoId(idRaw);
   const summaryOrder =
     summaryStandingOrderId != null ? getStandingOrderById(summaryStandingOrderId, userId) : null;
@@ -145,19 +172,24 @@ export default async function TransactionDetailPage({
   }
 
   const occurrence =
-    summaryOrder == null && idRaw.startsWith("so:")
+    summaryOrder == null &&
+    incomingPaymentRow == null &&
+    incomingStandingOcc == null &&
+    idRaw.startsWith("so:")
       ? getStandingOrderOccurrenceBySyntheticId(idRaw, userId)
       : null;
   const txId = Number(idRaw);
   const row =
     summaryOrder == null &&
     occurrence == null &&
+    incomingPaymentRow == null &&
+    incomingStandingOcc == null &&
     Number.isFinite(txId) &&
     txId > 0 &&
     !idRaw.startsWith("so:")
       ? getTransactionById(txId, userId)
       : null;
-  if (!row && !occurrence && !summaryOrder) {
+  if (!row && !occurrence && !summaryOrder && !incomingPaymentRow && !incomingStandingOcc) {
     notFound();
   }
 
@@ -174,7 +206,9 @@ export default async function TransactionDetailPage({
 
   const intlLocale = await getIntlLocale();
   const createdAt = new Date(
-    row?.created_at ??
+    incomingPaymentRow?.created_at ??
+      incomingStandingOcc?.standingOrder.created_at ??
+      row?.created_at ??
       summaryOrder?.created_at ??
       occurrence?.standingOrder.created_at ??
       new Date().toISOString(),
@@ -201,6 +235,8 @@ export default async function TransactionDetailPage({
   const today = new Date().toISOString().slice(0, 10);
   const canDeletePendingOrder =
     row != null &&
+    incomingPaymentRow == null &&
+    incomingStandingOcc == null &&
     (row.execution_date ?? "") > today &&
     (row.kind === "transfer" ||
       (row.kind === "payment" && row.payment_type !== "standing"));
@@ -208,7 +244,9 @@ export default async function TransactionDetailPage({
   const titlePayment = t("bankReview.titlePayment");
   const titleTransfer = t("bankReview.titleTransfer");
   let heading = t("bankTransactionDetail.titleFallback");
-  if (summaryOrder) {
+  if (incomingPaymentRow != null || incomingStandingOcc != null) {
+    heading = t("bankTransactionDetail.titleIncomingCredit");
+  } else if (summaryOrder) {
     heading = titlePayment;
   } else if (occurrence) {
     heading = titleTransfer;
@@ -220,7 +258,25 @@ export default async function TransactionDetailPage({
 
   let body: ReactElement | null = null;
 
-  if (summaryOrder) {
+  if (incomingPaymentRow) {
+    body = (
+      <BankFlowTransactionReviewSummary
+        row={foreignPaymentToRecipientCreditDetailRow(incomingPaymentRow)}
+        debitAccountLabel={null}
+        creditAccountLabel={null}
+        t={t}
+      />
+    );
+  } else if (incomingStandingOcc) {
+    body = (
+      <BankFlowTransactionReviewSummary
+        row={foreignStandingOccurrenceToRecipientCreditDetailRow(incomingStandingOcc)}
+        debitAccountLabel={null}
+        creditAccountLabel={null}
+        t={t}
+      />
+    );
+  } else if (summaryOrder) {
     const standing = summaryOrder;
     const execDate = nextStandingExecutionForSummary(standing);
     const draft = paymentSummaryDraftFromStanding(standing, execDate);
@@ -285,11 +341,15 @@ export default async function TransactionDetailPage({
   }
 
   const referenceId =
-    summaryOrder != null
+    incomingPaymentRow != null
       ? idRaw
-      : occurrence != null
-        ? occurrence.syntheticId
-        : row?.id;
+      : incomingStandingOcc != null
+        ? incomingStandingOcc.syntheticId
+        : summaryOrder != null
+          ? idRaw
+          : occurrence != null
+            ? occurrence.syntheticId
+            : row?.id;
 
   return (
     <Container>
@@ -338,7 +398,11 @@ export default async function TransactionDetailPage({
             {t("bankTransactionDetail.recordedOn")}{" "}
             <time
               dateTime={
-                row?.created_at ?? summaryOrder?.created_at ?? occurrence?.standingOrder.created_at
+                incomingPaymentRow?.created_at ??
+                incomingStandingOcc?.standingOrder.created_at ??
+                row?.created_at ??
+                summaryOrder?.created_at ??
+                occurrence?.standingOrder.created_at
               }
             >
               {createdAt.toLocaleString(intlLocale, {
