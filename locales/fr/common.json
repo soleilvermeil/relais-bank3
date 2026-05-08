@@ -87,14 +87,17 @@
   "bankPaymentsLanding": {
     "title": "Paiements et transferts",
     "subtitle": "Choisissez l'operation bancaire a preparer. Cette interface pedagogique n'execute aucune transaction reelle.",
+    "mainActionsTitle": "Actions principales",
+    "comingSoonTitle": "Bientot...",
+    "comingSoonBody": "Bientot...",
     "cards": {
-      "paymentTitle": "Make payment / Effectuer un paiement",
+      "paymentTitle": "Effectuer un paiement",
       "paymentDescription": "Envoyez de l'argent a un beneficiaire en Suisse ou a l'etranger.",
       "paymentCta": "Aller au formulaire de paiement",
-      "transferTitle": "Make transfer / Effectuer un transfert",
+      "transferTitle": "Effectuer un transfert",
       "transferDescription": "Deplacez des fonds entre vos propres comptes.",
       "transferCta": "Aller au formulaire de transfert",
-      "scanTitle": "Scanner un QR-facture / Scan QR-bill",
+      "scanTitle": "Scanner un QR-facture",
       "scanDescription": "Pointez la camera vers un QR-facture suisse (SPC). Le formulaire de paiement s'ouvrira avec les champs pre-remplis.",
       "scanCta": "Ouvrir le scanner"
     }

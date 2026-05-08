@@ -87,14 +87,17 @@
   "bankPaymentsLanding": {
     "title": "Payments and transfers",
     "subtitle": "Choose the banking operation you want to prepare. This educational interface does not execute real transactions.",
+    "mainActionsTitle": "Main actions",
+    "comingSoonTitle": "Coming soon...",
+    "comingSoonBody": "Coming soon...",
     "cards": {
-      "paymentTitle": "Make a payment / Effectuer un paiement",
+      "paymentTitle": "Make a payment",
       "paymentDescription": "Send money to a beneficiary in Switzerland or abroad.",
       "paymentCta": "Go to payment form",
-      "transferTitle": "Make a transfer / Effectuer un transfert",
+      "transferTitle": "Make a transfer",
       "transferDescription": "Move funds between your own accounts.",
       "transferCta": "Go to transfer form",
-      "scanTitle": "Scan QR-bill / Scanner un QR-facture",
+      "scanTitle": "Scan QR-bill",
       "scanDescription": "Point your camera at a Swiss QR-bill (SPC). We will open the payment form with the fields prefilled.",
       "scanCta": "Open scanner"
     }

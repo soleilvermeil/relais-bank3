@@ -1,6 +1,6 @@
 import Link from "next/link";
+import { Landmark, QrCode, Repeat } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
-import { Button } from "@/components/atoms/button";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 
@@ -17,40 +17,61 @@ export default async function PaymentsPage() {
           </p>
         </header>
 
-        <section className="grid gap-4 rounded-2xl border border-card-border bg-card p-4 sm:grid-cols-3 sm:p-6">
-          <article className="space-y-3 rounded-2xl border border-card-border p-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("bankPaymentsLanding.cards.paymentTitle")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("bankPaymentsLanding.cards.paymentDescription")}
-            </p>
-            <Link href="/make-payment" className="inline-flex">
-              <Button>{t("bankPaymentsLanding.cards.paymentCta")}</Button>
+        <section className="space-y-4">
+          <SectionTitle as="h2">{t("bankPaymentsLanding.mainActionsTitle")}</SectionTitle>
+          <div className="grid gap-3 rounded-2xl border border-card-border bg-card p-4 sm:grid-cols-3 sm:p-6">
+            <Link
+              href="/make-payment"
+              className="flex h-full w-full items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Landmark className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("bankPaymentsLanding.cards.paymentTitle")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("bankPaymentsLanding.cards.paymentDescription")}
+                </p>
+              </div>
             </Link>
-          </article>
-          <article className="space-y-3 rounded-2xl border border-card-border p-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("bankPaymentsLanding.cards.transferTitle")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("bankPaymentsLanding.cards.transferDescription")}
-            </p>
-            <Link href="/make-transfer" className="inline-flex">
-              <Button>{t("bankPaymentsLanding.cards.transferCta")}</Button>
+
+            <Link
+              href="/make-transfer"
+              className="flex h-full w-full items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Repeat className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("bankPaymentsLanding.cards.transferTitle")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("bankPaymentsLanding.cards.transferDescription")}
+                </p>
+              </div>
             </Link>
-          </article>
-          <article className="space-y-3 rounded-2xl border border-card-border p-4">
-            <h2 className="text-lg font-semibold text-foreground">
-              {t("bankPaymentsLanding.cards.scanTitle")}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {t("bankPaymentsLanding.cards.scanDescription")}
-            </p>
-            <Link href="/scan-qr" className="inline-flex">
-              <Button>{t("bankPaymentsLanding.cards.scanCta")}</Button>
+
+            <Link
+              href="/scan-qr"
+              className="flex h-full w-full items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <QrCode className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+              <div className="space-y-1">
+                <h3 className="text-base font-semibold text-foreground">
+                  {t("bankPaymentsLanding.cards.scanTitle")}
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {t("bankPaymentsLanding.cards.scanDescription")}
+                </p>
+              </div>
             </Link>
-          </article>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <SectionTitle as="h2">{t("bankPaymentsLanding.comingSoonTitle")}</SectionTitle>
+          <div className="rounded-2xl border border-card-border bg-card p-4 sm:p-6">
+            <p className="text-sm text-muted-foreground">{t("bankPaymentsLanding.comingSoonBody")}</p>
+          </div>
         </section>
       </main>
     </Container>
