@@ -9,6 +9,7 @@ export type TransactionKind =
 
 export type TransactionRow = {
   id: number;
+  user_id: number;
   kind: TransactionKind;
   created_at: string;
   debit_account_id: number | null;
@@ -60,6 +61,7 @@ export type StandingOrderFrequency = "weekly" | "monthly" | "quarterly" | "yearl
 
 export type StandingOrderRow = {
   id: number;
+  user_id: number;
   created_at: string;
   debit_account_id: number;
   amount_cents: number;
@@ -164,24 +166,24 @@ function parseSyntheticStandingOrderId(value: string): { standingOrderId: number
   return { standingOrderId, executionDate };
 }
 
-function listStandingOrdersForAccount(accountId: number): StandingOrderRow[] {
+function listStandingOrdersForAccount(accountId: number, userId: number): StandingOrderRow[] {
   return getDb()
     .prepare(
       `SELECT * FROM standing_orders
-       WHERE debit_account_id = @id AND (is_active = 1 OR is_cancelled = 1)
+       WHERE debit_account_id = @id AND user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
        ORDER BY id ASC`,
     )
-    .all({ id: accountId }) as StandingOrderRow[];
+    .all({ id: accountId, userId }) as StandingOrderRow[];
 }
 
-function listAllStandingOrders(): StandingOrderRow[] {
+function listAllStandingOrders(userId: number): StandingOrderRow[] {
   return getDb()
     .prepare(
       `SELECT * FROM standing_orders
-       WHERE is_active = 1 OR is_cancelled = 1
+       WHERE user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
        ORDER BY id ASC`,
     )
-    .all() as StandingOrderRow[];
+    .all({ userId }) as StandingOrderRow[];
 }
 
 function listStandingExecutionDates(order: StandingOrderRow, fromIso: string, toIso: string): string[] {
@@ -212,6 +214,7 @@ function standingOrderOccurrenceToTransaction(
 ): Transaction {
   const rowLike: TransactionRow = {
     id: order.id,
+    user_id: order.user_id,
     kind: "payment",
     created_at: order.created_at,
     debit_account_id: order.debit_account_id,
@@ -269,22 +272,23 @@ function rowToTransaction(row: TransactionRow, accountId: number): Transaction {
   };
 }
 
-export function listTransactionsForAccount(accountId: number): Transaction[] {
+export function listTransactionsForAccount(accountId: number, userId: number): Transaction[] {
   const today = todayIsoLocal();
   const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
   const rows = getDb()
     .prepare(
       `SELECT * FROM transactions
-       WHERE (debit_account_id = @id OR credit_account_id = @id)
+       WHERE user_id = @userId
+         AND (debit_account_id = @id OR credit_account_id = @id)
          AND (
            is_conditionally_visible = 0
            OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
          )
        ORDER BY execution_date DESC, id DESC`,
     )
-    .all({ id: accountId }) as TransactionRow[];
+    .all({ id: accountId, userId }) as TransactionRow[];
   const persisted = rows.map((row) => rowToTransaction(row, accountId));
-  const standingOrders = listStandingOrdersForAccount(accountId);
+  const standingOrders = listStandingOrdersForAccount(accountId, userId);
   const standingOccurrences = standingOrders.flatMap((order) =>
     listStandingExecutionDates(order, order.start_date, horizon).map((executionDate) =>
       standingOrderOccurrenceToTransaction(order, accountId, executionDate),
@@ -300,22 +304,23 @@ export function listTransactionsForAccount(accountId: number): Transaction[] {
   return merged;
 }
 
-export function getTransactionById(id: number): TransactionRow | null {
+export function getTransactionById(id: number, userId: number): TransactionRow | null {
   const row = getDb()
-    .prepare(`SELECT * FROM transactions WHERE id = @id`)
-    .get({ id }) as TransactionRow | undefined;
+    .prepare(`SELECT * FROM transactions WHERE id = @id AND user_id = @userId`)
+    .get({ id, userId }) as TransactionRow | undefined;
   return row ?? null;
 }
 
 /** Net CHF cents for an account: debits use stored amount; transfers credit the other leg with -amount. */
-export function computeBalanceCentsForAccount(accountId: number): number {
+export function computeBalanceCentsForAccount(accountId: number, userId: number): number {
   const row = getDb()
     .prepare(
       `SELECT
          COALESCE((
            SELECT SUM(amount_cents)
            FROM transactions
-           WHERE debit_account_id = @id
+           WHERE user_id = @userId
+             AND debit_account_id = @id
              AND (
                is_conditionally_visible = 0
                OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
@@ -325,7 +330,8 @@ export function computeBalanceCentsForAccount(accountId: number): number {
            (
              SELECT SUM(-amount_cents)
              FROM transactions
-             WHERE credit_account_id = @id
+             WHERE user_id = @userId
+               AND credit_account_id = @id
                AND kind = 'transfer'
                AND (
                  is_conditionally_visible = 0
@@ -335,8 +341,8 @@ export function computeBalanceCentsForAccount(accountId: number): number {
            0
          ) AS balance_cents`,
     )
-    .get({ id: accountId }) as { balance_cents: number };
-  const standingOrders = listStandingOrdersForAccount(accountId);
+    .get({ id: accountId, userId }) as { balance_cents: number };
+  const standingOrders = listStandingOrdersForAccount(accountId, userId);
   const today = todayIsoLocal();
   let standingCents = 0;
   for (const order of standingOrders) {
@@ -346,7 +352,7 @@ export function computeBalanceCentsForAccount(accountId: number): number {
 }
 
 /** One round-trip: map account id -> net balance in cents from all transactions. */
-export function computeBalanceCentsByAccountId(): Map<number, number> {
+export function computeBalanceCentsByAccountId(userId: number): Map<number, number> {
   const rows = getDb()
     .prepare(
       `SELECT a.id AS account_id,
@@ -355,7 +361,8 @@ export function computeBalanceCentsByAccountId(): Map<number, number> {
        LEFT JOIN (
          SELECT debit_account_id AS id, SUM(amount_cents) AS debit_sum
          FROM transactions
-         WHERE debit_account_id IS NOT NULL
+         WHERE user_id = @userId
+           AND debit_account_id IS NOT NULL
            AND (
              is_conditionally_visible = 0
              OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
@@ -365,23 +372,25 @@ export function computeBalanceCentsByAccountId(): Map<number, number> {
        LEFT JOIN (
          SELECT credit_account_id AS id, SUM(-amount_cents) AS credit_transfer_sum
          FROM transactions
-         WHERE credit_account_id IS NOT NULL
+         WHERE user_id = @userId
+           AND credit_account_id IS NOT NULL
            AND kind = 'transfer'
            AND (
              is_conditionally_visible = 0
              OR (is_conditionally_visible = 1 AND execution_date <= date('now', 'localtime'))
            )
          GROUP BY credit_account_id
-       ) c ON c.id = a.id`,
+       ) c ON c.id = a.id
+       WHERE a.user_id = @userId`,
     )
-    .all() as { account_id: number; balance_cents: number }[];
+    .all({ userId }) as { account_id: number; balance_cents: number }[];
 
   const map = new Map<number, number>();
   for (const r of rows) {
     map.set(r.account_id, r.balance_cents);
   }
   const today = todayIsoLocal();
-  const standingOrders = listAllStandingOrders();
+  const standingOrders = listAllStandingOrders(userId);
   for (const order of standingOrders) {
     const occurrenceCount = listStandingExecutionDates(order, order.start_date, today).length;
     if (occurrenceCount === 0) continue;
@@ -392,6 +401,7 @@ export function computeBalanceCentsByAccountId(): Map<number, number> {
 }
 
 export type PaymentInsertInput = {
+  user_id: number;
   debit_account_id: number;
   amount_cents: number;
   execution_date: string | null;
@@ -425,7 +435,7 @@ export function insertPayment(input: PaymentInsertInput): number {
   const result = getDb()
     .prepare(
       `INSERT INTO transactions (
-         kind, debit_account_id, amount_cents, currency,
+         user_id, kind, debit_account_id, amount_cents, currency,
          execution_date, accounting_text,
          beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
          beneficiary_postal_code, beneficiary_city,
@@ -436,7 +446,7 @@ export function insertPayment(input: PaymentInsertInput): number {
          debtor_name, debtor_country, debtor_postal_code, is_conditionally_visible,
          debtor_city, debtor_address1, debtor_address2
        ) VALUES (
-         'payment', @debit_account_id, @amount_cents, 'CHF',
+         @user_id, 'payment', @debit_account_id, @amount_cents, 'CHF',
          @execution_date, @accounting_text,
          @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
          @beneficiary_postal_code, @beneficiary_city,
@@ -456,6 +466,7 @@ export function insertPayment(input: PaymentInsertInput): number {
 }
 
 export type StandingOrderInsertInput = {
+  user_id: number;
   debit_account_id: number;
   amount_cents: number;
   start_date: string;
@@ -485,7 +496,7 @@ export function insertStandingOrder(input: StandingOrderInsertInput): number {
   const result = getDb()
     .prepare(
       `INSERT INTO standing_orders (
-         debit_account_id, amount_cents, currency,
+         user_id, debit_account_id, amount_cents, currency,
          start_date, end_date, frequency, weekend_holiday_rule,
          beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
          beneficiary_postal_code, beneficiary_city,
@@ -494,7 +505,7 @@ export function insertStandingOrder(input: StandingOrderInsertInput): number {
          debtor_name, debtor_country, debtor_postal_code,
          debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
        ) VALUES (
-         @debit_account_id, @amount_cents, 'CHF',
+         @user_id, @debit_account_id, @amount_cents, 'CHF',
          @start_date, @end_date, @frequency, @weekend_holiday_rule,
          @beneficiary_iban, @beneficiary_bic, @beneficiary_name, @beneficiary_country,
          @beneficiary_postal_code, @beneficiary_city,
@@ -508,17 +519,17 @@ export function insertStandingOrder(input: StandingOrderInsertInput): number {
   return Number(result.lastInsertRowid);
 }
 
-export function pauseStandingOrder(id: number): void {
+export function pauseStandingOrder(id: number, userId: number): void {
   getDb()
     .prepare(
       `UPDATE standing_orders
        SET is_active = 0
-       WHERE id = @id`,
+       WHERE id = @id AND user_id = @userId`,
     )
-    .run({ id });
+    .run({ id, userId });
 }
 
-export function deleteStandingOrder(id: number): void {
+export function deleteStandingOrder(id: number, userId: number): void {
   getDb()
     .prepare(
       `UPDATE standing_orders
@@ -529,26 +540,27 @@ export function deleteStandingOrder(id: number): void {
          END,
          is_active = 0,
          is_cancelled = 1
-       WHERE id = @id`,
+       WHERE id = @id AND user_id = @userId`,
     )
-    .run({ id });
+    .run({ id, userId });
 }
 
-export function deleteFuturePendingOrderTransaction(id: number): void {
+export function deleteFuturePendingOrderTransaction(id: number, userId: number): void {
   getDb()
     .prepare(
       `DELETE FROM transactions
-       WHERE id = @id
+       WHERE id = @id AND user_id = @userId
          AND execution_date > date('now', 'localtime')
          AND (
            kind = 'transfer'
            OR (kind = 'payment' AND COALESCE(payment_type, 'oneTime') != 'standing')
          )`,
     )
-    .run({ id });
+    .run({ id, userId });
 }
 
 export type TransferInsertInput = {
+  user_id: number;
   debit_account_id: number;
   credit_account_id: number;
   amount_cents: number;
@@ -561,10 +573,10 @@ export function insertTransfer(input: TransferInsertInput): number {
   const result = getDb()
     .prepare(
       `INSERT INTO transactions (
-         kind, debit_account_id, credit_account_id, amount_cents, currency,
+         user_id, kind, debit_account_id, credit_account_id, amount_cents, currency,
          execution_mode, execution_date, accounting_text, is_conditionally_visible
        ) VALUES (
-         'transfer', @debit_account_id, @credit_account_id, @amount_cents, 'CHF',
+         @user_id, 'transfer', @debit_account_id, @credit_account_id, @amount_cents, 'CHF',
          @execution_mode, @execution_date, @accounting_text, 0
        )`,
     )
@@ -574,12 +586,13 @@ export function insertTransfer(input: TransferInsertInput): number {
 
 export function getStandingOrderOccurrenceBySyntheticId(
   syntheticId: string,
+  userId: number,
 ): StandingOrderOccurrenceDetail | null {
   const parsed = parseSyntheticStandingOrderId(syntheticId);
   if (!parsed) return null;
   const standingOrder = getDb()
-    .prepare(`SELECT * FROM standing_orders WHERE id = @id`)
-    .get({ id: parsed.standingOrderId }) as StandingOrderRow | undefined;
+    .prepare(`SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`)
+    .get({ id: parsed.standingOrderId, userId }) as StandingOrderRow | undefined;
   if (!standingOrder) return null;
   const matches = listStandingExecutionDates(
     standingOrder,
@@ -605,10 +618,10 @@ export function parseStandingOrderSummarySoId(value: string): number | null {
   return standingOrderId;
 }
 
-export function getStandingOrderById(id: number): StandingOrderRow | null {
+export function getStandingOrderById(id: number, userId: number): StandingOrderRow | null {
   const row = getDb()
-    .prepare(`SELECT * FROM standing_orders WHERE id = @id`)
-    .get({ id }) as StandingOrderRow | undefined;
+    .prepare(`SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`)
+    .get({ id, userId }) as StandingOrderRow | undefined;
   return row ?? null;
 }
 

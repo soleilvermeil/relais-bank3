@@ -8,7 +8,7 @@ import {
   type Locale,
 } from "@/lib/i18n/settings";
 
-const CONNECTED_COOKIE = "bank_is_connected";
+const USER_CONTRACT_COOKIE = "bank_user_contract";
 
 function localeFromAcceptLanguage(header: string | null): Locale {
   if (!header) return defaultLocale;
@@ -32,7 +32,8 @@ export function middleware(request: NextRequest) {
   requestHeaders.set(LOCALE_HEADER, locale);
 
   const pathname = request.nextUrl.pathname;
-  const isConnected = request.cookies.get(CONNECTED_COOKIE)?.value === "1";
+  const contractCookie = request.cookies.get(USER_CONTRACT_COOKIE)?.value;
+  const isConnected = Boolean(contractCookie && contractCookie.length > 0);
   const shouldRedirectToHome = pathname !== "/" && !isConnected;
 
   const response = shouldRedirectToHome

@@ -36,16 +36,16 @@ const SEED_ACCOUNTS: SeedAccount[] = [
 ];
 
 /** Demo ledger spans years N-1, N and N+1; seeded rows are conditionally visible by execution_date. */
-export function seedDb(db: Database.Database): void {
+export function seedUserDemo(db: Database.Database, userId: number): void {
   const insertAccount = db.prepare(
-    `INSERT INTO accounts (category, name, identifier, balance_cents, currency, sort_order)
-     VALUES (@category, @name, @identifier, 0, 'CHF', @sort_order)`,
+    `INSERT INTO accounts (user_id, category, name, identifier, balance_cents, currency, sort_order)
+     VALUES (@user_id, @category, @name, @identifier, 0, 'CHF', @sort_order)`,
   );
 
   const [checking1, savings1, retirementA, cardMain] = db.transaction(() => {
     const ids: number[] = [];
     for (const account of SEED_ACCOUNTS) {
-      const result = insertAccount.run(account);
+      const result = insertAccount.run({ ...account, user_id: userId });
       ids.push(Number(result.lastInsertRowid));
     }
     return ids as [number, number, number, number];
@@ -58,7 +58,7 @@ export function seedDb(db: Database.Database): void {
     internet: 10000,
     threeAContribution: 100000,
     transferToSavings: 50000,
-    cardPayment: 10000,
+    cardPayment: 5000,
   } as const;
 
   /** In-store merchants debit checking; Galaxus (online card) debits the card account. */
@@ -110,15 +110,15 @@ export function seedDb(db: Database.Database): void {
 
   const insertPastFlow = db.prepare(
     `INSERT INTO transactions
-       (kind, debit_account_id, credit_account_id, amount_cents, currency, execution_date,
+       (user_id, kind, debit_account_id, credit_account_id, amount_cents, currency, execution_date,
         counterparty_name, counterparty_iban, execution_mode, accounting_text, is_conditionally_visible)
-     VALUES (@kind, @debit_account_id, @credit_account_id, @amount_cents, 'CHF', @execution_date,
+     VALUES (@user_id, @kind, @debit_account_id, @credit_account_id, @amount_cents, 'CHF', @execution_date,
         @counterparty_name, @counterparty_iban, @execution_mode, @accounting_text, @is_conditionally_visible)`,
   );
 
   const insertStandingOrder = db.prepare(
     `INSERT INTO standing_orders (
-       debit_account_id, amount_cents, currency,
+       user_id, debit_account_id, amount_cents, currency,
        start_date, end_date, frequency, weekend_holiday_rule,
        beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
        beneficiary_postal_code, beneficiary_city,
@@ -127,7 +127,7 @@ export function seedDb(db: Database.Database): void {
        debtor_name, debtor_country, debtor_postal_code,
        debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
      ) VALUES (
-       @debit_account_id, @amount_cents, 'CHF',
+       @user_id, @debit_account_id, @amount_cents, 'CHF',
        @start_date, NULL, 'monthly', 'before',
        @beneficiary_iban, NULL, @beneficiary_name, 'ch',
        @beneficiary_postal_code, @beneficiary_city,
@@ -153,6 +153,7 @@ export function seedDb(db: Database.Database): void {
 
   function flow(r: FlowRow): void {
     insertPastFlow.run({
+      user_id: userId,
       kind: r.kind,
       debit_account_id: r.debit_account_id,
       credit_account_id: r.credit_account_id,
@@ -249,6 +250,7 @@ export function seedDb(db: Database.Database): void {
 
   for (const bill of RECURRING_BILLS) {
     insertStandingOrder.run({
+      user_id: userId,
       debit_account_id: checking1,
       amount_cents: -bill.amountCents,
       start_date: standingStartDate,

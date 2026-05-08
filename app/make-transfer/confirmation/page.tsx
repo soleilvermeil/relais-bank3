@@ -6,7 +6,7 @@ import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankTransferReviewSummary } from "@/components/organisms/bank-review-summary";
 import { BankPrintButton } from "@/components/molecules/bank-print-button";
-import { readLastTransferCookie } from "@/lib/bank-cookies";
+import { getCurrentUserId, readLastTransferCookie } from "@/lib/bank-cookies";
 import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 import { getIntlLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
@@ -19,9 +19,14 @@ export default async function MakeTransferConfirmationPage() {
     redirect("/make-transfer");
   }
 
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
+
   const t = await getServerT();
   const intlLocale = await getIntlLocale();
-  const selectableAccounts = localizeAccounts(listSelectableAccounts(), t);
+  const selectableAccounts = localizeAccounts(listSelectableAccounts(userId), t);
   const accountById = new Map(selectableAccounts.map((account) => [account.id, account]));
 
   const debitAccountId = Number(snapshot.debitAccount);

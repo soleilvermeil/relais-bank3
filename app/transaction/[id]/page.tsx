@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Pause, Play } from "lucide-react";
 import {
   BankFlowTransactionReviewSummary,
@@ -30,6 +30,7 @@ import {
 } from "@/lib/db/transactions";
 import { getIntlLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
+import { getCurrentUserId } from "@/lib/bank-cookies";
 
 export const dynamic = "force-dynamic";
 
@@ -81,6 +82,7 @@ function flowRowFromOccurrence(occurrence: StandingOrderOccurrenceDetail): Trans
   const standing = occurrence.standingOrder;
   return {
     id: standing.id,
+    user_id: standing.user_id,
     kind: "debit",
     created_at: standing.created_at,
     debit_account_id: standing.debit_account_id,
@@ -130,16 +132,21 @@ export default async function TransactionDetailPage({
   const idRaw = decodeURIComponent(idParam);
   const { fromAccount: fromRaw } = await searchParams;
 
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
+
   const summaryStandingOrderId = parseStandingOrderSummarySoId(idRaw);
   const summaryOrder =
-    summaryStandingOrderId != null ? getStandingOrderById(summaryStandingOrderId) : null;
+    summaryStandingOrderId != null ? getStandingOrderById(summaryStandingOrderId, userId) : null;
   if (summaryStandingOrderId != null && !summaryOrder) {
     notFound();
   }
 
   const occurrence =
     summaryOrder == null && idRaw.startsWith("so:")
-      ? getStandingOrderOccurrenceBySyntheticId(idRaw)
+      ? getStandingOrderOccurrenceBySyntheticId(idRaw, userId)
       : null;
   const txId = Number(idRaw);
   const row =
@@ -148,14 +155,14 @@ export default async function TransactionDetailPage({
     Number.isFinite(txId) &&
     txId > 0 &&
     !idRaw.startsWith("so:")
-      ? getTransactionById(txId)
+      ? getTransactionById(txId, userId)
       : null;
   if (!row && !occurrence && !summaryOrder) {
     notFound();
   }
 
   const t = await getServerT();
-  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(), t);
+  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(userId), t);
   const localizedAccounts = localizedGroups.flatMap((group) => group.accounts);
   const accountById = new Map(localizedAccounts.map((account) => [account.id, account]));
 

@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getServerT } from "@/lib/i18n/server";
+import { getCurrentUserId } from "@/lib/bank-cookies";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { BankPaymentForm } from "@/components/organisms/bank-payment-form";
@@ -9,8 +11,13 @@ import { listSelectableAccounts, localizeAccounts } from "@/lib/db/accounts";
 export const dynamic = "force-dynamic";
 
 export default async function MakePaymentPage() {
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
+
   const t = await getServerT();
-  const debitAccounts = localizeAccounts(listSelectableAccounts(), t).map((account) => ({
+  const debitAccounts = localizeAccounts(listSelectableAccounts(userId), t).map((account) => ({
     id: account.id,
     name: account.name,
     identifier: account.identifier,

@@ -11,13 +11,14 @@ import {
   type TransferDraft,
   type TransferSnapshot,
 } from "@/lib/bank-types";
+import { findUserByContract } from "@/lib/db/users";
 
 export const BANK_COOKIE_NAMES = {
   paymentDraft: "bank_payment_draft",
   transferDraft: "bank_transfer_draft",
   lastPayment: "bank_last_payment",
   lastTransfer: "bank_last_transfer",
-  isConnected: "bank_is_connected",
+  userContract: "bank_user_contract",
 } as const;
 
 const WEEK_SEC = 60 * 60 * 24 * 7;
@@ -219,23 +220,46 @@ export async function clearLastTransferCookie(): Promise<void> {
   store.delete(BANK_COOKIE_NAMES.lastTransfer);
 }
 
+export async function readUserContractFromCookie(): Promise<string | null> {
+  const store = await cookies();
+  const raw = store.get(BANK_COOKIE_NAMES.userContract)?.value;
+  return raw && raw.length > 0 ? raw : null;
+}
+
+export async function writeUserContractCookie(contract: string): Promise<void> {
+  const store = await cookies();
+  store.set(BANK_COOKIE_NAMES.userContract, contract, bankCookieBase());
+}
+
+export async function clearUserContractCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(BANK_COOKIE_NAMES.userContract);
+}
+
+/** Clears auth cookie and all bank draft / confirmation cookies. */
+export async function clearAllBankCookies(): Promise<void> {
+  await clearUserContractCookie();
+  await clearPaymentDraftCookie();
+  await clearTransferDraftCookie();
+  await clearLastPaymentCookie();
+  await clearLastTransferCookie();
+}
+
 export async function isUserConnectedFromCookie(): Promise<boolean> {
-  const store = await cookies();
-  return store.get(BANK_COOKIE_NAMES.isConnected)?.value === "1";
+  const contract = await readUserContractFromCookie();
+  return contract != null;
 }
 
-export async function writeUserConnectedCookie(isConnected: boolean): Promise<void> {
-  const store = await cookies();
-  if (!isConnected) {
-    store.delete(BANK_COOKIE_NAMES.isConnected);
-    return;
+/** Resolves the logged-in user id from the contract cookie, or null. Clears stale cookies. */
+export async function getCurrentUserId(): Promise<number | null> {
+  const contract = await readUserContractFromCookie();
+  if (!contract) return null;
+  const user = findUserByContract(contract);
+  if (!user) {
+    await clearUserContractCookie();
+    return null;
   }
-  store.set(BANK_COOKIE_NAMES.isConnected, "1", bankCookieBase());
-}
-
-export async function clearUserConnectedCookie(): Promise<void> {
-  const store = await cookies();
-  store.delete(BANK_COOKIE_NAMES.isConnected);
+  return user.id;
 }
 
 // Re-export for convenience.

@@ -15,6 +15,7 @@ import {
   clearLastTransferCookie,
   clearPaymentDraftCookie,
   clearTransferDraftCookie,
+  getCurrentUserId,
   readPaymentDraftCookie,
   readTransferDraftCookie,
   writeLastPaymentCookie,
@@ -167,6 +168,11 @@ export async function confirmPayment(): Promise<void> {
     redirect("/make-payment");
   }
 
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
+
   const debitAccountId = parseAccountId(draft.debitAccount);
   const amountCents = parseAmountToCents(draft.amount);
   const isExpress = draft.express === "yes";
@@ -174,6 +180,7 @@ export async function confirmPayment(): Promise<void> {
   const transactionId =
     draft.paymentType === "standing"
       ? insertStandingOrder({
+          user_id: userId,
           debit_account_id: debitAccountId,
           amount_cents: -Math.abs(amountCents),
           start_date: nullIfEmpty(draft.firstExecutionDate) ?? new Date().toISOString().slice(0, 10),
@@ -208,6 +215,7 @@ export async function confirmPayment(): Promise<void> {
           debtor_address2: nullIfEmpty(draft.debtorAddress2),
         })
       : insertPayment({
+          user_id: userId,
           debit_account_id: debitAccountId,
           amount_cents: -Math.abs(amountCents),
           execution_date: isExpress
@@ -278,6 +286,11 @@ export async function confirmTransfer(): Promise<void> {
     redirect("/make-transfer");
   }
 
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
+
   const debitAccountId = parseAccountId(draft.debitAccount);
   const creditAccountId = parseAccountId(draft.creditAccount);
   const amountCents = parseAmountToCents(draft.amount);
@@ -287,6 +300,7 @@ export async function confirmTransfer(): Promise<void> {
       : new Date().toISOString().slice(0, 10);
 
   const transactionId = insertTransfer({
+    user_id: userId,
     debit_account_id: debitAccountId,
     credit_account_id: creditAccountId,
     amount_cents: -Math.abs(amountCents),
@@ -311,13 +325,17 @@ export async function dismissTransferConfirmation(): Promise<void> {
 }
 
 export async function pauseStandingOrderAction(formData: FormData): Promise<void> {
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
   const standingOrderIdRaw = readNonEmpty(formData, "standingOrderId");
   const standingOrderId = Number(standingOrderIdRaw);
   if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) {
     throw new Error(`Invalid standing order id: ${standingOrderIdRaw}`);
   }
   const fromAccountRaw = readString(formData, "fromAccount");
-  pauseStandingOrder(standingOrderId);
+  pauseStandingOrder(standingOrderId, userId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/account/${fromAccountRaw}`);
@@ -326,13 +344,17 @@ export async function pauseStandingOrderAction(formData: FormData): Promise<void
 }
 
 export async function deleteStandingOrderAction(formData: FormData): Promise<void> {
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
   const standingOrderIdRaw = readNonEmpty(formData, "standingOrderId");
   const standingOrderId = Number(standingOrderIdRaw);
   if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) {
     throw new Error(`Invalid standing order id: ${standingOrderIdRaw}`);
   }
   const fromAccountRaw = readString(formData, "fromAccount");
-  deleteStandingOrder(standingOrderId);
+  deleteStandingOrder(standingOrderId, userId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/account/${fromAccountRaw}`);
@@ -341,13 +363,17 @@ export async function deleteStandingOrderAction(formData: FormData): Promise<voi
 }
 
 export async function deletePendingOrderAction(formData: FormData): Promise<void> {
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
   const transactionIdRaw = readNonEmpty(formData, "transactionId");
   const transactionId = Number(transactionIdRaw);
   if (!Number.isFinite(transactionId) || transactionId <= 0) {
     throw new Error(`Invalid transaction id: ${transactionIdRaw}`);
   }
   const fromAccountRaw = readString(formData, "fromAccount");
-  deleteFuturePendingOrderTransaction(transactionId);
+  deleteFuturePendingOrderTransaction(transactionId, userId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
     redirect(`/account/${fromAccountRaw}`);

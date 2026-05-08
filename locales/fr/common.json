@@ -26,13 +26,16 @@
     "scanQr": "Scanner un QR code"
   },
   "bankFakeLogin": {
-    "title": "Connexion a votre espace demo",
-    "subtitle": "Ce formulaire de connexion est fictif et ne verifie aucun identifiant. Un clic sur connecter ouvre la demo.",
+    "title": "Connexion a l'e-banking",
+    "subtitle": "Saisissez votre numero de contrat et votre mot de passe pour acceder a vos comptes.",
     "fields": {
       "contractNumber": "Numero de contrat",
       "password": "Mot de passe"
     },
-    "hint": "Aucun controle de securite n'est effectue dans ce mode d'apprentissage.",
+    "errors": {
+      "invalidCredentials": "Identifiants invalides"
+    },
+    "hint": "Exemple : 1234-5678-9",
     "actions": {
       "connect": "Se connecter"
     }

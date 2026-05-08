@@ -26,13 +26,16 @@
     "scanQr": "Scan QR code"
   },
   "bankFakeLogin": {
-    "title": "Connect to your demo space",
-    "subtitle": "This fake login form does not validate credentials. Any click on connect opens the demo.",
+    "title": "Sign in to online banking",
+    "subtitle": "Enter your contract number and password to access your accounts.",
     "fields": {
       "contractNumber": "Contract number",
       "password": "Password"
     },
-    "hint": "No security check is performed in this learning mode.",
+    "errors": {
+      "invalidCredentials": "Invalid credentials"
+    },
+    "hint": "Example: 1234-5678-9",
     "actions": {
       "connect": "Connect"
     }

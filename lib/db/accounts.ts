@@ -94,16 +94,17 @@ export function localizeAccountGroups(groups: AccountGroup[], t: TFunction): Acc
   }));
 }
 
-export function listAccountsGroupedByCategory(): AccountGroup[] {
+export function listAccountsGroupedByCategory(userId: number): AccountGroup[] {
   const rows = getDb()
     .prepare(
       `SELECT id, category, name, identifier, balance_cents, currency, sort_order
        FROM accounts
+       WHERE user_id = ?
        ORDER BY sort_order ASC, id ASC`,
     )
-    .all() as AccountRow[];
+    .all(userId) as AccountRow[];
 
-  const balances = computeBalanceCentsByAccountId();
+  const balances = computeBalanceCentsByAccountId(userId);
 
   const grouped = new Map<AccountCategory, Account[]>();
   for (const category of CATEGORY_ORDER) {
@@ -120,27 +121,27 @@ export function listAccountsGroupedByCategory(): AccountGroup[] {
   })).filter((group) => group.accounts.length > 0);
 }
 
-export function getAccountById(id: number): Account | null {
+export function getAccountById(userId: number, id: number): Account | null {
   const row = getDb()
     .prepare(
       `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-       FROM accounts WHERE id = ?`,
+       FROM accounts WHERE id = ? AND user_id = ?`,
     )
-    .get(id) as AccountRow | undefined;
+    .get(id, userId) as AccountRow | undefined;
   if (!row) return null;
-  const cents = computeBalanceCentsForAccount(id);
+  const cents = computeBalanceCentsForAccount(id, userId);
   return rowToAccount(row, cents);
 }
 
-export function listSelectableAccounts(): Account[] {
+export function listSelectableAccounts(userId: number): Account[] {
   const rows = getDb()
     .prepare(
       `SELECT id, category, name, identifier, balance_cents, currency, sort_order
        FROM accounts
-       WHERE category IN ('checking', 'savings')
+       WHERE user_id = ? AND category IN ('checking', 'savings')
        ORDER BY sort_order ASC, id ASC`,
     )
-    .all() as AccountRow[];
-  const balances = computeBalanceCentsByAccountId();
+    .all(userId) as AccountRow[];
+  const balances = computeBalanceCentsByAccountId(userId);
   return rows.map((row) => rowToAccount(row, balances.get(row.id) ?? 0));
 }

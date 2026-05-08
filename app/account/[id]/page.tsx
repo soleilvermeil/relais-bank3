@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { TFunction } from "i18next";
 import { getServerT } from "@/lib/i18n/server";
 import { formatChfCurrency } from "@/lib/bank-money";
@@ -10,6 +10,7 @@ import {
   listTransactionsForAccount,
   type Transaction,
 } from "@/lib/db/transactions";
+import { getCurrentUserId } from "@/lib/bank-cookies";
 
 export const dynamic = "force-dynamic";
 
@@ -133,8 +134,13 @@ export default async function AccountDetailPage({
     notFound();
   }
 
+  const userId = await getCurrentUserId();
+  if (userId == null) {
+    redirect("/");
+  }
+
   const t = await getServerT();
-  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(), t);
+  const localizedGroups = localizeAccountGroups(listAccountsGroupedByCategory(userId), t);
   const localizedAccounts = localizedGroups.flatMap((group) => group.accounts);
   const accountById = new Map(localizedAccounts.map((account) => [account.id, account]));
   const accountNameById = new Map(localizedAccounts.map((account) => [account.id, account.name]));
@@ -143,7 +149,7 @@ export default async function AccountDetailPage({
     notFound();
   }
   const today = todayIsoDate();
-  const allTransactions = listTransactionsForAccount(account.id);
+  const allTransactions = listTransactionsForAccount(account.id, userId);
 
   const rawUpcomingOrders = allTransactions
     .filter((tx) => (tx.execution_date ?? "") > today)
