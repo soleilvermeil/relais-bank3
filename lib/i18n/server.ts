@@ -20,8 +20,3 @@ export async function getServerT(): Promise<TFunction> {
   const locale = await getLocale();
   return createFixedT(locale);
 }
-
-/** Fixed translator for a locale (e.g. English catalog strings for bilingual search). */
-export async function getFixedServerT(lng: Locale): Promise<TFunction> {
-  return createFixedT(lng);
-}

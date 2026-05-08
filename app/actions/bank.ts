@@ -66,8 +66,8 @@ function nullIfEmpty(value: string): string | null {
 }
 
 function revalidateBankPaths(): void {
-  revalidatePath("/home");
-  revalidatePath("/home/account", "layout");
+  revalidatePath("/");
+  revalidatePath("/account", "layout");
   revalidatePath("/payments");
 }
 
@@ -320,9 +320,9 @@ export async function pauseStandingOrderAction(formData: FormData): Promise<void
   pauseStandingOrder(standingOrderId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
-    redirect(`/home/account/${fromAccountRaw}`);
+    redirect(`/account/${fromAccountRaw}`);
   }
-  redirect("/home");
+  redirect("/");
 }
 
 export async function deleteStandingOrderAction(formData: FormData): Promise<void> {
@@ -335,9 +335,9 @@ export async function deleteStandingOrderAction(formData: FormData): Promise<voi
   deleteStandingOrder(standingOrderId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
-    redirect(`/home/account/${fromAccountRaw}`);
+    redirect(`/account/${fromAccountRaw}`);
   }
-  redirect("/home");
+  redirect("/");
 }
 
 export async function deletePendingOrderAction(formData: FormData): Promise<void> {
@@ -350,7 +350,7 @@ export async function deletePendingOrderAction(formData: FormData): Promise<void
   deleteFuturePendingOrderTransaction(transactionId);
   revalidateBankPaths();
   if (fromAccountRaw !== "") {
-    redirect(`/home/account/${fromAccountRaw}`);
+    redirect(`/account/${fromAccountRaw}`);
   }
-  redirect("/home");
+  redirect("/");
 }

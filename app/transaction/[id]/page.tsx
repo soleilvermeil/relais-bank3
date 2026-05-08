@@ -178,7 +178,7 @@ export default async function TransactionDetailPage({
   const debitLabel = accountLabel(debitAccountIdForLabel, accountById);
   const creditLabel = accountLabel(row?.credit_account_id ?? null, accountById);
 
-  const backHref = backAccount ? `/home/account/${backAccount.id}` : "/home";
+  const backHref = backAccount ? `/account/${backAccount.id}` : "/";
   const backLabel = backAccount
     ? t("bankTransactionDetail.backToAccount")
     : t("bankTransactionDetail.backToWealth");
@@ -291,7 +291,7 @@ export default async function TransactionDetailPage({
           aria-label={t("bankNavigation.breadcrumb")}
           className="text-sm text-muted-foreground print:hidden"
         >
-          <Link href="/home" className="font-medium text-primary hover:underline">
+          <Link href="/" className="font-medium text-primary hover:underline">
             {t("bankNavigation.wealth")}
           </Link>
           {backAccount ? (

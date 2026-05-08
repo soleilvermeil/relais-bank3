@@ -54,7 +54,7 @@ export default async function RootLayout({
           <div className="flex flex-1 flex-col">{children}</div>
           <footer className="mt-auto border-t border-card-border bg-card py-6 text-center text-sm text-muted-foreground print:hidden">
             <a
-              href="https://github.com/soleilvermeil/relais-shop"
+              href="https://github.com/soleilvermeil/relais-bank"
               target="_blank"
               rel="noreferrer"
               className="font-medium text-primary hover:underline"

@@ -6,7 +6,7 @@ export const defaultLocale: Locale = "en";
 export const LOCALE_COOKIE = "NEXT_LOCALE";
 export const LOCALE_HEADER = "x-next-locale";
 
-export const namespaces = ["common", "shop", "catalog"] as const;
+export const namespaces = ["common"] as const;
 export type Namespace = (typeof namespaces)[number];
 
 export const defaultNS: Namespace = "common";

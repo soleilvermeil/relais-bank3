@@ -7,14 +7,8 @@
   "brand": "Relais Bank",
   "brandSr": " — home",
   "nav": {
-    "browse": "Operations",
-    "cart": "Payments",
-    "main": "Main",
-    "showCategories": "Show categories",
-    "hideCategories": "Hide categories"
+    "main": "Main"
   },
-  "cartBadge_one": "{{count}} pending operation",
-  "cartBadge_other": "{{count}} pending operations",
   "prevention": "This is a learning website. No payment or transfer is ever executed.",
   "footerProjectLink": "View the project on GitHub: soleilvermeil/relais-bank",
   "lang": {

@@ -14,7 +14,7 @@ const variants: Record<ButtonVariant, string> = {
 type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "className"> & {
   variant?: ButtonVariant;
   children: ReactNode;
-  /** Full width on small screens; auto from `sm` up (checkout CTAs). */
+  /** Full width on small screens; auto from `sm` up. */
   wide?: boolean;
   className?: string;
 };

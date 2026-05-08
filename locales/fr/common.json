@@ -7,14 +7,8 @@
   "brand": "Relais Bank",
   "brandSr": " — accueil",
   "nav": {
-    "browse": "Operations",
-    "cart": "Paiements",
-    "main": "Principal",
-    "showCategories": "Afficher les categories",
-    "hideCategories": "Masquer les categories"
+    "main": "Principal"
   },
-  "cartBadge_one": "{{count}} operation en attente",
-  "cartBadge_other": "{{count}} operations en attente",
   "prevention": "Site web de demonstration pedagogique. Aucun paiement ni transfert n'est execute.",
   "footerProjectLink": "Voir le projet sur GitHub : soleilvermeil/relais-bank",
   "lang": {

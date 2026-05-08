@@ -1,36 +1,40 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Relais Bank
 
-## Getting Started
+Educational online-banking simulation built with [Next.js](https://nextjs.org). Available in English and French. **No real payment or transfer is ever executed** — every action is recorded in a local SQLite ledger for demonstration purposes only.
 
-First, run the development server:
+## Features
+
+- Wealth overview grouped by account category (checking, savings, retirement, cards)
+- Account detail pages with upcoming and past transactions
+- Make-payment flow (one-time and standing orders, including Swiss QR-bill scanning)
+- Make-transfer flow between your own accounts
+- Read-only transaction detail pages with print support
+- Demo ledger backed by SQLite, auto-seeded on first boot
+
+## Getting started
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to use the app. The local SQLite database is created and seeded automatically the first time the server starts (see `lib/db/`). Visit `/reset` at any time to wipe and re-seed it.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run dev` — start the development server
+- `npm run build` — create a production build
+- `npm run start` — run the production build
+- `npm run lint` — run ESLint
 
-## Learn More
+## Project layout
 
-To learn more about Next.js, take a look at the following resources:
+- `app/` — Next.js App Router pages and server actions
+- `components/` — atoms / molecules / organisms (shared UI + bank-specific)
+- `lib/` — bank domain logic, SQLite client, i18n
+- `locales/` — `en` and `fr` translation files
+- `public/` — static assets (e.g. QR-scanner worker)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Repository
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[github.com/soleilvermeil/relais-bank](https://github.com/soleilvermeil/relais-bank)

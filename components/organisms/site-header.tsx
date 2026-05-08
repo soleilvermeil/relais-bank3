@@ -12,14 +12,14 @@ export function SiteHeader({ locale }: Props) {
   const { t } = useTranslation("common");
   const pathname = usePathname();
   const isPayments = pathname === "/payments";
-  const isHome = pathname === "/" || pathname === "/home";
+  const isHome = pathname === "/";
 
   return (
     <header className="sticky top-0 z-40 border-b border-card-border bg-background/90 backdrop-blur-md print:hidden">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
         <div className="flex min-w-0 items-center gap-4">
           <Link
-            href="/home"
+            href="/"
             className="shrink-0 text-lg font-bold tracking-tight text-primary focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
           >
             {t("brand")}
@@ -27,20 +27,20 @@ export function SiteHeader({ locale }: Props) {
           </Link>
           <nav aria-label={t("nav.main")} className="flex items-center gap-1 text-sm font-medium">
             <Link
+              href="/"
+              className={`rounded-lg px-3 py-1.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
+                isHome ? "bg-primary text-primary-foreground" : "text-foreground hover:text-primary"
+              }`}
+            >
+              {t("bankNavigation.wealth")}
+            </Link>
+            <Link
               href="/payments"
               className={`rounded-lg px-3 py-1.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                 isPayments ? "bg-primary text-primary-foreground" : "text-foreground hover:text-primary"
               }`}
             >
               {t("bankNavigation.payments")}
-            </Link>
-            <Link
-              href="/home"
-              className={`rounded-lg px-3 py-1.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
-                isHome ? "bg-primary text-primary-foreground" : "text-foreground hover:text-primary"
-              }`}
-            >
-              {t("bankNavigation.wealth")}
             </Link>
           </nav>
         </div>
