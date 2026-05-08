@@ -38,8 +38,15 @@ export function WealthAccountSection({
           {accounts.map((account, index) => (
             <article
               key={`${title}-${account.identifier}`}
-              className={index > 0 ? "mt-3 border-t border-card-border pt-3" : ""}
+              className={`relative transition ${
+                index > 0 ? "mt-3 border-t border-card-border pt-3" : ""
+              } cursor-pointer hover:bg-card-border/20 sm:cursor-default sm:hover:bg-transparent`}
             >
+              <Link
+                href={`/account/${account.id}`}
+                className="absolute inset-0 z-10 rounded-xl sm:hidden"
+                aria-label={`${detailsLabel} ${account.name}`}
+              />
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 space-y-1">
                   <h3 className="text-base font-semibold text-foreground">{account.name}</h3>
@@ -54,8 +61,8 @@ export function WealthAccountSection({
                     {formatCurrency(account.balance)}
                   </p>
                   <div className="hidden sm:block">
-                    <Link href={`/account/${account.id}`} className="inline-flex">
-                      <Button variant="secondary">{detailsLabel}</Button>
+                    <Link href={`/account/${account.id}`} className="relative z-20 inline-flex">
+                      <Button variant="secondary" className="cursor-pointer">{detailsLabel}</Button>
                     </Link>
                   </div>
                 </div>
