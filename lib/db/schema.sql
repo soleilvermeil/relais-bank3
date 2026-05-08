@@ -77,7 +77,8 @@ CREATE TABLE IF NOT EXISTS standing_orders (
   debtor_city TEXT,
   debtor_address1 TEXT,
   debtor_address2 TEXT,
-  is_active INTEGER NOT NULL DEFAULT 1
+  is_active INTEGER NOT NULL DEFAULT 1,
+  is_cancelled INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_transactions_debit_account ON transactions(debit_account_id);

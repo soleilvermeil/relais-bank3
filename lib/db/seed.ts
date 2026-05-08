@@ -125,7 +125,7 @@ export function seedDb(db: Database.Database): void {
        beneficiary_address1, beneficiary_address2,
        rf_reference, communication_to_beneficiary, accounting_text,
        debtor_name, debtor_country, debtor_postal_code,
-       debtor_city, debtor_address1, debtor_address2, is_active
+       debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
      ) VALUES (
        @debit_account_id, @amount_cents, 'CHF',
        @start_date, NULL, 'monthly', 'before',
@@ -134,7 +134,7 @@ export function seedDb(db: Database.Database): void {
        NULL, NULL,
        @rf_reference, NULL, @accounting_text,
        NULL, NULL, NULL,
-       NULL, NULL, NULL, 1
+       NULL, NULL, NULL, 1, 0
      )`,
   );
 

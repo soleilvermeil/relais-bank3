@@ -86,6 +86,7 @@ export type StandingOrderRow = {
   debtor_address1: string | null;
   debtor_address2: string | null;
   is_active: number;
+  is_cancelled: number;
 };
 
 export type StandingOrderOccurrenceDetail = {
@@ -167,7 +168,7 @@ function listStandingOrdersForAccount(accountId: number): StandingOrderRow[] {
   return getDb()
     .prepare(
       `SELECT * FROM standing_orders
-       WHERE debit_account_id = @id AND is_active = 1
+       WHERE debit_account_id = @id AND (is_active = 1 OR is_cancelled = 1)
        ORDER BY id ASC`,
     )
     .all({ id: accountId }) as StandingOrderRow[];
@@ -177,7 +178,7 @@ function listAllStandingOrders(): StandingOrderRow[] {
   return getDb()
     .prepare(
       `SELECT * FROM standing_orders
-       WHERE is_active = 1
+       WHERE is_active = 1 OR is_cancelled = 1
        ORDER BY id ASC`,
     )
     .all() as StandingOrderRow[];
@@ -491,7 +492,7 @@ export function insertStandingOrder(input: StandingOrderInsertInput): number {
          beneficiary_address1, beneficiary_address2,
          rf_reference, communication_to_beneficiary, accounting_text,
          debtor_name, debtor_country, debtor_postal_code,
-         debtor_city, debtor_address1, debtor_address2, is_active
+         debtor_city, debtor_address1, debtor_address2, is_active, is_cancelled
        ) VALUES (
          @debit_account_id, @amount_cents, 'CHF',
          @start_date, @end_date, @frequency, @weekend_holiday_rule,
@@ -500,7 +501,7 @@ export function insertStandingOrder(input: StandingOrderInsertInput): number {
          @beneficiary_address1, @beneficiary_address2,
          @rf_reference, @communication_to_beneficiary, @accounting_text,
          @debtor_name, @debtor_country, @debtor_postal_code,
-         @debtor_city, @debtor_address1, @debtor_address2, 1
+         @debtor_city, @debtor_address1, @debtor_address2, 1, 0
        )`,
     )
     .run(input);
@@ -520,7 +521,14 @@ export function pauseStandingOrder(id: number): void {
 export function deleteStandingOrder(id: number): void {
   getDb()
     .prepare(
-      `DELETE FROM standing_orders
+      `UPDATE standing_orders
+       SET
+         end_date = CASE
+           WHEN end_date IS NULL OR end_date > date('now', 'localtime') THEN date('now', 'localtime')
+           ELSE end_date
+         END,
+         is_active = 0,
+         is_cancelled = 1
        WHERE id = @id`,
     )
     .run({ id });
@@ -570,10 +578,7 @@ export function getStandingOrderOccurrenceBySyntheticId(
   const parsed = parseSyntheticStandingOrderId(syntheticId);
   if (!parsed) return null;
   const standingOrder = getDb()
-    .prepare(
-      `SELECT * FROM standing_orders
-       WHERE id = @id AND is_active = 1`,
-    )
+    .prepare(`SELECT * FROM standing_orders WHERE id = @id`)
     .get({ id: parsed.standingOrderId }) as StandingOrderRow | undefined;
   if (!standingOrder) return null;
   const matches = listStandingExecutionDates(
@@ -607,11 +612,20 @@ export function getStandingOrderById(id: number): StandingOrderRow | null {
   return row ?? null;
 }
 
-/** Next execution in the standing-horizon window, or `start_date` if none. */
+/** Next execution in the standing-horizon window, or last past execution, or `start_date`. */
 export function nextStandingExecutionForSummary(order: StandingOrderRow): string {
   const today = todayIsoLocal();
   const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
-  const dates = listStandingExecutionDates(order, today, horizon);
-  if (dates.length > 0) return dates[0]!;
+  const futureDates = listStandingExecutionDates(order, today, horizon);
+  if (futureDates.length > 0) return futureDates[0]!;
+  const pastDates = listStandingExecutionDates(order, order.start_date, today);
+  if (pastDates.length > 0) return pastDates[pastDates.length - 1]!;
   return order.start_date;
+}
+
+/** Whether the schedule still has at least one execution strictly after today. */
+export function standingOrderHasFutureExecution(order: StandingOrderRow): boolean {
+  const today = todayIsoLocal();
+  const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
+  return listStandingExecutionDates(order, addDaysIso(today, 1), horizon).length > 0;
 }

@@ -16,6 +16,18 @@ function applySchema(db: Database.Database): void {
   db.exec(schema);
 }
 
+/** Existing DBs created before `is_cancelled` need a column migration (CREATE TABLE IF NOT EXISTS does not add columns). */
+function migrateStandingOrdersCancelColumn(db: Database.Database): void {
+  const columns = db
+    .prepare("PRAGMA table_info(standing_orders)")
+    .all() as { name: string }[];
+  if (!columns.some((col) => col.name === "is_cancelled")) {
+    db.exec(
+      "ALTER TABLE standing_orders ADD COLUMN is_cancelled INTEGER NOT NULL DEFAULT 0",
+    );
+  }
+}
+
 function isEmpty(db: Database.Database): boolean {
   const row = db.prepare("SELECT COUNT(*) AS count FROM accounts").get() as {
     count: number;
@@ -29,6 +41,7 @@ function openDatabase(): Database.Database {
   db.pragma("journal_mode = WAL");
   db.pragma("foreign_keys = ON");
   applySchema(db);
+  migrateStandingOrdersCancelColumn(db);
   if (isEmpty(db)) {
     seedDb(db);
   }

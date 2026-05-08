@@ -237,6 +237,8 @@
   "bankTransactionDetail": {
     "titleFallback": "Detail de l'operation",
     "subtitle": "Meme presentation que la confirmation d'un paiement ou transfert ; cette ecriture du registre est en lecture seule.",
+    "standingOrderCancelledNote": "Cet ordre permanent a ete annule. Les debits planifies passes restent dans votre historique.",
+    "standingOrderEndedNote": "Cet ordre permanent n'a plus d'execution prevue.",
     "breadcrumbLeaf": "Detail",
     "recordedOn": "Enregistree le",
     "backToAccount": "Retour au compte",

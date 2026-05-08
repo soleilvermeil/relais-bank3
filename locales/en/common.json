@@ -237,6 +237,8 @@
   "bankTransactionDetail": {
     "titleFallback": "Transaction details",
     "subtitle": "Same summary layout as payment and transfer confirmation; this ledger entry is read-only.",
+    "standingOrderCancelledNote": "This standing order was cancelled. Past scheduled debits remain in your history.",
+    "standingOrderEndedNote": "This standing order has no further executions scheduled.",
     "breadcrumbLeaf": "Details",
     "recordedOn": "Recorded on",
     "backToAccount": "Back to account",

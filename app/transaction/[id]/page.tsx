@@ -23,6 +23,7 @@ import {
   getTransactionById,
   nextStandingExecutionForSummary,
   parseStandingOrderSummarySoId,
+  standingOrderHasFutureExecution,
   type StandingOrderOccurrenceDetail,
   type StandingOrderRow,
   type TransactionRow,
@@ -185,6 +186,11 @@ export default async function TransactionDetailPage({
     summaryOrder?.is_active === 1
       ? t("bankTransactionDetail.actions.pauseStandingOrder")
       : t("bankTransactionDetail.actions.resumeStandingOrder");
+  const summaryStandingHasFuture =
+    summaryOrder != null ? standingOrderHasFutureExecution(summaryOrder) : false;
+  const summaryStandingCancelled = (summaryOrder?.is_cancelled ?? 0) === 1;
+  const summaryStandingShowManagement =
+    summaryOrder != null && summaryStandingHasFuture;
   const today = new Date().toISOString().slice(0, 10);
   const canDeletePendingOrder =
     row != null &&
@@ -312,6 +318,13 @@ export default async function TransactionDetailPage({
           <p className="max-w-3xl text-base text-muted-foreground">
             {t("bankTransactionDetail.subtitle")}
           </p>
+          {summaryOrder != null && !summaryStandingHasFuture ? (
+            <p className="text-sm font-medium text-muted-foreground">
+              {summaryStandingCancelled
+                ? t("bankTransactionDetail.standingOrderCancelledNote")
+                : t("bankTransactionDetail.standingOrderEndedNote")}
+            </p>
+          ) : null}
           <p className="text-sm text-muted-foreground">
             {t("bankConfirmation.reference")} #{referenceId}
             {" · "}
@@ -333,7 +346,7 @@ export default async function TransactionDetailPage({
 
         <div className="flex flex-wrap gap-3 print:hidden">
           <BankPrintButton label={t("bankConfirmation.actions.print")} />
-          {summaryOrder ? (
+          {summaryStandingShowManagement ? (
             <>
               <button
                 type="button"
