@@ -19,13 +19,13 @@ export default async function PaymentsPage() {
 
         <section className="space-y-4">
           <SectionTitle as="h2">{t("bankPaymentsLanding.mainActionsTitle")}</SectionTitle>
-          <div className="grid gap-3 rounded-2xl border border-card-border bg-card p-4 sm:grid-cols-3 sm:p-6">
+          <div className="grid auto-rows-fr gap-3 rounded-2xl border border-card-border bg-card p-4 sm:grid-cols-3 sm:p-6">
             <Link
               href="/make-payment"
-              className="flex h-full w-full items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="grid h-full w-full grid-cols-[auto_1fr] items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Landmark className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-              <div className="space-y-1">
+              <div className="flex h-full flex-col gap-1">
                 <h3 className="text-base font-semibold text-foreground">
                   {t("bankPaymentsLanding.cards.paymentTitle")}
                 </h3>
@@ -37,10 +37,10 @@ export default async function PaymentsPage() {
 
             <Link
               href="/make-transfer"
-              className="flex h-full w-full items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="grid h-full w-full grid-cols-[auto_1fr] items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Repeat className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-              <div className="space-y-1">
+              <div className="flex h-full flex-col gap-1">
                 <h3 className="text-base font-semibold text-foreground">
                   {t("bankPaymentsLanding.cards.transferTitle")}
                 </h3>
@@ -52,10 +52,10 @@ export default async function PaymentsPage() {
 
             <Link
               href="/scan-qr"
-              className="flex h-full w-full items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="grid h-full w-full grid-cols-[auto_1fr] items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <QrCode className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
-              <div className="space-y-1">
+              <div className="flex h-full flex-col gap-1">
                 <h3 className="text-base font-semibold text-foreground">
                   {t("bankPaymentsLanding.cards.scanTitle")}
                 </h3>

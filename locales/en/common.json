@@ -92,7 +92,7 @@
       "transferDescription": "Move funds between your own accounts.",
       "transferCta": "Go to transfer form",
       "scanTitle": "Scan QR-bill",
-      "scanDescription": "Point your camera at a Swiss QR-bill (SPC). We will open the payment form with the fields prefilled.",
+      "scanDescription": "Prefill a payment form from a QR-bill.",
       "scanCta": "Open scanner"
     }
   },

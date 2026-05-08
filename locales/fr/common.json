@@ -91,8 +91,8 @@
       "transferTitle": "Effectuer un transfert",
       "transferDescription": "Deplacez des fonds entre vos propres comptes.",
       "transferCta": "Aller au formulaire de transfert",
-      "scanTitle": "Scanner un QR-facture",
-      "scanDescription": "Pointez la camera vers un QR-facture suisse (SPC). Le formulaire de paiement s'ouvrira avec les champs pre-remplis.",
+      "scanTitle": "Scanner une QR-facture",
+      "scanDescription": "Pré-remplissez un formulaire de paiement à partir d'une QR-facture.",
       "scanCta": "Ouvrir le scanner"
     }
   },
