@@ -18,6 +18,13 @@ type TransactionsByDate = {
   items: Transaction[];
 };
 
+type UpcomingType = "pending" | "standing";
+
+type TransactionsByType = {
+  type: UpcomingType;
+  items: Transaction[];
+};
+
 function todayIsoDate(): string {
   return new Date().toISOString().slice(0, 10);
 }
@@ -79,7 +86,7 @@ function upcomingDescription(transaction: Transaction, t: TFunction): string {
   );
 }
 
-function upcomingType(transaction: Transaction): "pending" | "standing" {
+function upcomingType(transaction: Transaction): UpcomingType {
   return transaction.payment_type === "standing" ? "standing" : "pending";
 }
 
@@ -104,6 +111,15 @@ function groupByDate(transactions: Transaction[]): TransactionsByDate[] {
     currentGroup.items.push(transaction);
     return groups;
   }, []);
+}
+
+function groupUpcomingByType(transactions: Transaction[]): TransactionsByType[] {
+  const pending = transactions.filter((transaction) => upcomingType(transaction) === "pending");
+  const standing = transactions.filter((transaction) => upcomingType(transaction) === "standing");
+  const groups: TransactionsByType[] = [];
+  if (pending.length > 0) groups.push({ type: "pending", items: pending });
+  if (standing.length > 0) groups.push({ type: "standing", items: standing });
+  return groups;
 }
 
 export default async function AccountDetailPage({
@@ -147,6 +163,7 @@ export default async function AccountDetailPage({
     .sort((a, b) => (b.execution_date ?? "").localeCompare(a.execution_date ?? ""));
 
   const pastTransactionsByDate = groupByDate(pastTransactions);
+  const upcomingOrdersByType = groupUpcomingByType(upcomingOrders);
 
   return (
     <Container>
@@ -173,50 +190,47 @@ export default async function AccountDetailPage({
           <SectionTitle as="h2">{t("bankAccountDetail.sections.upcomingOrders")}</SectionTitle>
           <div className="rounded-2xl border border-card-border bg-card p-4 sm:p-6">
             <div className="grid gap-4">
-              {upcomingOrders.length === 0 ? (
+              {upcomingOrdersByType.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   {t("bankAccountDetail.sections.upcomingOrders")} —
                 </p>
               ) : (
-                upcomingOrders.map((order) => {
-                  const standingSummaryId =
-                    upcomingType(order) === "standing"
-                      ? standingOrderIdFromSynthetic(order.id)
-                      : null;
-                  const transactionPath =
-                    standingSummaryId != null
-                      ? `/transaction/so:${standingSummaryId}`
-                      : `/transaction/${encodeURIComponent(String(order.id))}`;
-                  return (
-                  <article key={order.id}>
+                upcomingOrdersByType.map((group) => (
+                  <article key={group.type}>
                     <p className="mb-1 text-xs text-muted-foreground">
-                      {order.execution_date}
+                      {group.type === "pending"
+                        ? t("bankAccountDetail.types.pending")
+                        : t("bankAccountDetail.types.standing")}
                     </p>
-                    <div className="border-t border-card-border pt-3">
-                      <div className="grid grid-cols-[1fr_auto] items-start gap-4">
-                        <div className="space-y-1">
-                          <p className="text-base font-medium">
-                            <Link
-                              href={`${transactionPath}?fromAccount=${account.id}`}
-                              className={txDetailLinkClass}
-                            >
-                              {upcomingDescription(order, t)}
-                            </Link>
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {upcomingType(order) === "pending"
-                              ? t("bankAccountDetail.types.pending")
-                              : t("bankAccountDetail.types.standing")}
-                          </p>
-                        </div>
-                        <p className="text-sm font-semibold text-foreground">
-                          {formatChfCurrency(order.amount)}
-                        </p>
-                      </div>
+                    <div className="space-y-3 border-t border-card-border pt-3">
+                      {group.items.map((order) => {
+                        const standingSummaryId =
+                          group.type === "standing" ? standingOrderIdFromSynthetic(order.id) : null;
+                        const transactionPath =
+                          standingSummaryId != null
+                            ? `/transaction/so:${standingSummaryId}`
+                            : `/transaction/${encodeURIComponent(String(order.id))}`;
+                        return (
+                          <div key={order.id} className="grid grid-cols-[1fr_auto] items-start gap-4">
+                            <div className="space-y-1">
+                              <p className="text-base font-medium">
+                                <Link
+                                  href={`${transactionPath}?fromAccount=${account.id}`}
+                                  className={txDetailLinkClass}
+                                >
+                                  {upcomingDescription(order, t)}
+                                </Link>
+                              </p>
+                            </div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {formatChfCurrency(order.amount)}
+                            </p>
+                          </div>
+                        );
+                      })}
                     </div>
                   </article>
-                );
-                })
+                ))
               )}
             </div>
           </div>
