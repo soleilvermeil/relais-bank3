@@ -20,9 +20,22 @@
     "breadcrumb": "Fil d'ariane banque",
     "payments": "Paiements",
     "wealth": "Accueil",
+    "disconnect": "Se deconnecter",
     "makePayment": "Effectuer un paiement",
     "makeTransfer": "Effectuer un transfert",
     "scanQr": "Scanner un QR code"
+  },
+  "bankFakeLogin": {
+    "title": "Connexion a votre espace demo",
+    "subtitle": "Ce formulaire de connexion est fictif et ne verifie aucun identifiant. Un clic sur connecter ouvre la demo.",
+    "fields": {
+      "contractNumber": "Numero de contrat",
+      "password": "Mot de passe"
+    },
+    "hint": "Aucun controle de securite n'est effectue dans ce mode d'apprentissage.",
+    "actions": {
+      "connect": "Se connecter"
+    }
   },
   "bankWealth": {
     "title": "Accueil",

@@ -20,9 +20,22 @@
     "breadcrumb": "Bank breadcrumb",
     "payments": "Payments",
     "wealth": "Home",
+    "disconnect": "Disconnect",
     "makePayment": "Make payment",
     "makeTransfer": "Make transfer",
     "scanQr": "Scan QR code"
+  },
+  "bankFakeLogin": {
+    "title": "Connect to your demo space",
+    "subtitle": "This fake login form does not validate credentials. Any click on connect opens the demo.",
+    "fields": {
+      "contractNumber": "Contract number",
+      "password": "Password"
+    },
+    "hint": "No security check is performed in this learning mode.",
+    "actions": {
+      "connect": "Connect"
+    }
   },
   "bankWealth": {
     "title": "Home",

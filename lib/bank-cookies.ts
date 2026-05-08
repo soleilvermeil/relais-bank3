@@ -17,6 +17,7 @@ export const BANK_COOKIE_NAMES = {
   transferDraft: "bank_transfer_draft",
   lastPayment: "bank_last_payment",
   lastTransfer: "bank_last_transfer",
+  isConnected: "bank_is_connected",
 } as const;
 
 const WEEK_SEC = 60 * 60 * 24 * 7;
@@ -216,6 +217,25 @@ export async function writeLastTransferCookie(
 export async function clearLastTransferCookie(): Promise<void> {
   const store = await cookies();
   store.delete(BANK_COOKIE_NAMES.lastTransfer);
+}
+
+export async function isUserConnectedFromCookie(): Promise<boolean> {
+  const store = await cookies();
+  return store.get(BANK_COOKIE_NAMES.isConnected)?.value === "1";
+}
+
+export async function writeUserConnectedCookie(isConnected: boolean): Promise<void> {
+  const store = await cookies();
+  if (!isConnected) {
+    store.delete(BANK_COOKIE_NAMES.isConnected);
+    return;
+  }
+  store.set(BANK_COOKIE_NAMES.isConnected, "1", bankCookieBase());
+}
+
+export async function clearUserConnectedCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(BANK_COOKIE_NAMES.isConnected);
 }
 
 // Re-export for convenience.

@@ -8,6 +8,8 @@ import {
   type Locale,
 } from "@/lib/i18n/settings";
 
+const CONNECTED_COOKIE = "bank_is_connected";
+
 function localeFromAcceptLanguage(header: string | null): Locale {
   if (!header) return defaultLocale;
   const parts = header.split(",").map((p) => p.trim().split(";")[0]?.toLowerCase() ?? "");
@@ -29,9 +31,15 @@ export function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set(LOCALE_HEADER, locale);
 
-  const response = NextResponse.next({
-    request: { headers: requestHeaders },
-  });
+  const pathname = request.nextUrl.pathname;
+  const isConnected = request.cookies.get(CONNECTED_COOKIE)?.value === "1";
+  const shouldRedirectToHome = pathname !== "/" && !isConnected;
+
+  const response = shouldRedirectToHome
+    ? NextResponse.redirect(new URL("/", request.url))
+    : NextResponse.next({
+        request: { headers: requestHeaders },
+      });
 
   if (!isLocale(raw)) {
     response.cookies.set(LOCALE_COOKIE, locale, {
