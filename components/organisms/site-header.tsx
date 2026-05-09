@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Locale } from "@/lib/i18n/settings";
+import { logoutAction } from "@/app/actions/auth";
 
 type Props = { locale: Locale; isConnected: boolean };
 
@@ -49,12 +50,14 @@ export function SiteHeader({ locale, isConnected }: Props) {
         <div className="flex items-center gap-4">
           <LanguageSwitcher current={locale} />
           {isConnected ? (
-            <Link
-              href="/disconnect"
-              className="inline-flex min-h-11 items-center justify-center rounded-full border border-card-border bg-muted px-5 py-2.5 text-base font-medium text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            >
-              {t("bankNavigation.disconnect")}
-            </Link>
+            <form action={logoutAction}>
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-card-border bg-muted px-5 py-2.5 text-base font-medium text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {t("bankNavigation.disconnect")}
+              </button>
+            </form>
           ) : null}
         </div>
       </div>
