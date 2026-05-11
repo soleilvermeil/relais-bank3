@@ -33,8 +33,10 @@ function readTrimmed(formData: FormData, key: string): string {
 
 async function isEmailTakenByOther(userId: number, email: string): Promise<boolean> {
   const row = await dbGet<{ user_id: number }>(
-    `SELECT user_id FROM user_profiles
-     WHERE LOWER(TRIM(email)) = LOWER(TRIM(@email)) AND user_id <> @userId`,
+    `SELECT id AS user_id FROM bank_users
+     WHERE email IS NOT NULL
+       AND LOWER(TRIM(email)) = LOWER(TRIM(@email))
+       AND id <> @userId`,
     { email, userId },
   );
   return row != null;

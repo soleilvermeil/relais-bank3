@@ -208,7 +208,7 @@ function parseSyntheticStandingOrderId(value: string): { standingOrderId: number
 
 async function listStandingOrdersForAccount(accountId: number, userId: number): Promise<StandingOrderRow[]> {
   return dbAll<StandingOrderRow>(
-    `SELECT * FROM standing_orders
+    `SELECT * FROM bank_standing_orders
      WHERE debit_account_id = @id AND user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
      ORDER BY id ASC`,
     { id: accountId, userId },
@@ -217,7 +217,7 @@ async function listStandingOrdersForAccount(accountId: number, userId: number): 
 
 async function listAllStandingOrders(userId: number): Promise<StandingOrderRow[]> {
   return dbAll<StandingOrderRow>(
-    `SELECT * FROM standing_orders
+    `SELECT * FROM bank_standing_orders
      WHERE user_id = @userId AND (is_active = 1 OR is_cancelled = 1)
      ORDER BY id ASC`,
     { userId },
@@ -318,7 +318,7 @@ export async function listIncomingPaymentsForIban(
   const normalized = normalizeIban(iban);
   if (normalized === "") return [];
   return dbAll<TransactionRow>(
-    `SELECT * FROM transactions
+    `SELECT * FROM bank_transactions
      WHERE kind = 'payment'
        AND COALESCE(payment_type, 'oneTime') != 'standing'
        AND user_id != @recipientUserId
@@ -337,7 +337,7 @@ export async function listIncomingStandingOrdersForIban(
   const normalized = normalizeIban(iban);
   if (normalized === "") return [];
   return dbAll<StandingOrderRow>(
-    `SELECT * FROM standing_orders
+    `SELECT * FROM bank_standing_orders
      WHERE user_id != @recipientUserId
        AND beneficiary_iban IS NOT NULL
        AND (is_active = 1 OR is_cancelled = 1)
@@ -436,7 +436,7 @@ async function sumIncomingOneTimeCreditsCents(
   if (normalized === "") return 0;
   const row = await dbGet<{ s: string | number | null }>(
     `SELECT COALESCE(SUM(ABS(amount_cents)), 0) AS s
-     FROM transactions
+     FROM bank_transactions
      WHERE kind = 'payment'
        AND COALESCE(payment_type, 'oneTime') != 'standing'
        AND user_id != @recipientUserId
@@ -465,7 +465,7 @@ async function sumIncomingStandingCreditsCents(
 
 export async function listTransactionsForAccount(accountId: number, userId: number): Promise<Transaction[]> {
   const accountMeta = await dbGet<{ identifier: string }>(
-    `SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`,
+    `SELECT identifier FROM bank_accounts WHERE id = @id AND user_id = @userId`,
     { id: accountId, userId },
   );
   if (!accountMeta) {
@@ -475,7 +475,7 @@ export async function listTransactionsForAccount(accountId: number, userId: numb
   const today = todayIsoLocal();
   const horizon = addDaysIso(today, UPCOMING_STANDING_HORIZON_DAYS);
   const rows = await dbAll<TransactionRow>(
-    `SELECT * FROM transactions
+    `SELECT * FROM bank_transactions
      WHERE user_id = @userId
        AND (debit_account_id = @id OR credit_account_id = @id)
        AND (
@@ -517,7 +517,7 @@ export async function listTransactionsForAccount(accountId: number, userId: numb
 
 export async function getTransactionById(id: number, userId: number): Promise<TransactionRow | null> {
   const row = await dbGet<TransactionRow>(
-    `SELECT * FROM transactions WHERE id = @id AND user_id = @userId`,
+    `SELECT * FROM bank_transactions WHERE id = @id AND user_id = @userId`,
     { id, userId },
   );
   return row ?? null;
@@ -530,7 +530,7 @@ export async function getIncomingPaymentForUser(
 ): Promise<TransactionRow | null> {
   const today = todayIsoLocal();
   const row = await dbGet<TransactionRow>(
-    `SELECT t.* FROM transactions t
+    `SELECT t.* FROM bank_transactions t
      WHERE t.id = @transactionId
        AND t.kind = 'payment'
        AND COALESCE(t.payment_type, 'oneTime') != 'standing'
@@ -539,7 +539,7 @@ export async function getIncomingPaymentForUser(
        AND t.user_id != @recipientUserId
        AND t.beneficiary_iban IS NOT NULL
        AND EXISTS (
-         SELECT 1 FROM accounts a
+         SELECT 1 FROM bank_accounts a
          WHERE a.user_id = @recipientUserId
            AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(t.beneficiary_iban, ' ', ''))
        )`,
@@ -558,7 +558,7 @@ export async function getIncomingStandingOccurrenceForRecipient(
   if (executionDate > today) return null;
 
   const order = await dbGet<StandingOrderRow>(
-    `SELECT * FROM standing_orders
+    `SELECT * FROM bank_standing_orders
      WHERE id = @standingOrderId
        AND user_id != @recipientUserId
        AND beneficiary_iban IS NOT NULL`,
@@ -567,7 +567,7 @@ export async function getIncomingStandingOccurrenceForRecipient(
   if (!order) return null;
 
   const ok = await dbGet<{ ok: number }>(
-    `SELECT 1 AS ok FROM accounts a
+    `SELECT 1 AS ok FROM bank_accounts a
      WHERE a.user_id = @recipientUserId
        AND UPPER(REPLACE(a.identifier, ' ', '')) = UPPER(REPLACE(@beneficiaryIban, ' ', ''))
      LIMIT 1`,
@@ -656,7 +656,7 @@ export async function computeBalanceCentsForAccount(accountId: number, userId: n
     `SELECT
        COALESCE((
          SELECT SUM(amount_cents)
-         FROM transactions
+         FROM bank_transactions
          WHERE user_id = @userId
            AND debit_account_id = @id
            AND (
@@ -667,7 +667,7 @@ export async function computeBalanceCentsForAccount(accountId: number, userId: n
        + COALESCE(
          (
            SELECT SUM(-amount_cents)
-           FROM transactions
+           FROM bank_transactions
            WHERE user_id = @userId
              AND credit_account_id = @id
              AND kind = 'transfer'
@@ -688,7 +688,7 @@ export async function computeBalanceCentsForAccount(accountId: number, userId: n
   }
 
   const accountMeta = await dbGet<{ identifier: string }>(
-    `SELECT identifier FROM accounts WHERE id = @id AND user_id = @userId`,
+    `SELECT identifier FROM bank_accounts WHERE id = @id AND user_id = @userId`,
     { id: accountId, userId },
   );
   if (!accountMeta) {
@@ -707,10 +707,10 @@ export async function computeBalanceCentsByAccountId(userId: number): Promise<Ma
   const rows = await dbAll<{ account_id: number; balance_cents: string | number | null }>(
     `SELECT a.id AS account_id,
        COALESCE(d.debit_sum, 0) + COALESCE(c.credit_transfer_sum, 0) AS balance_cents
-     FROM accounts a
+     FROM bank_accounts a
      LEFT JOIN (
        SELECT debit_account_id AS id, SUM(amount_cents) AS debit_sum
-       FROM transactions
+       FROM bank_transactions
        WHERE user_id = @userId
          AND debit_account_id IS NOT NULL
          AND (
@@ -721,7 +721,7 @@ export async function computeBalanceCentsByAccountId(userId: number): Promise<Ma
      ) d ON d.id = a.id
      LEFT JOIN (
        SELECT credit_account_id AS id, SUM(-amount_cents) AS credit_transfer_sum
-       FROM transactions
+       FROM bank_transactions
        WHERE user_id = @userId
          AND credit_account_id IS NOT NULL
          AND kind = 'transfer'
@@ -748,7 +748,7 @@ export async function computeBalanceCentsByAccountId(userId: number): Promise<Ma
   }
 
   const accounts = await dbAll<{ id: number; identifier: string }>(
-    `SELECT id, identifier FROM accounts WHERE user_id = @userId`,
+    `SELECT id, identifier FROM bank_accounts WHERE user_id = @userId`,
     { userId },
   );
 
@@ -795,7 +795,7 @@ export type PaymentInsertInput = {
   debtor_address2: string | null;
 };
 
-const INSERT_PAYMENT_SQL = `INSERT INTO transactions (
+const INSERT_PAYMENT_SQL = `INSERT INTO bank_transactions (
        user_id, kind, debit_account_id, amount_cents, currency,
        execution_date, accounting_text,
        beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
@@ -863,7 +863,7 @@ export type StandingOrderInsertInput = {
 
 export async function insertStandingOrder(input: StandingOrderInsertInput): Promise<number> {
   return dbInsert(
-    `INSERT INTO standing_orders (
+    `INSERT INTO bank_standing_orders (
        user_id, debit_account_id, amount_cents, currency,
        start_date, end_date, frequency, weekend_holiday_rule,
        beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
@@ -888,7 +888,7 @@ export async function insertStandingOrder(input: StandingOrderInsertInput): Prom
 
 export async function pauseStandingOrder(id: number, userId: number): Promise<void> {
   await dbRun(
-    `UPDATE standing_orders
+    `UPDATE bank_standing_orders
      SET is_active = 0
      WHERE id = @id AND user_id = @userId`,
     { id, userId },
@@ -898,7 +898,7 @@ export async function pauseStandingOrder(id: number, userId: number): Promise<vo
 export async function deleteStandingOrder(id: number, userId: number): Promise<void> {
   const today = todayIsoLocal();
   await dbRun(
-    `UPDATE standing_orders
+    `UPDATE bank_standing_orders
      SET
        end_date = CASE
          WHEN end_date IS NULL OR end_date > @today THEN @today
@@ -914,7 +914,7 @@ export async function deleteStandingOrder(id: number, userId: number): Promise<v
 export async function deleteFuturePendingOrderTransaction(id: number, userId: number): Promise<void> {
   const today = todayIsoLocal();
   await dbRun(
-    `DELETE FROM transactions
+    `DELETE FROM bank_transactions
      WHERE id = @id AND user_id = @userId
        AND execution_date > @today
        AND (
@@ -937,7 +937,7 @@ export type TransferInsertInput = {
 
 export async function insertTransfer(input: TransferInsertInput): Promise<number> {
   return dbInsert(
-    `INSERT INTO transactions (
+    `INSERT INTO bank_transactions (
        user_id, kind, debit_account_id, credit_account_id, amount_cents, currency,
        execution_mode, execution_date, accounting_text, is_conditionally_visible
      ) VALUES (
@@ -955,7 +955,7 @@ export async function getStandingOrderOccurrenceBySyntheticId(
   const parsed = parseSyntheticStandingOrderId(syntheticId);
   if (!parsed) return null;
   const standingOrder = await dbGet<StandingOrderRow>(
-    `SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`,
+    `SELECT * FROM bank_standing_orders WHERE id = @id AND user_id = @userId`,
     { id: parsed.standingOrderId, userId },
   );
   if (!standingOrder) return null;
@@ -985,7 +985,7 @@ export function parseStandingOrderSummarySoId(value: string): number | null {
 
 export async function getStandingOrderById(id: number, userId: number): Promise<StandingOrderRow | null> {
   const row = await dbGet<StandingOrderRow>(
-    `SELECT * FROM standing_orders WHERE id = @id AND user_id = @userId`,
+    `SELECT * FROM bank_standing_orders WHERE id = @id AND user_id = @userId`,
     { id, userId },
   );
   return row ?? null;

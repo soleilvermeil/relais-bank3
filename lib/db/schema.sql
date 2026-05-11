@@ -1,22 +1,19 @@
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE IF NOT EXISTS bank_users (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   contract_number TEXT NOT NULL UNIQUE,
-  created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'))
+  created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')),
+  first_name TEXT,
+  last_name TEXT,
+  email TEXT,
+  profile_updated_at TEXT
 );
 
--- Optional one-time backfill for DBs that already contained users before this table existed:
--- see lib/db/backfill-legacy-user-profiles.sql
-CREATE TABLE IF NOT EXISTS user_profiles (
-  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  email TEXT NOT NULL UNIQUE,
-  updated_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'))
-);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_bank_users_email_lower ON bank_users (LOWER(TRIM(email)))
+  WHERE email IS NOT NULL;
 
-CREATE TABLE IF NOT EXISTS accounts (
+CREATE TABLE IF NOT EXISTS bank_accounts (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES bank_users(id) ON DELETE CASCADE,
   category TEXT NOT NULL CHECK (category IN ('checking', 'savings', 'retirement', 'cards')),
   name TEXT NOT NULL,
   identifier TEXT NOT NULL,
@@ -25,13 +22,13 @@ CREATE TABLE IF NOT EXISTS accounts (
   sort_order INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS transactions (
+CREATE TABLE IF NOT EXISTS bank_transactions (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES bank_users(id) ON DELETE CASCADE,
   kind TEXT NOT NULL CHECK (kind IN ('payment', 'transfer', 'purchaseService', 'credit', 'debit')),
   created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')),
-  debit_account_id INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
-  credit_account_id INTEGER REFERENCES accounts(id) ON DELETE SET NULL,
+  debit_account_id INTEGER REFERENCES bank_accounts(id) ON DELETE SET NULL,
+  credit_account_id INTEGER REFERENCES bank_accounts(id) ON DELETE SET NULL,
   amount_cents INTEGER NOT NULL,
   currency TEXT NOT NULL DEFAULT 'CHF',
   execution_date TEXT,
@@ -68,11 +65,11 @@ CREATE TABLE IF NOT EXISTS transactions (
   counterparty_iban TEXT
 );
 
-CREATE TABLE IF NOT EXISTS standing_orders (
+CREATE TABLE IF NOT EXISTS bank_standing_orders (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES bank_users(id) ON DELETE CASCADE,
   created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')),
-  debit_account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  debit_account_id INTEGER NOT NULL REFERENCES bank_accounts(id) ON DELETE CASCADE,
   amount_cents INTEGER NOT NULL,
   currency TEXT NOT NULL DEFAULT 'CHF',
   start_date TEXT NOT NULL,
@@ -100,10 +97,10 @@ CREATE TABLE IF NOT EXISTS standing_orders (
   is_cancelled INTEGER NOT NULL DEFAULT 0
 );
 
-CREATE TABLE IF NOT EXISTS cards (
+CREATE TABLE IF NOT EXISTS bank_cards (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES bank_users(id) ON DELETE CASCADE,
+  account_id INTEGER NOT NULL REFERENCES bank_accounts(id) ON DELETE CASCADE,
   card_type TEXT NOT NULL CHECK (card_type IN ('debit', 'credit')),
   brand TEXT NOT NULL,
   pan TEXT NOT NULL,
@@ -114,20 +111,20 @@ CREATE TABLE IF NOT EXISTS cards (
   holder_last_name TEXT NOT NULL
 );
 
-CREATE INDEX IF NOT EXISTS idx_accounts_user ON accounts(user_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_debit_account ON transactions(debit_account_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_credit_account ON transactions(credit_account_id);
-CREATE INDEX IF NOT EXISTS idx_transactions_execution_date ON transactions(execution_date);
-CREATE INDEX IF NOT EXISTS idx_standing_orders_user ON standing_orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_standing_orders_debit_account ON standing_orders(debit_account_id);
-CREATE INDEX IF NOT EXISTS idx_standing_orders_start_date ON standing_orders(start_date);
-CREATE INDEX IF NOT EXISTS idx_transactions_beneficiary_iban ON transactions(beneficiary_iban);
-CREATE INDEX IF NOT EXISTS idx_standing_orders_beneficiary_iban ON standing_orders(beneficiary_iban);
-CREATE INDEX IF NOT EXISTS idx_cards_user ON cards(user_id);
-CREATE INDEX IF NOT EXISTS idx_cards_account ON cards(account_id);
+CREATE INDEX IF NOT EXISTS idx_bank_accounts_user ON bank_accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_user ON bank_transactions(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_debit_account ON bank_transactions(debit_account_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_credit_account ON bank_transactions(credit_account_id);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_execution_date ON bank_transactions(execution_date);
+CREATE INDEX IF NOT EXISTS idx_bank_standing_orders_user ON bank_standing_orders(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_standing_orders_debit_account ON bank_standing_orders(debit_account_id);
+CREATE INDEX IF NOT EXISTS idx_bank_standing_orders_start_date ON bank_standing_orders(start_date);
+CREATE INDEX IF NOT EXISTS idx_bank_transactions_beneficiary_iban ON bank_transactions(beneficiary_iban);
+CREATE INDEX IF NOT EXISTS idx_bank_standing_orders_beneficiary_iban ON bank_standing_orders(beneficiary_iban);
+CREATE INDEX IF NOT EXISTS idx_bank_cards_user ON bank_cards(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_cards_account ON bank_cards(account_id);
 
-CREATE TABLE IF NOT EXISTS ebill_emitters (
+CREATE TABLE IF NOT EXISTS bank_ebill_emitters (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   creditor_iban TEXT NOT NULL,
@@ -142,28 +139,28 @@ CREATE TABLE IF NOT EXISTS ebill_emitters (
   communication_to_beneficiary TEXT
 );
 
-CREATE TABLE IF NOT EXISTS user_ebill_emitters (
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  emitter_id INTEGER NOT NULL REFERENCES ebill_emitters(id) ON DELETE CASCADE,
+CREATE TABLE IF NOT EXISTS bank_user_ebill_emitters (
+  user_id INTEGER NOT NULL REFERENCES bank_users(id) ON DELETE CASCADE,
+  emitter_id INTEGER NOT NULL REFERENCES bank_ebill_emitters(id) ON DELETE CASCADE,
   accepted_at TEXT,
   blocked_at TEXT,
   PRIMARY KEY (user_id, emitter_id)
 );
 
-CREATE TABLE IF NOT EXISTS ebills (
+CREATE TABLE IF NOT EXISTS bank_ebills (
   id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  emitter_id INTEGER NOT NULL REFERENCES ebill_emitters(id) ON DELETE CASCADE,
+  user_id INTEGER NOT NULL REFERENCES bank_users(id) ON DELETE CASCADE,
+  emitter_id INTEGER NOT NULL REFERENCES bank_ebill_emitters(id) ON DELETE CASCADE,
   amount_cents INTEGER NOT NULL,
   currency TEXT NOT NULL DEFAULT 'CHF',
   due_date TEXT,
   reference_text TEXT,
   accounting_text TEXT,
   status TEXT NOT NULL CHECK (status IN ('open', 'paid')),
-  paid_transaction_id INTEGER REFERENCES transactions(id) ON DELETE SET NULL,
+  paid_transaction_id INTEGER REFERENCES bank_transactions(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_ebills_user ON ebills(user_id);
-CREATE INDEX IF NOT EXISTS idx_ebills_user_emitter ON ebills(user_id, emitter_id);
-CREATE INDEX IF NOT EXISTS idx_user_ebill_emitters_user ON user_ebill_emitters(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_ebills_user ON bank_ebills(user_id);
+CREATE INDEX IF NOT EXISTS idx_bank_ebills_user_emitter ON bank_ebills(user_id, emitter_id);
+CREATE INDEX IF NOT EXISTS idx_bank_user_ebill_emitters_user ON bank_user_ebill_emitters(user_id);

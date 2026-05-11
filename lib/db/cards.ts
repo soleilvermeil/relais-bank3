@@ -51,7 +51,7 @@ export async function getCardForAccount(
   const row = await dbGet<CardRow>(
     `SELECT id, user_id, account_id, card_type, brand, pan,
             expiry_month, expiry_year, cvv, holder_first_name, holder_last_name
-     FROM cards
+     FROM bank_cards
      WHERE user_id = @userId AND account_id = @accountId
      ORDER BY id ASC
      LIMIT 1`,

@@ -10,7 +10,8 @@ export type UserProfile = {
 
 export async function isProfileEmailTakenGlobally(email: string): Promise<boolean> {
   const row = await dbGet<{ one: number }>(
-    `SELECT 1 AS one FROM user_profiles WHERE LOWER(TRIM(email)) = LOWER(TRIM(@email)) LIMIT 1`,
+    `SELECT 1 AS one FROM bank_users
+     WHERE email IS NOT NULL AND LOWER(TRIM(email)) = LOWER(TRIM(@email)) LIMIT 1`,
     { email },
   );
   return row != null;
@@ -18,8 +19,8 @@ export async function isProfileEmailTakenGlobally(email: string): Promise<boolea
 
 export async function getProfileByUserId(userId: number): Promise<UserProfile | null> {
   return dbGet<UserProfile>(
-    `SELECT user_id, first_name, last_name, email, updated_at
-     FROM user_profiles WHERE user_id = @userId`,
+    `SELECT id AS user_id, first_name, last_name, email, profile_updated_at AS updated_at
+     FROM bank_users WHERE id = @userId AND email IS NOT NULL`,
     { userId },
   );
 }
@@ -29,13 +30,12 @@ export async function upsertProfile(
   fields: { firstName: string; lastName: string; email: string },
 ): Promise<void> {
   await dbRun(
-    `INSERT INTO user_profiles (user_id, first_name, last_name, email)
-     VALUES (@userId, @firstName, @lastName, @email)
-     ON CONFLICT (user_id) DO UPDATE SET
-       first_name = EXCLUDED.first_name,
-       last_name = EXCLUDED.last_name,
-       email = EXCLUDED.email,
-       updated_at = to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')`,
+    `UPDATE bank_users SET
+       first_name = @firstName,
+       last_name = @lastName,
+       email = @email,
+       profile_updated_at = to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')
+     WHERE id = @userId`,
     {
       userId,
       firstName: fields.firstName,

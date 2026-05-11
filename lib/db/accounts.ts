@@ -97,7 +97,7 @@ export function localizeAccountGroups(groups: AccountGroup[], t: TFunction): Acc
 export async function listAccountsGroupedByCategory(userId: number): Promise<AccountGroup[]> {
   const rows = await dbAll<AccountRow>(
     `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-     FROM accounts
+     FROM bank_accounts
      WHERE user_id = @userId
      ORDER BY sort_order ASC, id ASC`,
     { userId },
@@ -123,7 +123,7 @@ export async function listAccountsGroupedByCategory(userId: number): Promise<Acc
 export async function getAccountById(userId: number, id: number): Promise<Account | null> {
   const row = await dbGet<AccountRow>(
     `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-     FROM accounts WHERE id = @id AND user_id = @userId`,
+     FROM bank_accounts WHERE id = @id AND user_id = @userId`,
     { id, userId },
   );
   if (!row) return null;
@@ -134,7 +134,7 @@ export async function getAccountById(userId: number, id: number): Promise<Accoun
 export async function listSelectableAccounts(userId: number): Promise<Account[]> {
   const rows = await dbAll<AccountRow>(
     `SELECT id, category, name, identifier, balance_cents, currency, sort_order
-     FROM accounts
+     FROM bank_accounts
      WHERE user_id = @userId AND category IN ('checking', 'savings')
      ORDER BY sort_order ASC, id ASC`,
     { userId },

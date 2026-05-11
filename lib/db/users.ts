@@ -18,7 +18,7 @@ export function parseContractNumber(raw: string): string | null {
 
 export async function findUserByContract(contract: string): Promise<User | null> {
   const row = await dbGet<User>(
-    `SELECT id, contract_number, created_at FROM users WHERE contract_number = @contract`,
+    `SELECT id, contract_number, created_at FROM bank_users WHERE contract_number = @contract`,
     { contract },
   );
   return row ?? null;
@@ -30,29 +30,31 @@ export type NewUserProfileFields = {
   email: string;
 };
 
-/** Single transaction: user row, demo seed, and profile (first-time signup after onboarding form). */
+/** Single transaction: user row (with profile fields), demo seed (first-time signup after onboarding form). */
 export async function createUserSeedAndProfile(
   contract: string,
   profile: NewUserProfileFields,
 ): Promise<User> {
   return dbTx(async (tx) => {
     const userId = await tx.insert(
-      `INSERT INTO users (contract_number) VALUES (@contract) RETURNING id`,
-      { contract },
-    );
-    await seedUserDemo(tx, userId);
-    await tx.run(
-      `INSERT INTO user_profiles (user_id, first_name, last_name, email)
-       VALUES (@userId, @firstName, @lastName, @email)`,
+      `INSERT INTO bank_users (contract_number, first_name, last_name, email, profile_updated_at)
+       VALUES (
+         @contract,
+         @firstName,
+         @lastName,
+         @email,
+         to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')
+       ) RETURNING id`,
       {
-        userId,
+        contract,
         firstName: profile.firstName,
         lastName: profile.lastName,
         email: profile.email,
       },
     );
+    await seedUserDemo(tx, userId);
     const row = await tx.get<User>(
-      `SELECT id, contract_number, created_at FROM users WHERE id = @userId`,
+      `SELECT id, contract_number, created_at FROM bank_users WHERE id = @userId`,
       { userId },
     );
     if (!row) throw new Error("Failed to load user after insert");
@@ -61,5 +63,5 @@ export async function createUserSeedAndProfile(
 }
 
 export async function deleteUser(userId: number): Promise<void> {
-  await dbRun(`DELETE FROM users WHERE id = @userId`, { userId });
+  await dbRun(`DELETE FROM bank_users WHERE id = @userId`, { userId });
 }

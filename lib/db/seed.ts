@@ -119,7 +119,7 @@ async function insertSeedAccountsAndCards(
   const ids: number[] = [];
   for (const account of bundle.accounts) {
     const id = await tx.insert(
-      `INSERT INTO accounts (user_id, category, name, identifier, balance_cents, currency, sort_order)
+      `INSERT INTO bank_accounts (user_id, category, name, identifier, balance_cents, currency, sort_order)
        VALUES (@user_id, @category, @name, @identifier, 0, 'CHF', @sort_order) RETURNING id`,
       { ...account, user_id: userId },
     );
@@ -135,7 +135,7 @@ async function insertSeedAccountsAndCards(
 
 async function insertCard(tx: Tx, userId: number, accountId: number, card: SeedCard): Promise<void> {
   await tx.run(
-    `INSERT INTO cards (
+    `INSERT INTO bank_cards (
        user_id, account_id, card_type, brand, pan, expiry_month, expiry_year, cvv,
        holder_first_name, holder_last_name
      ) VALUES (
@@ -222,7 +222,7 @@ export async function seedUserDemo(tx: Tx, userId: number): Promise<void> {
 
   async function flow(r: FlowRow): Promise<void> {
     await tx.run(
-      `INSERT INTO transactions
+      `INSERT INTO bank_transactions
          (user_id, kind, debit_account_id, credit_account_id, amount_cents, currency, execution_date,
           counterparty_name, counterparty_iban, execution_mode, accounting_text, is_conditionally_visible)
        VALUES (@user_id, @kind, @debit_account_id, @credit_account_id, @amount_cents, 'CHF', @execution_date,
@@ -316,7 +316,7 @@ export async function seedUserDemo(tx: Tx, userId: number): Promise<void> {
 
   for (const bill of RECURRING_BILLS) {
     await tx.run(
-      `INSERT INTO standing_orders (
+      `INSERT INTO bank_standing_orders (
          user_id, debit_account_id, amount_cents, currency,
          start_date, end_date, frequency, weekend_holiday_rule,
          beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,

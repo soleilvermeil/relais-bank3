@@ -98,7 +98,7 @@ function addDaysIsoLocal(iso: string, days: number): string {
 /** Upsert global SIL emitter; returns id (for use inside an existing transaction). */
 export async function upsertSilDemoEmitter(tx: Tx): Promise<number> {
   return tx.insert(
-    `INSERT INTO ebill_emitters (
+    `INSERT INTO bank_ebill_emitters (
        name, creditor_iban, creditor_bic, creditor_name, creditor_country,
        creditor_postal_code, creditor_city, creditor_address1, creditor_address2,
        rf_reference, communication_to_beneficiary
@@ -129,7 +129,7 @@ export async function upsertSilDemoEmitter(tx: Tx): Promise<number> {
 export async function seedUserSilEbill(tx: Tx, userId: number): Promise<void> {
   const emitterId = await upsertSilDemoEmitter(tx);
   await tx.run(
-    `INSERT INTO user_ebill_emitters (user_id, emitter_id, accepted_at, blocked_at)
+    `INSERT INTO bank_user_ebill_emitters (user_id, emitter_id, accepted_at, blocked_at)
      VALUES (@userId, @emitterId, NULL, NULL)
      ON CONFLICT (user_id, emitter_id) DO NOTHING`,
     { userId, emitterId },
@@ -138,7 +138,7 @@ export async function seedUserSilEbill(tx: Tx, userId: number): Promise<void> {
   const dueDate = addDaysIsoLocal(today, 14);
   const amountCents = 249_00;
   await tx.run(
-    `INSERT INTO ebills (
+    `INSERT INTO bank_ebills (
        user_id, emitter_id, amount_cents, currency, due_date,
        reference_text, accounting_text, status
      ) VALUES (
@@ -159,9 +159,9 @@ export async function seedUserSilEbill(tx: Tx, userId: number): Promise<void> {
 export async function listPendingEmittersForUser(userId: number): Promise<PendingEmitterListItem[]> {
   return dbAll<PendingEmitterListItem>(
     `SELECT e.id AS emitter_id, e.name, COUNT(b.id)::int AS open_bill_count
-     FROM ebills b
-     INNER JOIN ebill_emitters e ON e.id = b.emitter_id
-     INNER JOIN user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
+     FROM bank_ebills b
+     INNER JOIN bank_ebill_emitters e ON e.id = b.emitter_id
+     INNER JOIN bank_user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
      WHERE b.user_id = @userId
        AND b.status = 'open'
        AND u.accepted_at IS NULL
@@ -176,9 +176,9 @@ export async function listOpenEbillsActionable(userId: number): Promise<OpenEbil
   return dbAll<OpenEbillListItem>(
     `SELECT b.id, b.amount_cents, b.currency, b.due_date, b.reference_text, b.accounting_text, b.created_at,
             e.id AS emitter_id, e.name AS emitter_name
-     FROM ebills b
-     INNER JOIN ebill_emitters e ON e.id = b.emitter_id
-     INNER JOIN user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
+     FROM bank_ebills b
+     INNER JOIN bank_ebill_emitters e ON e.id = b.emitter_id
+     INNER JOIN bank_user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
      WHERE b.user_id = @userId
        AND b.status = 'open'
        AND u.accepted_at IS NOT NULL
@@ -191,8 +191,8 @@ export async function listOpenEbillsActionable(userId: number): Promise<OpenEbil
 export async function listBlockedEmittersForUser(userId: number): Promise<BlockedEmitterListItem[]> {
   return dbAll<BlockedEmitterListItem>(
     `SELECT e.id AS emitter_id, e.name
-     FROM user_ebill_emitters u
-     INNER JOIN ebill_emitters e ON e.id = u.emitter_id
+     FROM bank_user_ebill_emitters u
+     INNER JOIN bank_ebill_emitters e ON e.id = u.emitter_id
      WHERE u.user_id = @userId
        AND u.blocked_at IS NOT NULL
      ORDER BY u.blocked_at DESC, e.name`,
@@ -204,8 +204,8 @@ export async function listBlockedEmittersForUser(userId: number): Promise<Blocke
 export async function listAcceptedEmittersForUser(userId: number): Promise<AcceptedEmitterListItem[]> {
   return dbAll<AcceptedEmitterListItem>(
     `SELECT e.id AS emitter_id, e.name, u.accepted_at
-     FROM user_ebill_emitters u
-     INNER JOIN ebill_emitters e ON e.id = u.emitter_id
+     FROM bank_user_ebill_emitters u
+     INNER JOIN bank_ebill_emitters e ON e.id = u.emitter_id
      WHERE u.user_id = @userId
        AND u.accepted_at IS NOT NULL
        AND u.blocked_at IS NULL
@@ -247,9 +247,9 @@ export async function getEbillDetailForUser(userId: number, ebillId: number): Pr
             e.name AS emitter_name, e.creditor_iban, e.creditor_bic, e.creditor_name, e.creditor_country,
             e.creditor_postal_code, e.creditor_city, e.creditor_address1, e.creditor_address2,
             e.rf_reference, e.communication_to_beneficiary
-     FROM ebills b
-     INNER JOIN ebill_emitters e ON e.id = b.emitter_id
-     INNER JOIN user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
+     FROM bank_ebills b
+     INNER JOIN bank_ebill_emitters e ON e.id = b.emitter_id
+     INNER JOIN bank_user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
      WHERE b.user_id = @userId AND b.id = @ebillId`,
     { userId, ebillId },
   );
@@ -288,7 +288,7 @@ export async function getEbillDetailForUser(userId: number, ebillId: number): Pr
 
 export async function acceptEmitterForUser(userId: number, emitterId: number): Promise<boolean> {
   const row = await dbGet<{ accepted_at: string }>(
-    `UPDATE user_ebill_emitters
+    `UPDATE bank_user_ebill_emitters
      SET accepted_at = to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')
      WHERE user_id = @userId AND emitter_id = @emitterId AND accepted_at IS NULL AND blocked_at IS NULL
      RETURNING accepted_at`,
@@ -299,7 +299,7 @@ export async function acceptEmitterForUser(userId: number, emitterId: number): P
 
 export async function blockEmitterForUser(userId: number, emitterId: number): Promise<boolean> {
   const row = await dbGet<{ blocked_at: string }>(
-    `UPDATE user_ebill_emitters
+    `UPDATE bank_user_ebill_emitters
      SET blocked_at = to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS')
      WHERE user_id = @userId AND emitter_id = @emitterId AND blocked_at IS NULL
      RETURNING blocked_at`,
@@ -310,7 +310,7 @@ export async function blockEmitterForUser(userId: number, emitterId: number): Pr
 
 export async function unblockEmitterForUser(userId: number, emitterId: number): Promise<void> {
   await dbRun(
-    `UPDATE user_ebill_emitters SET blocked_at = NULL
+    `UPDATE bank_user_ebill_emitters SET blocked_at = NULL
      WHERE user_id = @userId AND emitter_id = @emitterId AND blocked_at IS NOT NULL`,
     { userId, emitterId },
   );
@@ -341,7 +341,7 @@ export async function approveEbillForUser(
 ): Promise<{ transactionId: number }> {
   return dbTx(async (tx) => {
     const acc = await tx.get<{ id: number }>(
-      `SELECT id FROM accounts
+      `SELECT id FROM bank_accounts
        WHERE id = @debitAccountId AND user_id = @userId AND category IN ('checking', 'savings')`,
       { debitAccountId, userId },
     );
@@ -355,9 +355,9 @@ export async function approveEbillForUser(
               e.creditor_iban, e.creditor_bic, e.creditor_name, e.creditor_country,
               e.creditor_postal_code, e.creditor_city, e.creditor_address1, e.creditor_address2,
               e.rf_reference, e.communication_to_beneficiary
-       FROM ebills b
-       INNER JOIN ebill_emitters e ON e.id = b.emitter_id
-       INNER JOIN user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
+       FROM bank_ebills b
+       INNER JOIN bank_ebill_emitters e ON e.id = b.emitter_id
+       INNER JOIN bank_user_ebill_emitters u ON u.user_id = b.user_id AND u.emitter_id = b.emitter_id
        WHERE b.user_id = @userId AND b.id = @ebillId`,
       { userId, ebillId },
     );
@@ -402,7 +402,7 @@ export async function approveEbillForUser(
     const transactionId = await insertPaymentTx(tx, paymentInput);
 
     const updated = await tx.get<{ id: number }>(
-      `UPDATE ebills
+      `UPDATE bank_ebills
        SET status = 'paid', paid_transaction_id = @transactionId
        WHERE id = @ebillId AND user_id = @userId AND status = 'open'
        RETURNING id`,
