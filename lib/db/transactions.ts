@@ -1,5 +1,5 @@
 import { normalizeIban } from "@/lib/bank-iban";
-import { dbAll, dbGet, dbInsert, dbRun } from "./client";
+import { dbAll, dbGet, dbInsert, dbRun, type Tx } from "./client";
 
 export type TransactionKind =
   | "payment"
@@ -795,9 +795,7 @@ export type PaymentInsertInput = {
   debtor_address2: string | null;
 };
 
-export async function insertPayment(input: PaymentInsertInput): Promise<number> {
-  return dbInsert(
-    `INSERT INTO transactions (
+const INSERT_PAYMENT_SQL = `INSERT INTO transactions (
        user_id, kind, debit_account_id, amount_cents, currency,
        execution_date, accounting_text,
        beneficiary_iban, beneficiary_bic, beneficiary_name, beneficiary_country,
@@ -819,12 +817,21 @@ export async function insertPayment(input: PaymentInsertInput): Promise<number> 
        @is_express, @rf_reference, @communication_to_beneficiary,
        @debtor_name, @debtor_country, @debtor_postal_code, 0,
        @debtor_city, @debtor_address1, @debtor_address2
-     ) RETURNING id`,
-    {
-      ...input,
-      is_express: input.is_express ? 1 : 0,
-    },
-  );
+     ) RETURNING id`;
+
+function paymentInsertParams(input: PaymentInsertInput): Record<string, unknown> {
+  return {
+    ...input,
+    is_express: input.is_express ? 1 : 0,
+  };
+}
+
+export async function insertPaymentTx(tx: Tx, input: PaymentInsertInput): Promise<number> {
+  return tx.insert(INSERT_PAYMENT_SQL, paymentInsertParams(input));
+}
+
+export async function insertPayment(input: PaymentInsertInput): Promise<number> {
+  return dbInsert(INSERT_PAYMENT_SQL, paymentInsertParams(input));
 }
 
 export type StandingOrderInsertInput = {

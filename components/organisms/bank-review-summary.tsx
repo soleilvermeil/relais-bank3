@@ -65,12 +65,14 @@ function countryLabel(value: string): string {
   return COUNTRY_LABELS[value] ?? dash(value);
 }
 
-type Row = {
+export type SummaryRow = {
   label: string;
   value: string;
 };
 
-function SummarySection({ title, rows }: { title: string; rows: Row[] }) {
+type Row = SummaryRow;
+
+export function SummarySection({ title, rows }: { title: string; rows: SummaryRow[] }) {
   if (rows.length === 0) return null;
   return (
     <section className="space-y-4">

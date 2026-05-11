@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Landmark, QrCode, Repeat } from "lucide-react";
+import { FileText, Landmark, QrCode, Repeat } from "lucide-react";
 import { getServerT } from "@/lib/i18n/server";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
@@ -62,6 +62,23 @@ export default async function PaymentsPage() {
                 <p className="text-sm text-muted-foreground">
                   {t("bankPaymentsLanding.cards.scanDescription")}
                 </p>
+              </div>
+            </Link>
+          </div>
+        </section>
+
+        <section className="space-y-4">
+          <SectionTitle as="h2">{t("bankPaymentsLanding.ebillsTitle")}</SectionTitle>
+          <div className="rounded-2xl border border-card-border bg-card p-4 sm:p-6">
+            <Link
+              href="/payments/ebills"
+              className="grid w-full grid-cols-[auto_1fr] items-start gap-4 rounded-2xl border border-card-border bg-muted p-4 text-left text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-6"
+            >
+              <FileText className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
+              <div className="flex min-w-0 flex-col gap-1">
+                <h3 className="text-base font-semibold text-foreground">{t("bankPaymentsLanding.ebillsTitle")}</h3>
+                <p className="text-sm text-muted-foreground">{t("bankPaymentsLanding.ebillsDescription")}</p>
+                <span className="pt-1 text-sm font-medium text-primary">{t("bankPaymentsLanding.ebillsCta")}</span>
               </div>
             </Link>
           </div>

@@ -1,4 +1,5 @@
 import type { Tx } from "./client";
+import { seedUserSilEbill } from "./ebills";
 
 type SeedAccount = {
   category: "checking" | "savings" | "retirement" | "cards";
@@ -396,4 +397,6 @@ export async function seedUserDemo(tx: Tx, userId: number): Promise<void> {
 
     await transferOut(checking1, cardMain, AMOUNTS.cardPayment, cardPaymentDate, "Pour mes achats en ligne");
   }
+
+  await seedUserSilEbill(tx, userId);
 }

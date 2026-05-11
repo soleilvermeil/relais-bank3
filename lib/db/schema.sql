@@ -126,3 +126,44 @@ CREATE INDEX IF NOT EXISTS idx_transactions_beneficiary_iban ON transactions(ben
 CREATE INDEX IF NOT EXISTS idx_standing_orders_beneficiary_iban ON standing_orders(beneficiary_iban);
 CREATE INDEX IF NOT EXISTS idx_cards_user ON cards(user_id);
 CREATE INDEX IF NOT EXISTS idx_cards_account ON cards(account_id);
+
+CREATE TABLE IF NOT EXISTS ebill_emitters (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  creditor_iban TEXT NOT NULL,
+  creditor_bic TEXT,
+  creditor_name TEXT NOT NULL,
+  creditor_country TEXT NOT NULL,
+  creditor_postal_code TEXT NOT NULL,
+  creditor_city TEXT NOT NULL,
+  creditor_address1 TEXT NOT NULL,
+  creditor_address2 TEXT,
+  rf_reference TEXT,
+  communication_to_beneficiary TEXT
+);
+
+CREATE TABLE IF NOT EXISTS user_ebill_emitters (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  emitter_id INTEGER NOT NULL REFERENCES ebill_emitters(id) ON DELETE CASCADE,
+  accepted_at TEXT,
+  blocked_at TEXT,
+  PRIMARY KEY (user_id, emitter_id)
+);
+
+CREATE TABLE IF NOT EXISTS ebills (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  emitter_id INTEGER NOT NULL REFERENCES ebill_emitters(id) ON DELETE CASCADE,
+  amount_cents INTEGER NOT NULL,
+  currency TEXT NOT NULL DEFAULT 'CHF',
+  due_date TEXT,
+  reference_text TEXT,
+  accounting_text TEXT,
+  status TEXT NOT NULL CHECK (status IN ('open', 'paid')),
+  paid_transaction_id INTEGER REFERENCES transactions(id) ON DELETE SET NULL,
+  created_at TEXT NOT NULL DEFAULT (to_char(now() AT TIME ZONE 'UTC', 'YYYY-MM-DD HH24:MI:SS'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_ebills_user ON ebills(user_id);
+CREATE INDEX IF NOT EXISTS idx_ebills_user_emitter ON ebills(user_id, emitter_id);
+CREATE INDEX IF NOT EXISTS idx_user_ebill_emitters_user ON user_ebill_emitters(user_id);

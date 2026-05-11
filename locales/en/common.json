@@ -25,7 +25,8 @@
     "disconnect": "Disconnect",
     "makePayment": "Make payment",
     "makeTransfer": "Make transfer",
-    "scanQr": "Scan QR code"
+    "scanQr": "Scan QR code",
+    "ebills": "eBills"
   },
   "bankProfile": {
     "onboarding": {
@@ -149,6 +150,9 @@
     "mainActionsTitle": "Main actions",
     "comingSoonTitle": "Coming soon...",
     "comingSoonBody": "Coming soon...",
+    "ebillsTitle": "eBills",
+    "ebillsDescription": "Review incoming electronic bills, accept new billers, and pay approved invoices. Always verify the creditor before approving.",
+    "ebillsCta": "Open eBills",
     "cards": {
       "paymentTitle": "Make a payment",
       "paymentDescription": "Send money to a beneficiary in Switzerland or abroad.",
@@ -160,6 +164,54 @@
       "scanDescription": "Prefill a payment form from a QR-bill.",
       "scanCta": "Open scanner"
     }
+  },
+  "bankEbills": {
+    "listTitle": "eBills",
+    "listSubtitle": "Use Actions needing some attention for incoming bills and new billers. My billers lists who you have accepted or blocked; you can change blocking at any time.",
+    "sections": {
+      "actionsNeedingAttention": "Actions needing some attention",
+      "incomingBills": "Incoming bills",
+      "newBillers": "New billers",
+      "myBillers": "My billers",
+      "acceptedEmitters": "Accepted billers",
+      "blockedInstitutions": "Blocked institutions",
+      "pendingEmitters": "New billers (acceptance required)"
+    },
+    "pendingBillCount": "{{count}} open invoice(s)",
+    "emptyOpen": "No incoming bills right now. After you accept a biller, their eBills appear here for payment.",
+    "emptyPending": "No new billers are waiting for your response.",
+    "emptyAccepted": "You have not accepted any billers yet.",
+    "emptyBlocked": "No blocked institutions.",
+    "acceptedOn": "Accepted on {{date}}",
+    "fields": {
+      "amount": "Amount",
+      "dueDate": "Due date",
+      "emitter": "Biller",
+      "reference": "Reference",
+      "accounting": "Accounting text",
+      "iban": "Creditor IBAN",
+      "status": "Status"
+    },
+    "status": {
+      "open": "Open",
+      "paid": "Paid"
+    },
+    "hints": {
+      "pendingEmitter": "Accept this biller before you can approve their eBills.",
+      "blockedEmitter": "This institution is blocked. Unblock it to manage its eBills again."
+    },
+    "actions": {
+      "acceptEmitter": "Accept biller",
+      "approve": "Approve and pay",
+      "blockInstitution": "Block institution",
+      "unblockInstitution": "Unblock",
+      "viewBill": "View invoice",
+      "viewTransaction": "View payment",
+      "backToList": "Back to eBills"
+    },
+    "detailTitle": "eBill details",
+    "approveSectionTitle": "Debit account",
+    "paidNotice": "This eBill has been paid."
   },
   "bankScanQr": {
     "title": "Scan QR-bill",
@@ -239,6 +291,9 @@
     },
     "actions": {
       "review": "Review payment (demo)"
+    },
+    "errors": {
+      "debitAccountRequired": "Please choose a debit account."
     }
   },
   "bankTransfer": {

@@ -25,7 +25,8 @@
     "disconnect": "Se deconnecter",
     "makePayment": "Effectuer un paiement",
     "makeTransfer": "Effectuer un transfert",
-    "scanQr": "Scanner un QR code"
+    "scanQr": "Scanner un QR code",
+    "ebills": "eBills"
   },
   "bankProfile": {
     "onboarding": {
@@ -149,6 +150,9 @@
     "mainActionsTitle": "Actions principales",
     "comingSoonTitle": "Bientot...",
     "comingSoonBody": "Bientot...",
+    "ebillsTitle": "eBills",
+    "ebillsDescription": "Consultez les factures electroniques, acceptez les nouveaux creanciers et payez les factures approuvees. Verifiez toujours l'identite du creancier avant d'approuver.",
+    "ebillsCta": "Ouvrir les eBills",
     "cards": {
       "paymentTitle": "Effectuer un paiement",
       "paymentDescription": "Envoyez de l'argent a un beneficiaire en Suisse ou a l'etranger.",
@@ -160,6 +164,54 @@
       "scanDescription": "Pré-remplissez un formulaire de paiement à partir d'une QR-facture.",
       "scanCta": "Ouvrir le scanner"
     }
+  },
+  "bankEbills": {
+    "listTitle": "eBills",
+    "listSubtitle": "Utilisez Actions a traiter pour les factures entrantes et les nouveaux creanciers. Mes creanciers liste ceux que vous avez acceptes ou bloques ; vous pouvez modifier le blocage a tout moment.",
+    "sections": {
+      "actionsNeedingAttention": "Actions a traiter",
+      "incomingBills": "Factures entrantes",
+      "newBillers": "Nouveaux creanciers",
+      "myBillers": "Mes creanciers",
+      "acceptedEmitters": "Creanciers acceptes",
+      "blockedInstitutions": "Institutions bloquees",
+      "pendingEmitters": "Nouveaux creanciers (acceptation requise)"
+    },
+    "pendingBillCount": "{{count}} facture(s) ouverte(s)",
+    "emptyOpen": "Aucune facture entrante pour le moment. Une fois un creancier accepte, ses e-factures apparaissent ici pour paiement.",
+    "emptyPending": "Aucun nouveau creancier n'attend votre reponse.",
+    "emptyAccepted": "Vous n'avez encore accepte aucun creancier.",
+    "emptyBlocked": "Aucune institution bloquee.",
+    "acceptedOn": "Accepte le {{date}}",
+    "fields": {
+      "amount": "Montant",
+      "dueDate": "Echeance",
+      "emitter": "Creancier",
+      "reference": "Reference",
+      "accounting": "Texte comptable",
+      "iban": "IBAN du creancier",
+      "status": "Statut"
+    },
+    "status": {
+      "open": "Ouverte",
+      "paid": "Payee"
+    },
+    "hints": {
+      "pendingEmitter": "Acceptez ce creancier avant de pouvoir approuver ses eBills.",
+      "blockedEmitter": "Cette institution est bloquee. Debloquez-la pour gerer a nouveau ses eBills."
+    },
+    "actions": {
+      "acceptEmitter": "Accepter le creancier",
+      "approve": "Approuver et payer",
+      "blockInstitution": "Bloquer l'institution",
+      "unblockInstitution": "Debloquer",
+      "viewBill": "Voir la facture",
+      "viewTransaction": "Voir le paiement",
+      "backToList": "Retour aux eBills"
+    },
+    "detailTitle": "Detail de l'eBill",
+    "approveSectionTitle": "Compte a debiter",
+    "paidNotice": "Cette eBill a ete payee."
   },
   "bankScanQr": {
     "title": "Scanner un QR-facture",
@@ -239,6 +291,9 @@
     },
     "actions": {
       "review": "Verifier le paiement (demo)"
+    },
+    "errors": {
+      "debitAccountRequired": "Veuillez choisir un compte a debiter."
     }
   },
   "bankTransfer": {
