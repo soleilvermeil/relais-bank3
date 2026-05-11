@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/organisms/site-header";
+import { MobileTabBar } from "@/components/organisms/mobile-tab-bar";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
 import { I18nProvider } from "@/lib/i18n/provider";
@@ -42,7 +43,13 @@ export default async function RootLayout({
       lang={locale}
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body
+        className={`min-h-full flex flex-col bg-background text-foreground ${
+          isConnected
+            ? "pb-[calc(3.5rem+env(safe-area-inset-bottom))] md:pb-0"
+            : ""
+        }`}
+      >
         <I18nProvider locale={locale}>
           <a
             href="#main-content"
@@ -71,6 +78,7 @@ export default async function RootLayout({
               {t("footerProjectLink", { ns: "common" })}
             </a>
           </footer>
+          {isConnected ? <MobileTabBar /> : null}
         </I18nProvider>
       </body>
     </html>

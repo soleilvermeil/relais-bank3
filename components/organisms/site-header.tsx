@@ -28,7 +28,7 @@ export function SiteHeader({ locale, isConnected, isPendingSignup = false }: Pro
             <span className="sr-only">{t("brandSr")}</span>
           </Link>
           {isConnected ? (
-            <nav aria-label={t("nav.main")} className="flex items-center gap-1 text-sm font-medium">
+            <nav aria-label={t("nav.main")} className="hidden items-center gap-1 text-sm font-medium md:flex">
               <Link
                 href="/"
                 className={`rounded-lg px-3 py-1.5 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
@@ -60,7 +60,16 @@ export function SiteHeader({ locale, isConnected, isPendingSignup = false }: Pro
         </div>
         <div className="flex items-center gap-4">
           <LanguageSwitcher current={locale} />
-          {isConnected || isPendingSignup ? (
+          {isConnected ? (
+            <form action={logoutAction} className="hidden md:block">
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-card-border bg-muted px-5 py-2.5 text-base font-medium text-foreground transition hover:bg-card-border/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                {t("bankNavigation.disconnect")}
+              </button>
+            </form>
+          ) : isPendingSignup ? (
             <form action={logoutAction}>
               <button
                 type="submit"
