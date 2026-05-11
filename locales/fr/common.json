@@ -20,10 +20,38 @@
     "breadcrumb": "Fil d'ariane banque",
     "payments": "Paiements",
     "wealth": "Accueil",
+    "profile": "Profil",
+    "pendingSignup": "Terminez votre profil pour acceder a vos comptes.",
     "disconnect": "Se deconnecter",
     "makePayment": "Effectuer un paiement",
     "makeTransfer": "Effectuer un transfert",
     "scanQr": "Scanner un QR code"
+  },
+  "bankProfile": {
+    "onboarding": {
+      "title": "Votre profil",
+      "subtitle": "Indiquez votre nom et votre adresse e-mail. Ces informations servent uniquement dans cet environnement pedagogique."
+    },
+    "edit": {
+      "title": "Votre profil",
+      "subtitle": "Modifiez votre nom et votre adresse e-mail quand vous le souhaitez."
+    },
+    "hintEditable": "Vous pouvez modifier votre prenom, votre nom et votre adresse e-mail a tout moment depuis cette page.",
+    "fields": {
+      "firstName": "Prenom",
+      "lastName": "Nom",
+      "email": "Adresse e-mail"
+    },
+    "actions": {
+      "save": "Enregistrer"
+    },
+    "errors": {
+      "required": "Ce champ est obligatoire.",
+      "invalidEmail": "Saisissez une adresse e-mail valide.",
+      "duplicateEmail": "Cette adresse e-mail est deja utilisee par un autre compte.",
+      "contractTaken": "Ce contrat est deja enregistre. Veuillez vous reconnecter depuis la page d'accueil.",
+      "signupFailed": "Impossible de creer votre compte. Reessayez ou utilisez un autre numero de contrat."
+    }
   },
   "bankFakeLogin": {
     "title": "Connexion a l'e-banking",

@@ -20,10 +20,38 @@
     "breadcrumb": "Bank breadcrumb",
     "payments": "Payments",
     "wealth": "Home",
+    "profile": "Profile",
+    "pendingSignup": "Complete your profile to access your accounts.",
     "disconnect": "Disconnect",
     "makePayment": "Make payment",
     "makeTransfer": "Make transfer",
     "scanQr": "Scan QR code"
+  },
+  "bankProfile": {
+    "onboarding": {
+      "title": "Your profile",
+      "subtitle": "Please enter your name and email. This information is only used in this learning environment."
+    },
+    "edit": {
+      "title": "Your profile",
+      "subtitle": "Update your name and email whenever you need to."
+    },
+    "hintEditable": "You can change your first name, last name, and email at any time from this page.",
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email address"
+    },
+    "actions": {
+      "save": "Save"
+    },
+    "errors": {
+      "required": "This field is required.",
+      "invalidEmail": "Enter a valid email address.",
+      "duplicateEmail": "This email address is already used by another account.",
+      "contractTaken": "This contract is already registered. Please sign in again from the home page.",
+      "signupFailed": "We could not create your account. Please try again or use another contract number."
+    }
   },
   "bankFakeLogin": {
     "title": "Sign in to online banking",

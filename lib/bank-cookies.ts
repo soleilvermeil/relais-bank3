@@ -19,6 +19,8 @@ export const BANK_COOKIE_NAMES = {
   lastPayment: "bank_last_payment",
   lastTransfer: "bank_last_transfer",
   userContract: "bank_user_contract",
+  /** Normalized contract (9 digits); user row not created until onboarding completes. */
+  pendingSignup: "bank_pending_signup",
 } as const;
 
 const WEEK_SEC = 60 * 60 * 24 * 7;
@@ -236,9 +238,26 @@ export async function clearUserContractCookie(): Promise<void> {
   store.delete(BANK_COOKIE_NAMES.userContract);
 }
 
+export async function readPendingSignupContract(): Promise<string | null> {
+  const store = await cookies();
+  const raw = store.get(BANK_COOKIE_NAMES.pendingSignup)?.value;
+  return raw && raw.length > 0 ? raw : null;
+}
+
+export async function writePendingSignupContract(contract: string): Promise<void> {
+  const store = await cookies();
+  store.set(BANK_COOKIE_NAMES.pendingSignup, contract, bankCookieBase());
+}
+
+export async function clearPendingSignupCookie(): Promise<void> {
+  const store = await cookies();
+  store.delete(BANK_COOKIE_NAMES.pendingSignup);
+}
+
 /** Clears auth cookie and all bank draft / confirmation cookies. */
 export async function clearAllBankCookies(): Promise<void> {
   await clearUserContractCookie();
+  await clearPendingSignupCookie();
   await clearPaymentDraftCookie();
   await clearTransferDraftCookie();
   await clearLastPaymentCookie();
@@ -250,13 +269,21 @@ export async function isUserConnectedFromCookie(): Promise<boolean> {
   return contract != null;
 }
 
-/** Resolves the logged-in user id from the contract cookie, or null. Clears stale cookies. */
+export async function isPendingSignupFromCookie(): Promise<boolean> {
+  const pending = await readPendingSignupContract();
+  return pending != null;
+}
+
+/**
+ * Resolves the logged-in user id from the contract cookie, or null if missing or unknown.
+ * Does not clear unknown cookies: mutating cookies() is not allowed from many Server Component
+ * contexts (e.g. root layout), and this is called from profile gating and pages.
+ */
 export async function getCurrentUserId(): Promise<number | null> {
   const contract = await readUserContractFromCookie();
   if (!contract) return null;
   const user = await findUserByContract(contract);
   if (!user) {
-    await clearUserContractCookie();
     return null;
   }
   return user.id;

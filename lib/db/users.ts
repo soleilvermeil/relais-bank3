@@ -24,16 +24,33 @@ export async function findUserByContract(contract: string): Promise<User | null>
   return row ?? null;
 }
 
-export async function findOrCreateUser(contract: string): Promise<User> {
-  const existing = await findUserByContract(contract);
-  if (existing) return existing;
+export type NewUserProfileFields = {
+  firstName: string;
+  lastName: string;
+  email: string;
+};
 
+/** Single transaction: user row, demo seed, and profile (first-time signup after onboarding form). */
+export async function createUserSeedAndProfile(
+  contract: string,
+  profile: NewUserProfileFields,
+): Promise<User> {
   return dbTx(async (tx) => {
     const userId = await tx.insert(
       `INSERT INTO users (contract_number) VALUES (@contract) RETURNING id`,
       { contract },
     );
     await seedUserDemo(tx, userId);
+    await tx.run(
+      `INSERT INTO user_profiles (user_id, first_name, last_name, email)
+       VALUES (@userId, @firstName, @lastName, @email)`,
+      {
+        userId,
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+        email: profile.email,
+      },
+    );
     const row = await tx.get<User>(
       `SELECT id, contract_number, created_at FROM users WHERE id = @userId`,
       { userId },

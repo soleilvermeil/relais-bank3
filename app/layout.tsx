@@ -5,7 +5,8 @@ import { SiteHeader } from "@/components/organisms/site-header";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getServerT } from "@/lib/i18n/server";
 import { I18nProvider } from "@/lib/i18n/provider";
-import { isUserConnectedFromCookie } from "@/lib/bank-cookies";
+import { isPendingSignupFromCookie, isUserConnectedFromCookie } from "@/lib/bank-cookies";
+import { applyProfileGate } from "@/lib/profile-gate";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,8 @@ export default async function RootLayout({
   const locale = await getLocale();
   const t = await getServerT();
   const isConnected = await isUserConnectedFromCookie();
+  const isPendingSignup = await isPendingSignupFromCookie();
+  await applyProfileGate();
 
   return (
     <html
@@ -52,7 +55,11 @@ export default async function RootLayout({
               {t("prevention", { ns: "common" })}
             </p>
           </div>
-          <SiteHeader locale={locale} isConnected={isConnected} />
+          <SiteHeader
+            locale={locale}
+            isConnected={isConnected}
+            isPendingSignup={isPendingSignup}
+          />
           <div className="flex flex-1 flex-col">{children}</div>
           <footer className="mt-auto border-t border-card-border bg-card py-6 text-center text-sm text-muted-foreground print:hidden">
             <a

@@ -2,10 +2,12 @@
 
 import { redirect } from "next/navigation";
 import {
+  clearPendingSignupCookie,
   clearUserContractCookie,
+  writePendingSignupContract,
   writeUserContractCookie,
 } from "@/lib/bank-cookies";
-import { findOrCreateUser, parseContractNumber } from "@/lib/db/users";
+import { findUserByContract, parseContractNumber } from "@/lib/db/users";
 
 export type LoginState = { error: "invalidCredentials" | null };
 
@@ -19,12 +21,19 @@ export async function loginAction(
   if (!contract || pwd !== "12345678") {
     return { error: "invalidCredentials" };
   }
-  await findOrCreateUser(contract);
-  await writeUserContractCookie(contract);
-  redirect("/");
+  const existing = await findUserByContract(contract);
+  if (existing) {
+    await clearPendingSignupCookie();
+    await writeUserContractCookie(contract);
+    redirect("/");
+  }
+  await clearUserContractCookie();
+  await writePendingSignupContract(contract);
+  redirect("/onboarding");
 }
 
 export async function logoutAction(): Promise<void> {
   await clearUserContractCookie();
+  await clearPendingSignupCookie();
   redirect("/");
 }

@@ -15,7 +15,6 @@ import {
   clearLastTransferCookie,
   clearPaymentDraftCookie,
   clearTransferDraftCookie,
-  getCurrentUserId,
   readPaymentDraftCookie,
   readTransferDraftCookie,
   writeLastPaymentCookie,
@@ -32,6 +31,18 @@ import type {
   PeriodType,
   TransferDraft,
 } from "@/lib/bank-types";
+import { getCurrentUserProfileState } from "@/lib/profile-gate";
+
+async function requireSessionUserWithProfile(): Promise<number> {
+  const { userId, profile } = await getCurrentUserProfileState();
+  if (userId == null) {
+    redirect("/");
+  }
+  if (profile == null) {
+    redirect("/onboarding");
+  }
+  return userId;
+}
 
 function readString(formData: FormData, key: string): string {
   const raw = formData.get(key);
@@ -168,10 +179,7 @@ export async function confirmPayment(): Promise<void> {
     redirect("/make-payment");
   }
 
-  const userId = await getCurrentUserId();
-  if (userId == null) {
-    redirect("/");
-  }
+  const userId = await requireSessionUserWithProfile();
 
   const debitAccountId = parseAccountId(draft.debitAccount);
   const amountCents = parseAmountToCents(draft.amount);
@@ -286,10 +294,7 @@ export async function confirmTransfer(): Promise<void> {
     redirect("/make-transfer");
   }
 
-  const userId = await getCurrentUserId();
-  if (userId == null) {
-    redirect("/");
-  }
+  const userId = await requireSessionUserWithProfile();
 
   const debitAccountId = parseAccountId(draft.debitAccount);
   const creditAccountId = parseAccountId(draft.creditAccount);
@@ -325,10 +330,7 @@ export async function dismissTransferConfirmation(): Promise<void> {
 }
 
 export async function pauseStandingOrderAction(formData: FormData): Promise<void> {
-  const userId = await getCurrentUserId();
-  if (userId == null) {
-    redirect("/");
-  }
+  const userId = await requireSessionUserWithProfile();
   const standingOrderIdRaw = readNonEmpty(formData, "standingOrderId");
   const standingOrderId = Number(standingOrderIdRaw);
   if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) {
@@ -344,10 +346,7 @@ export async function pauseStandingOrderAction(formData: FormData): Promise<void
 }
 
 export async function deleteStandingOrderAction(formData: FormData): Promise<void> {
-  const userId = await getCurrentUserId();
-  if (userId == null) {
-    redirect("/");
-  }
+  const userId = await requireSessionUserWithProfile();
   const standingOrderIdRaw = readNonEmpty(formData, "standingOrderId");
   const standingOrderId = Number(standingOrderIdRaw);
   if (!Number.isFinite(standingOrderId) || standingOrderId <= 0) {
@@ -363,10 +362,7 @@ export async function deleteStandingOrderAction(formData: FormData): Promise<voi
 }
 
 export async function deletePendingOrderAction(formData: FormData): Promise<void> {
-  const userId = await getCurrentUserId();
-  if (userId == null) {
-    redirect("/");
-  }
+  const userId = await requireSessionUserWithProfile();
   const transactionIdRaw = readNonEmpty(formData, "transactionId");
   const transactionId = Number(transactionIdRaw);
   if (!Number.isFinite(transactionId) || transactionId <= 0) {

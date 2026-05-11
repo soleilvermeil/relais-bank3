@@ -11,6 +11,7 @@ import {
   localizeAccountGroups,
 } from "@/lib/db/accounts";
 import { getCardForAccount } from "@/lib/db/cards";
+import { getProfileByUserId } from "@/lib/db/profile";
 
 export const dynamic = "force-dynamic";
 
@@ -46,6 +47,10 @@ export default async function AccountDetailsPage({
 
   const showsCard = account.category === "checking" || account.category === "cards";
   const card = showsCard ? await getCardForAccount(userId, account.id) : null;
+  const userProfile = await getProfileByUserId(userId);
+  const holderFirstName =
+    userProfile?.first_name ?? t("bankAccountDetail.card.holderFirstName");
+  const holderLastName = userProfile?.last_name ?? t("bankAccountDetail.card.holderLastName");
 
   return (
     <Container>
@@ -90,8 +95,8 @@ export default async function AccountDetailsPage({
                 cvv={card.cvv}
                 brand={card.brand}
                 cardType={card.cardType}
-                holderFirstName={t("bankAccountDetail.card.holderFirstName")}
-                holderLastName={t("bankAccountDetail.card.holderLastName")}
+                holderFirstName={holderFirstName}
+                holderLastName={holderLastName}
                 labels={{
                   reveal: t("bankAccountDetail.card.reveal"),
                   hide: t("bankAccountDetail.card.hide"),

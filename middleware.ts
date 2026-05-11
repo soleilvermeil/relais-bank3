@@ -7,8 +7,10 @@ import {
   LOCALE_HEADER,
   type Locale,
 } from "@/lib/i18n/settings";
+import { PATHNAME_HEADER } from "@/lib/internal-headers";
 
 const USER_CONTRACT_COOKIE = "bank_user_contract";
+const PENDING_SIGNUP_COOKIE = "bank_pending_signup";
 
 function localeFromAcceptLanguage(header: string | null): Locale {
   if (!header) return defaultLocale;
@@ -32,15 +34,26 @@ export function middleware(request: NextRequest) {
   requestHeaders.set(LOCALE_HEADER, locale);
 
   const pathname = request.nextUrl.pathname;
+  requestHeaders.set(PATHNAME_HEADER, pathname);
   const contractCookie = request.cookies.get(USER_CONTRACT_COOKIE)?.value;
-  const isConnected = Boolean(contractCookie && contractCookie.length > 0);
-  const shouldRedirectToHome = pathname !== "/" && !isConnected;
+  const pendingCookie = request.cookies.get(PENDING_SIGNUP_COOKIE)?.value;
+  const hasFullSession = Boolean(contractCookie && contractCookie.length > 0);
+  const hasPendingSignup = Boolean(pendingCookie && pendingCookie.length > 0);
 
-  const response = shouldRedirectToHome
-    ? NextResponse.redirect(new URL("/", request.url))
-    : NextResponse.next({
-        request: { headers: requestHeaders },
-      });
+  let response: NextResponse;
+  if (!hasFullSession && !hasPendingSignup) {
+    response =
+      pathname !== "/"
+        ? NextResponse.redirect(new URL("/", request.url))
+        : NextResponse.next({ request: { headers: requestHeaders } });
+  } else if (hasPendingSignup && !hasFullSession) {
+    response =
+      pathname === "/onboarding"
+        ? NextResponse.next({ request: { headers: requestHeaders } })
+        : NextResponse.redirect(new URL("/onboarding", request.url));
+  } else {
+    response = NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
   if (!isLocale(raw)) {
     response.cookies.set(LOCALE_COOKIE, locale, {
