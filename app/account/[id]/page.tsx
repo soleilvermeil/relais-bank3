@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import type { TFunction } from "i18next";
 import { getServerT } from "@/lib/i18n/server";
 import { formatChfCurrency } from "@/lib/bank-money";
+import { Button } from "@/components/atoms/button";
 import { Container } from "@/components/atoms/container";
 import { SectionTitle } from "@/components/atoms/section-title";
 import { listAccountsGroupedByCategory, localizeAccountGroups } from "@/lib/db/accounts";
@@ -194,6 +195,14 @@ export default async function AccountDetailPage({
             {t("bankAccountDetail.subtitle")}
           </p>
         </header>
+
+        <div>
+          <Link href={`/account/${account.id}/details`} className="inline-flex">
+            <Button variant="secondary">
+              {t("bankAccountDetail.actions.openDetails")}
+            </Button>
+          </Link>
+        </div>
 
         <section className="space-y-4">
           <SectionTitle as="h2">{t("bankAccountDetail.sections.upcomingOrders")}</SectionTitle>

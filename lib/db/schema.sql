@@ -90,6 +90,20 @@ CREATE TABLE IF NOT EXISTS standing_orders (
   is_cancelled INTEGER NOT NULL DEFAULT 0
 );
 
+CREATE TABLE IF NOT EXISTS cards (
+  id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  account_id INTEGER NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  card_type TEXT NOT NULL CHECK (card_type IN ('debit', 'credit')),
+  brand TEXT NOT NULL,
+  pan TEXT NOT NULL,
+  expiry_month INTEGER NOT NULL CHECK (expiry_month BETWEEN 1 AND 12),
+  expiry_year INTEGER NOT NULL,
+  cvv TEXT NOT NULL,
+  holder_first_name TEXT NOT NULL,
+  holder_last_name TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_accounts_user ON accounts(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_user ON transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_debit_account ON transactions(debit_account_id);
@@ -100,3 +114,5 @@ CREATE INDEX IF NOT EXISTS idx_standing_orders_debit_account ON standing_orders(
 CREATE INDEX IF NOT EXISTS idx_standing_orders_start_date ON standing_orders(start_date);
 CREATE INDEX IF NOT EXISTS idx_transactions_beneficiary_iban ON transactions(beneficiary_iban);
 CREATE INDEX IF NOT EXISTS idx_standing_orders_beneficiary_iban ON standing_orders(beneficiary_iban);
+CREATE INDEX IF NOT EXISTS idx_cards_user ON cards(user_id);
+CREATE INDEX IF NOT EXISTS idx_cards_account ON cards(account_id);

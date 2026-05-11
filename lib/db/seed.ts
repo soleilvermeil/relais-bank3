@@ -29,41 +29,94 @@ function randomChIban(rng: () => number): string {
   return `CH${d.slice(0, 2)} ${d.slice(2, 6)} ${d.slice(6, 10)} ${d.slice(10, 14)} ${d.slice(14, 18)} ${d.slice(18)}`;
 }
 
-/** One account per category; identifiers are unique per user via RNG seeded by `userId`. */
-function buildSeedAccounts(userId: number): SeedAccount[] {
-  const idRng = createRng((userId * 2654435761) >>> 0);
-  return [
-    {
-      category: "checking",
-      name: "Checking 01",
-      identifier: randomChIban(idRng),
-      sort_order: 1,
-    },
-    {
-      category: "savings",
-      name: "Savings 01",
-      identifier: randomChIban(idRng),
-      sort_order: 1,
-    },
-    {
-      category: "retirement",
-      name: "Retirement A",
-      identifier: `PIL-3A-${randomDigits(idRng, 6)}`,
-      sort_order: 1,
-    },
-    {
-      category: "cards",
-      name: "Card Main",
-      identifier: `XXXX XXXX XXXX ${randomDigits(idRng, 4)}`,
-      sort_order: 1,
-    },
-  ];
+type SeedCard = {
+  card_type: "debit" | "credit";
+  brand: string;
+  pan: string;
+  expiry_month: number;
+  expiry_year: number;
+  cvv: string;
+  holder_first_name: string;
+  holder_last_name: string;
+};
+
+type SeedBundle = {
+  accounts: SeedAccount[];
+  debitCard: SeedCard;
+  creditCard: SeedCard;
+};
+
+const CARD_BRANDS = ["Visa", "Mastercard"] as const;
+
+function pickFrom<T>(rng: () => number, values: readonly T[]): T {
+  return values[Math.floor(rng() * values.length)]!;
 }
 
-async function insertSeedAccounts(tx: Tx, userId: number): Promise<[number, number, number, number]> {
-  const seedAccounts = buildSeedAccounts(userId);
+function buildPan(rng: () => number, brand: string, last4: string): string {
+  const firstDigit = brand === "Visa" ? "4" : "5";
+  return `${firstDigit}${randomDigits(rng, 11)}${last4}`;
+}
+
+/** Months [1..12], year offset 2..5 from current year — keeps demo cards valid for a few years. */
+function buildExpiry(rng: () => number): { expiry_month: number; expiry_year: number } {
+  const month = 1 + Math.floor(rng() * 12);
+  const year = new Date().getUTCFullYear() + 2 + Math.floor(rng() * 4);
+  return { expiry_month: month, expiry_year: year };
+}
+
+/** One account per category; identifiers are unique per user via RNG seeded by `userId`. */
+function buildSeedBundle(userId: number): SeedBundle {
+  const idRng = createRng((userId * 2654435761) >>> 0);
+  const checkingIdentifier = randomChIban(idRng);
+  const savingsIdentifier = randomChIban(idRng);
+  const retirementIdentifier = `PIL-3A-${randomDigits(idRng, 6)}`;
+  const cardLast4 = randomDigits(idRng, 4);
+  const cardIdentifier = `XXXX XXXX XXXX ${cardLast4}`;
+
+  const debitBrand = pickFrom(idRng, CARD_BRANDS);
+  const debitLast4 = randomDigits(idRng, 4);
+  const debitExpiry = buildExpiry(idRng);
+  const debitCvv = randomDigits(idRng, 3);
+
+  const creditBrand = pickFrom(idRng, CARD_BRANDS);
+  const creditExpiry = buildExpiry(idRng);
+  const creditCvv = randomDigits(idRng, 3);
+
+  return {
+    accounts: [
+      { category: "checking", name: "Checking 01", identifier: checkingIdentifier, sort_order: 1 },
+      { category: "savings", name: "Savings 01", identifier: savingsIdentifier, sort_order: 1 },
+      { category: "retirement", name: "Retirement A", identifier: retirementIdentifier, sort_order: 1 },
+      { category: "cards", name: "Card Main", identifier: cardIdentifier, sort_order: 1 },
+    ],
+    debitCard: {
+      card_type: "debit",
+      brand: debitBrand,
+      pan: buildPan(idRng, debitBrand, debitLast4),
+      ...debitExpiry,
+      cvv: debitCvv,
+      holder_first_name: "Your first name",
+      holder_last_name: "YOUR LAST NAME",
+    },
+    creditCard: {
+      card_type: "credit",
+      brand: creditBrand,
+      pan: buildPan(idRng, creditBrand, cardLast4),
+      ...creditExpiry,
+      cvv: creditCvv,
+      holder_first_name: "Your first name",
+      holder_last_name: "YOUR LAST NAME",
+    },
+  };
+}
+
+async function insertSeedAccountsAndCards(
+  tx: Tx,
+  userId: number,
+): Promise<[number, number, number, number]> {
+  const bundle = buildSeedBundle(userId);
   const ids: number[] = [];
-  for (const account of seedAccounts) {
+  for (const account of bundle.accounts) {
     const id = await tx.insert(
       `INSERT INTO accounts (user_id, category, name, identifier, balance_cents, currency, sort_order)
        VALUES (@user_id, @category, @name, @identifier, 0, 'CHF', @sort_order) RETURNING id`,
@@ -71,12 +124,30 @@ async function insertSeedAccounts(tx: Tx, userId: number): Promise<[number, numb
     );
     ids.push(id);
   }
+  const [checkingId, , , cardsId] = ids as [number, number, number, number];
+
+  await insertCard(tx, userId, checkingId, bundle.debitCard);
+  await insertCard(tx, userId, cardsId, bundle.creditCard);
+
   return ids as [number, number, number, number];
+}
+
+async function insertCard(tx: Tx, userId: number, accountId: number, card: SeedCard): Promise<void> {
+  await tx.run(
+    `INSERT INTO cards (
+       user_id, account_id, card_type, brand, pan, expiry_month, expiry_year, cvv,
+       holder_first_name, holder_last_name
+     ) VALUES (
+       @user_id, @account_id, @card_type, @brand, @pan, @expiry_month, @expiry_year, @cvv,
+       @holder_first_name, @holder_last_name
+     )`,
+    { user_id: userId, account_id: accountId, ...card },
+  );
 }
 
 /** Demo ledger spans years N-1, N and N+1; seeded rows are conditionally visible by execution_date. */
 export async function seedUserDemo(tx: Tx, userId: number): Promise<void> {
-  const [checking1, savings1, retirementA, cardMain] = await insertSeedAccounts(tx, userId);
+  const [checking1, savings1, retirementA, cardMain] = await insertSeedAccountsAndCards(tx, userId);
 
   const AMOUNTS = {
     paycheck: 400000,

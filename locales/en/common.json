@@ -73,9 +73,11 @@
   "bankAccountDetail": {
     "title": "Account details",
     "subtitle": "Mock overview of upcoming orders and transaction history for this account.",
+    "breadcrumbLeaf": "Details",
     "sections": {
       "upcomingOrders": "Pending and standing orders (next 30 days)",
-      "pastTransactions": "Past transactions"
+      "pastTransactions": "Past transactions",
+      "card": "Linked card"
     },
     "labels": {
       "date": "Date",
@@ -84,6 +86,24 @@
     "types": {
       "pending": "Pending order",
       "standing": "Standing order"
+    },
+    "actions": {
+      "openDetails": "Account details"
+    },
+    "card": {
+      "debit": "Debit card",
+      "credit": "Credit card",
+      "cardholder": "Cardholder",
+      "expiry": "Expires",
+      "cvv": "CVV",
+      "reveal": "Reveal card number",
+      "hide": "Hide card number",
+      "holderFirstName": "Your first name",
+      "holderLastName": "YOUR LAST NAME"
+    },
+    "comingSoon": {
+      "title": "Coming soon...",
+      "body": "Coming soon..."
     },
     "transactionLabels": {
       "purchaseService": "Purchase/Service on {{date}}, {{counterparty}}",

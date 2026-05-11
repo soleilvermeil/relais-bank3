@@ -73,9 +73,11 @@
   "bankAccountDetail": {
     "title": "Details du compte",
     "subtitle": "Vue fictive des ordres a venir et de l'historique des transactions pour ce compte.",
+    "breadcrumbLeaf": "Details",
     "sections": {
       "upcomingOrders": "Ordres en attente et permanents (30 prochains jours)",
-      "pastTransactions": "Transactions passees"
+      "pastTransactions": "Transactions passees",
+      "card": "Carte associee"
     },
     "labels": {
       "date": "Date",
@@ -84,6 +86,24 @@
     "types": {
       "pending": "Ordre en attente",
       "standing": "Ordre permanent"
+    },
+    "actions": {
+      "openDetails": "Detail du compte"
+    },
+    "card": {
+      "debit": "Carte de debit",
+      "credit": "Carte de credit",
+      "cardholder": "Titulaire",
+      "expiry": "Expire le",
+      "cvv": "CVV",
+      "reveal": "Afficher le numero de carte",
+      "hide": "Masquer le numero de carte",
+      "holderFirstName": "Votre prenom",
+      "holderLastName": "VOTRE NOM"
+    },
+    "comingSoon": {
+      "title": "Bientot...",
+      "body": "Bientot..."
     },
     "transactionLabels": {
       "purchaseService": "Achat/Service du {{date}}, {{counterparty}}",
