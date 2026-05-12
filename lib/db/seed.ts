@@ -65,8 +65,13 @@ function buildExpiry(rng: () => number): { expiry_month: number; expiry_year: nu
   return { expiry_month: month, expiry_year: year };
 }
 
-/** One account per category; identifiers are unique per user via RNG seeded by `userId`. */
-function buildSeedBundle(userId: number): SeedBundle {
+/** One account per category; identifiers are unique per user via RNG seeded by `userId`.
+ * Card imprint uses the same first/last names as collected during onboarding (not placeholders). */
+function buildSeedBundle(
+  userId: number,
+  holderFirstName: string,
+  holderLastName: string,
+): SeedBundle {
   const idRng = createRng((userId * 2654435761) >>> 0);
   const checkingIdentifier = randomChIban(idRng);
   const savingsIdentifier = randomChIban(idRng);
@@ -96,8 +101,8 @@ function buildSeedBundle(userId: number): SeedBundle {
       pan: buildPan(idRng, debitBrand, debitLast4),
       ...debitExpiry,
       cvv: debitCvv,
-      holder_first_name: "Your first name",
-      holder_last_name: "YOUR LAST NAME",
+      holder_first_name: holderFirstName,
+      holder_last_name: holderLastName,
     },
     creditCard: {
       card_type: "credit",
@@ -105,8 +110,8 @@ function buildSeedBundle(userId: number): SeedBundle {
       pan: buildPan(idRng, creditBrand, cardLast4),
       ...creditExpiry,
       cvv: creditCvv,
-      holder_first_name: "Your first name",
-      holder_last_name: "YOUR LAST NAME",
+      holder_first_name: holderFirstName,
+      holder_last_name: holderLastName,
     },
   };
 }
@@ -114,8 +119,10 @@ function buildSeedBundle(userId: number): SeedBundle {
 async function insertSeedAccountsAndCards(
   tx: Tx,
   userId: number,
+  holderFirstName: string,
+  holderLastName: string,
 ): Promise<[number, number, number, number]> {
-  const bundle = buildSeedBundle(userId);
+  const bundle = buildSeedBundle(userId, holderFirstName, holderLastName);
   const ids: number[] = [];
   for (const account of bundle.accounts) {
     const id = await tx.insert(
@@ -146,9 +153,23 @@ async function insertCard(tx: Tx, userId: number, accountId: number, card: SeedC
   );
 }
 
+export type SeedHolderProfile = {
+  firstName: string;
+  lastName: string;
+};
+
 /** Demo ledger spans years N-1, N and N+1; seeded rows are conditionally visible by execution_date. */
-export async function seedUserDemo(tx: Tx, userId: number): Promise<void> {
-  const [checking1, savings1, retirementA, cardMain] = await insertSeedAccountsAndCards(tx, userId);
+export async function seedUserDemo(
+  tx: Tx,
+  userId: number,
+  holderProfile: SeedHolderProfile,
+): Promise<void> {
+  const [checking1, savings1, retirementA, cardMain] = await insertSeedAccountsAndCards(
+    tx,
+    userId,
+    holderProfile.firstName.trim(),
+    holderProfile.lastName.trim(),
+  );
 
   const AMOUNTS = {
     paycheck: 400000,

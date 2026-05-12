@@ -52,7 +52,10 @@ export async function createUserSeedAndProfile(
         email: profile.email,
       },
     );
-    await seedUserDemo(tx, userId);
+    await seedUserDemo(tx, userId, {
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+    });
     const row = await tx.get<User>(
       `SELECT id, contract_number, created_at FROM bank_users WHERE id = @userId`,
       { userId },
